@@ -1,0 +1,25 @@
+﻿{
+    "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
+    "id": "HRCounter",
+    "name": "HRCounter",
+    "author": "qe201020335",
+    "version": "1.0.0",
+    "description": "A Counters+ custom counter that displays your heart rate by using pulsoid.net feed.",
+    "gameVersion": "1.13.2",
+    "dependsOn": {
+        "Counters+": "^2.1.4",
+        "BSIPA": "^4.0.5"
+    },
+    "features": {
+        "CountersPlus.CustomCounter": {
+            "Name": "Heart Rate Counter",
+            "Description": "A Counter that displays your heart rate by using pulsoid.net feed.",
+            "CounterLocation": "HRCounter.HRCounter",
+            "ConfigDefaults": {
+                "Enabled": true,
+                "Position": "BelowCombo",
+                "Distance": 0
+            }
+        }
+    }
+}
