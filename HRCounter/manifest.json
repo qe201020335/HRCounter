@@ -3,7 +3,7 @@
     "id": "HRCounter",
     "name": "HRCounter",
     "author": "qe201020335",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A Counters+ custom counter that displays your heart rate by using pulsoid.net feed.",
     "gameVersion": "1.13.2",
     "dependsOn": {
