@@ -4,6 +4,7 @@ using System.Net;
 using HRCounter.Configuration;
 using UnityEngine.Networking;
 using IPALogger = IPA.Logging.Logger;
+using UnityEngine;
 
 namespace HRCounter.Data
 {
@@ -22,6 +23,7 @@ namespace HRCounter.Data
             while (updating)
             {
                 yield return Update();
+                yield return new WaitForSecondsRealtime((float) 0.25);
             }
         }
 
