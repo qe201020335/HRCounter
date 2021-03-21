@@ -42,7 +42,7 @@ namespace HRCounter.Data
                 JsonConvert.PopulateObject(webRequest.downloadHandler.text, bpm);
                 if (Log_HR)
                 {
-                    log.Debug(bpm.ToString());
+                    log.Info(bpm.ToString());
                 }
             }
         }

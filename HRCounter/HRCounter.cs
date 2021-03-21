@@ -31,14 +31,14 @@ namespace HRCounter
         {
             if (URL == "NotSet")
             {
-                log.Debug("Feed link not set.");
+                log.Warn("Feed link not set.");
                 return;
             }
             
-            log.Debug("Creating counter");
+            log.Info("Creating counter");
             counter = CanvasUtility.CreateTextFromSettings(Settings);
             counter.fontSize = 3;
-            log.Debug("Starts updating");
+            log.Debug("Starts updating HR");
             _bpmDownloader.updating = true;
             SharedCoroutineStarter.instance.StartCoroutine(_bpmDownloader.Updating());
             updating = true;
