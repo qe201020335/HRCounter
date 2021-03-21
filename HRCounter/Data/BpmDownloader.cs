@@ -12,9 +12,9 @@ namespace HRCounter.Data
     {
 
         internal BPM bpm { get; } = new BPM();
-        private readonly string URL = PluginConfig.Instance.Feed_link;
+        private readonly string URL = PluginConfig.Instance.FeedLink;
         private IPALogger log = Logger.logger;
-        private bool Log_HR = PluginConfig.Instance.Log_HR;
+        private bool Log_HR = PluginConfig.Instance.LogHR;
         public bool updating;
 
         public IEnumerator Updating()
@@ -27,7 +27,7 @@ namespace HRCounter.Data
             }
         }
 
-        public IEnumerator Update()
+        private IEnumerator Update()
         {
             using (UnityWebRequest webRequest = UnityWebRequest.Get(URL))
             {

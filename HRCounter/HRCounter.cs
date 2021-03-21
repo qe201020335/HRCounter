@@ -5,7 +5,6 @@ using HRCounter.Data;
 using TMPro;
 using IPALogger = IPA.Logging.Logger;
 using UnityEngine;
-using System;
 
 
 namespace HRCounter
@@ -13,7 +12,7 @@ namespace HRCounter
     public class HRCounter: BasicCustomCounter
     {
 
-        private readonly string URL = PluginConfig.Instance.Feed_link;
+        private readonly string URL = PluginConfig.Instance.FeedLink;
         private IPALogger log = Logger.logger;
         private TMP_Text counter;
         private bool updating;
@@ -49,19 +48,8 @@ namespace HRCounter
         {
             while(updating)
             {
-                string bpm = _bpmDownloader.bpm.Bpm;
-                if (_colorize)
-                {
-                    if (Int32.TryParse(bpm, out int bpmInt))
-                    {
-                        counter.text = $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpmInt)}>{bpm}</color>";
-                    }
-                }
-                else
-                {
-                    counter.text = $"HR {bpm}";
-                }
-
+                int bpm = _bpmDownloader.bpm.Bpm;
+                counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
                 yield return new WaitForSecondsRealtime(1);
             }
         }
