@@ -29,10 +29,10 @@ Here is a table for all the setting options.
 | `Colorize`      | bool      | `true`   	        	| Whether the hr value will be colorized by the following 4 detail settings |
 | `HRLow`         | int       | `120`           	 	| The lower bound heart rate for when the color gredient will start |
 | `HRHigh`        | int       | `180`              	| The upper bound heart rate for when the color gredient will end |
-| `LowColor`      | string    | `"#00FF00"` (Green)	| The RGB color in hex that where your hr is not higher than `HRLow`, the starting point of color gredient. |
-| `HighColor`     | string    | `"#FF0000"` (Red) 	| The RGB color in hex that where your hr is higher than `HRHigh`, the end point of color gredient.  |
+| `LowColor`      | string    | `"#00FF00"` (Green)	| The RGB color in hex that where your hr is not higher than `HRLow`. This is also the starting point of color gredient. |
+| `HighColor`     | string    | `"#FF0000"` (Red) 	| The RGB color in hex that where your hr is higher than `HRHigh`. This is also the end point of color gredient.  |
 
 ## Notes
-1. Remember to exit the game first before editing congig files.
+1. Remember to exit the game first before editing config files.
 2. You can find your pulsoid feed link at the bottom of the [widgets configuration page](https://pulsoid.net/ui/configuration).
 3. Please open an [issue](https://github.com/qe201020335/HRCounter/issues) if you have problem using this or found a bug.
