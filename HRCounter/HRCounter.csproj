@@ -40,6 +40,11 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BSML, Version=1.5.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <Private>False</Private>
+      <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="Counters+, Version=2.1.4.0, Culture=neutral, processorArchitecture=MSIL">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Plugins\Counters+.dll</HintPath>
@@ -117,6 +122,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\SettingController.cs" />
     <Compile Include="Data\BPM.cs" />
     <Compile Include="Data\BpmDownloader.cs" />
     <Compile Include="HRCounter.cs" />
@@ -141,7 +147,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="hrcounter.png" />
+    <Content Include="Configuration\Config.bsml" />
+    <Content Include="Resources\hrcounter.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -28,6 +28,11 @@ namespace HRCounter
 
         public override void CounterInit()
         {
+            if (!PluginConfig.Instance.Enable)
+            {
+                return;
+            }
+
             if (URL == "NotSet")
             {
                 log.Warn("Feed link not set.");
@@ -56,7 +61,7 @@ namespace HRCounter
 
         private string DetermineColor(int hr)
         {
-            if (_hrHigh > _hrLow && _hrLow > 0)
+            if (_hrHigh >= _hrLow && _hrLow > 0)
             {
                 if (ColorUtility.TryParseHtmlString(_colorHigh, out Color colorHigh) &&
                     ColorUtility.TryParseHtmlString(_colorLow, out Color colorLow))

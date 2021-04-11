@@ -1,0 +1,8 @@
+﻿<vertical spacing="1" horizontal-fit="PreferredSize">
+    <checkbox-setting text="Enable" value="Enable" hover-hint="^_^" apply-on-change="true"></checkbox-setting>
+    <checkbox-setting text="Log Heart Rate" value="LogHR" hover-hint="Whether the received HR data will be logged." apply-on-change="true"></checkbox-setting>
+    <checkbox-setting text="Colorize HR Text" value="Colorize" hover-hint="Colorize the heart rate number." apply-on-change="true"></checkbox-setting>
+    <increment-setting text="Heart Rate Lower Bound" value="HRLow" integer-only="true" min="60" max="140" increment="1" apply-on-change="true"></increment-setting>
+    <increment-setting text="Heart Rate Upper Bound" value="HRHigh" integer-only="true" min="140" max="220" increment="1" apply-on-change="true"></increment-setting>
+    <text text="Don't forget to add your feed link in the config file." align='Center'></text>
+</vertical>

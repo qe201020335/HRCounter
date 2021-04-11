@@ -8,8 +8,12 @@
     "gameVersion": "1.14.0",
     "dependsOn": {
         "Counters+": "^2.0.0",
-        "BSIPA": "^4.1.0"
+        "BSIPA": "^4.1.0",
+        "BeatSaberMarkupLanguage": "^1.4.5"
     },
+    "loadAfter": [
+        "Counters+"
+    ],
     "features": {
         "CountersPlus.CustomCounter": {
             "Name": "Heart Rate Counter",
@@ -18,11 +22,13 @@
             "ConfigDefaults": {
                 "Enabled": true,
                 "Position": "BelowCombo",
-                "Distance": 0
+                "Distance": 1
+            },
+            "BSML": {
+                "Resource": "HRCounter.Configuration.Config.bsml",
+                "Host": "HRCounter.Configuration.SettingController",
+                "Icon": "HRCounter.Resources.hrcounter.png"
             }
-        },
-        "BSML": {
-            "Icon": "HRCounter.hrcounter.png"
         }
     }
 }
