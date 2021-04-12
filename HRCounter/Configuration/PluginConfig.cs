@@ -21,6 +21,8 @@ namespace HRCounter.Configuration
         public virtual int HRHigh { get; set; } = 180;
 
         public virtual string LowColor { get; set; } = "#00FF00"; // default to green
+
+        public virtual string MidColor { get; set; } = "#FFFF00";  // default to yellow
         
         public virtual string HighColor { get; set; } = "#FF0000"; // default to red
 
