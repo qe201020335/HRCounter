@@ -24,6 +24,7 @@ namespace HRCounter
         private int _hrHigh = PluginConfig.Instance.HRHigh;
         private string _colorLow = PluginConfig.Instance.LowColor;
         private string _colorHigh = PluginConfig.Instance.HighColor;
+        private string _colorMid = PluginConfig.Instance.MidColor;
         
 
         public override void CounterInit()
@@ -59,7 +60,8 @@ namespace HRCounter
             if (_hrHigh > _hrLow && _hrLow > 0)
             {
                 if (ColorUtility.TryParseHtmlString(_colorHigh, out Color colorHigh) &&
-                    ColorUtility.TryParseHtmlString(_colorLow, out Color colorLow))
+                    ColorUtility.TryParseHtmlString(_colorLow, out Color colorLow) && 
+                    ColorUtility.TryParseHtmlString(_colorMid, out Color colorMid))
                 {
                     if (hr <= _hrLow)
                     {
@@ -70,7 +72,18 @@ namespace HRCounter
                     {
                         return _colorHigh.Substring(1);
                     }
-                    Color color = Color.Lerp(colorLow, colorHigh, (hr - _hrLow) / (float) (_hrHigh - _hrLow));
+
+                    float ratio = (hr - _hrLow) / (float) (_hrHigh - _hrLow) * 2;
+                    Color color;
+                    if (ratio < 1)
+                    {
+                        color = Color.Lerp(colorLow, colorMid, ratio);
+                    }
+                    else
+                    {
+                        color = Color.Lerp(colorMid, colorHigh, ratio - 1);
+                    }
+                    
                     return ColorUtility.ToHtmlStringRGB(color);
                 }
             }
