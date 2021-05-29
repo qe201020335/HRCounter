@@ -10,7 +10,7 @@
     "dependsOn": {
         "Counters+": "^2.0.0",
         "BSIPA": "^4.1.0",
-        "BeatSaberMarkupLanguage": "^1.5.2"
+        "BeatSaberMarkupLanguage": "^1.3.4"
     },
     "loadAfter": [
         "Counters+"
