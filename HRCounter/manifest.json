@@ -20,6 +20,11 @@
             "Name": "Heart Rate Counter",
             "Description": "A Counter that displays your heart rate by using pulsoid.net feed.",
             "CounterLocation": "HRCounter.HRCounter",
+            "ConfigDefaults": {
+                "Enabled": true,
+                "Position": "BelowCombo",
+                "Distance": 1
+            },
             "BSML": {
                 "Resource": "HRCounter.Configuration.config.bsml",
                 "Host": "HRCounter.Configuration.SettingController",
