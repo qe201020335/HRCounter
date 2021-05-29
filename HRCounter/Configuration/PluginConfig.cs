@@ -10,7 +10,7 @@ namespace HRCounter.Configuration
         public static PluginConfig Instance { get; set; }
         // Must be 'virtual' if you want BSIPA to detect a value change and save the config automatically.
 
-        public virtual bool Enable { get; set; } = true;
+        // public virtual bool Enable { get; set; } = true;
         public virtual bool LogHR { get; set; } = false;
         public virtual string FeedLink { get; set; } = "NotSet";
 

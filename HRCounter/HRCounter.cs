@@ -29,10 +29,12 @@ namespace HRCounter
 
         public override void CounterInit()
         {
+            /*
             if (!PluginConfig.Instance.Enable)
             {
                 return;
             }
+            */
 
             if (URL == "NotSet")
             {

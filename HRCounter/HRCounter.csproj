@@ -147,8 +147,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Configuration\Config.bsml" />
-    <Content Include="Resources\hrcounter.png" />
+    <EmbeddedResource Include="Configuration\config.bsml" />
+    <EmbeddedResource Include="Resources\hrcounter.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -2,8 +2,9 @@
 
 namespace HRCounter.Configuration
 {
-    public class SettingController
+    internal  class SettingController
     {
+        /*
         [UIValue("Enable")]
         public bool Enable
         {
@@ -13,6 +14,7 @@ namespace HRCounter.Configuration
                 PluginConfig.Instance.Enable = value;
             }
         }
+        */
 
         [UIValue("LogHR")]
         public bool LogHR
