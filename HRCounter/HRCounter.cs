@@ -29,13 +29,6 @@ namespace HRCounter
 
         public override void CounterInit()
         {
-            /*
-            if (!PluginConfig.Instance.Enable)
-            {
-                return;
-            }
-            */
-
             if (URL == "NotSet")
             {
                 log.Warn("Feed link not set.");
@@ -82,17 +75,7 @@ namespace HRCounter
 
                     float ratio = (hr - _hrLow) / (float) (_hrHigh - _hrLow) * 2;
                     Color color = ratio < 1 ? Color.Lerp(colorLow, colorMid, ratio) : Color.Lerp(colorMid, colorHigh, ratio - 1);
-                    /*
-                    if (ratio < 1)
-                    {
-                        color = Color.Lerp(colorLow, colorMid, ratio);
-                    }
-                    else
-                    {
-                        color = Color.Lerp(colorMid, colorHigh, ratio - 1);
-                    }
-                    */
-                    
+
                     return ColorUtility.ToHtmlStringRGB(color);
                 }
             }
