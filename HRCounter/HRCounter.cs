@@ -74,7 +74,8 @@ namespace HRCounter
                     }
 
                     float ratio = (hr - _hrLow) / (float) (_hrHigh - _hrLow) * 2;
-                    Color color;
+                    Color color = ratio < 1 ? Color.Lerp(colorLow, colorMid, ratio) : Color.Lerp(colorMid, colorHigh, ratio - 1);
+                    /*
                     if (ratio < 1)
                     {
                         color = Color.Lerp(colorLow, colorMid, ratio);
@@ -83,6 +84,7 @@ namespace HRCounter
                     {
                         color = Color.Lerp(colorMid, colorHigh, ratio - 1);
                     }
+                    */
                     
                     return ColorUtility.ToHtmlStringRGB(color);
                 }
