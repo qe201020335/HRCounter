@@ -4,12 +4,17 @@
     "name": "HRCounter",
     "author": "qe201020335",
     "version": "1.0.7",
+    "icon": "HRCounter.Resources.hrcounter.png",
     "description": "A Counters+ custom counter that displays your heart rate by using pulsoid.net feed.",
     "gameVersion": "1.16.1",
     "dependsOn": {
         "Counters+": "^2.0.0",
-        "BSIPA": "^4.1.0"
+        "BSIPA": "^4.1.0",
+        "BeatSaberMarkupLanguage": "^1.5.2"
     },
+    "loadAfter": [
+        "Counters+"
+    ],
     "features": {
         "CountersPlus.CustomCounter": {
             "Name": "Heart Rate Counter",
@@ -18,11 +23,13 @@
             "ConfigDefaults": {
                 "Enabled": true,
                 "Position": "BelowCombo",
-                "Distance": 0
+                "Distance": 1
+            },
+            "BSML": {
+                "Resource": "HRCounter.Configuration.config.bsml",
+                "Host": "HRCounter.Configuration.SettingController",
+                "Icon": "HRCounter.Resources.hrcounter.png"
             }
-        },
-        "BSML": {
-            "Icon": "HRCounter.hrcounter.png"
         }
     }
 }

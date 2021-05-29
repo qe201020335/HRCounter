@@ -57,7 +57,7 @@ namespace HRCounter
 
         private string DetermineColor(int hr)
         {
-            if (_hrHigh > _hrLow && _hrLow > 0)
+            if (_hrHigh >= _hrLow && _hrLow > 0)
             {
                 if (ColorUtility.TryParseHtmlString(_colorHigh, out Color colorHigh) &&
                     ColorUtility.TryParseHtmlString(_colorLow, out Color colorLow) && 
@@ -75,17 +75,7 @@ namespace HRCounter
 
                     float ratio = (hr - _hrLow) / (float) (_hrHigh - _hrLow) * 2;
                     Color color = ratio < 1 ? Color.Lerp(colorLow, colorMid, ratio) : Color.Lerp(colorMid, colorHigh, ratio - 1);
-                    /*
-                    if (ratio < 1)
-                    {
-                        color = Color.Lerp(colorLow, colorMid, ratio);
-                    }
-                    else
-                    {
-                        color = Color.Lerp(colorMid, colorHigh, ratio - 1);
-                    }
-                    */
-                    
+
                     return ColorUtility.ToHtmlStringRGB(color);
                 }
             }
