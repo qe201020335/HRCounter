@@ -13,14 +13,26 @@ namespace HRCounter.Data
     {
 
         internal BPM bpm { get; } = new BPM();
-        private readonly string URL = PluginConfig.Instance.FeedLink;
+        private string URL = PluginConfig.Instance.FeedLink;
         private IPALogger log = Logger.logger;
         private bool Log_HR = PluginConfig.Instance.LogHR;
         public bool updating;
 
         private Regex _regex = new Regex("^\\d+$");
 
-        public IEnumerator Updating()
+
+        internal BpmDownloader()
+        {
+            RefreshSettings();
+        }
+        
+        private void RefreshSettings()
+        {
+            URL = PluginConfig.Instance.FeedLink;
+            Log_HR = PluginConfig.Instance.LogHR;
+        }
+
+        internal IEnumerator Updating()
         {   
             log.Debug("Requesting HR data");
             while (updating)

@@ -11,8 +11,7 @@ namespace HRCounter
 {
     public class HRCounter: BasicCustomCounter
     {
-
-        private readonly string URL = PluginConfig.Instance.FeedLink;
+        
         private IPALogger log = Logger.logger;
         private TMP_Text counter;
         private bool updating;
@@ -29,7 +28,7 @@ namespace HRCounter
 
         public override void CounterInit()
         {
-            if (URL == "NotSet")
+            if (PluginConfig.Instance.FeedLink == "NotSet")
             {
                 log.Warn("Feed link not set.");
                 return;
@@ -41,6 +40,8 @@ namespace HRCounter
                 return;
             }
             
+            Refresh();
+            
             log.Info("Creating counter");
             counter = CanvasUtility.CreateTextFromSettings(Settings);
             counter.fontSize = 3;
@@ -49,6 +50,17 @@ namespace HRCounter
             SharedCoroutineStarter.instance.StartCoroutine(_bpmDownloader.Updating());
             updating = true;
             SharedCoroutineStarter.instance.StartCoroutine(Ticking());
+        }
+
+        private void Refresh()
+        {
+            _bpmDownloader = new BpmDownloader();
+            _colorize = PluginConfig.Instance.Colorize;
+            _hrLow = PluginConfig.Instance.HRLow;
+            _hrHigh = PluginConfig.Instance.HRHigh;
+            _colorLow = PluginConfig.Instance.LowColor;
+            _colorHigh = PluginConfig.Instance.HighColor;
+            _colorMid = PluginConfig.Instance.MidColor;
         }
 
         private IEnumerator Ticking()
