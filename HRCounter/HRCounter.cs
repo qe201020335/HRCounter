@@ -86,6 +86,7 @@ namespace HRCounter
                 }
             }
             log.Warn("Cannot determine color, please check hr boundaries and color codes.");
+            _colorize = false;
             return ColorUtility.ToHtmlStringRGB(Color.white);
         }
 

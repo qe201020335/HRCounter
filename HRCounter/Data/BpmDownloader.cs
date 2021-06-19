@@ -5,6 +5,7 @@ using HRCounter.Configuration;
 using UnityEngine.Networking;
 using IPALogger = IPA.Logging.Logger;
 using UnityEngine;
+using System.Text.RegularExpressions;
 
 namespace HRCounter.Data
 {
@@ -16,6 +17,8 @@ namespace HRCounter.Data
         private IPALogger log = Logger.logger;
         private bool Log_HR = PluginConfig.Instance.LogHR;
         public bool updating;
+
+        private Regex _regex = new Regex("^\\d+$");
 
         public IEnumerator Updating()
         {   
@@ -39,15 +42,21 @@ namespace HRCounter.Data
                     throw new WebException();
                 }
 
-                JsonConvert.PopulateObject(webRequest.downloadHandler.text, bpm);
+                if (_regex.IsMatch(webRequest.downloadHandler.text))
+                {
+                    bpm.Bpm = int.Parse(webRequest.downloadHandler.text);
+                    bpm.MeasuredAt = System.DateTime.Now.ToString();
+                }
+                else
+                {
+                    JsonConvert.PopulateObject(webRequest.downloadHandler.text, bpm);
+                }
+
                 if (Log_HR)
                 {
                     log.Info(bpm.ToString());
                 }
             }
         }
-        
-        
-        
     }
 }
