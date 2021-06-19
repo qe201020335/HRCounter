@@ -6,7 +6,7 @@
     "version": "1.1.0",
     "icon": "HRCounter.Resources.hrcounter.png",
     "description": "A Counters+ custom counter that displays your heart rate in game.",
-    "gameVersion": "1.16.1",
+    "gameVersion": "1.16.2",
     "dependsOn": {
         "Counters+": "^2.0.0",
         "BSIPA": "^4.1.0",
