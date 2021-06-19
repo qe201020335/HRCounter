@@ -1,7 +1,8 @@
 ﻿<vertical spacing="1.5" horizontal-fit="PreferredSize" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd">
-    <bool-setting text="Log Heart Rate" value="LogHR" hover-hint="Whether the received HR data will be logged." apply-on-change="true"/>
+    <bool-setting text="Hide During Replay" value="HideDuringReplay" hover-hint="Hide this counter while in a replay" apply-on-change="true"/>
     <bool-setting text="Colorize HR Text" value="Colorize" hover-hint="Colorize the heart rate number." apply-on-change="true"/>
     <increment-setting text="Heart Rate Lower Bound" value="HRLow" integer-only="true" min="60" max="140" increment="1" apply-on-change="true"/>
     <increment-setting text="Heart Rate Upper Bound" value="HRHigh" integer-only="true" min="140" max="220" increment="1" apply-on-change="true"/>
     <text text="Don't forget to add your feed link in the config file." align="Center"/>
+    <bool-setting text="Log Heart Rate" value="LogHR" hover-hint="Whether the received HR data will be logged." apply-on-change="true"/>
 </vertical>

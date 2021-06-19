@@ -43,5 +43,15 @@ namespace HRCounter.Configuration
                 PluginConfig.Instance.HRHigh = value;
             }
         }
+        
+        [UIValue("HideDuringReplay")]
+        public bool HideDuringReplay
+        {
+            get => PluginConfig.Instance.HideDuringReplay;
+            set
+            {
+                PluginConfig.Instance.HideDuringReplay = value;
+            }
+        }
     }
 }
