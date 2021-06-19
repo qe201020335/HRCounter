@@ -34,6 +34,12 @@ namespace HRCounter
                 log.Warn("Feed link not set.");
                 return;
             }
+
+            if (PluginConfig.Instance.HideDuringReplay && Utils.Utils.IsInReplay())
+            {
+                log.Info("We are in a replay, Counter hides.");
+                return;
+            }
             
             log.Info("Creating counter");
             counter = CanvasUtility.CreateTextFromSettings(Settings);

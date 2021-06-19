@@ -2,6 +2,7 @@
 using IPA.Config;
 using IPA.Config.Stores;
 using IPALogger = IPA.Logging.Logger;
+using UnityEngine.SceneManagement;
 
 namespace HRCounter
 {
@@ -27,6 +28,14 @@ namespace HRCounter
             Logger.logger = logger;
             Log = logger;
             Log.Info("HRCounter initialized.");
+
+            /*
+            HRCounter.ScoreSaberInstalled = Utils.Utils.IsModInstalled("ScoreSaber");
+            if (HRCounter.ScoreSaberInstalled)
+            {
+                logger.Info("ScoreSaber Detected.");
+            }
+            */
         }
 
         #region BSIPA Config
@@ -40,5 +49,11 @@ namespace HRCounter
         }
 
         #endregion
+        /*
+        [OnStart]
+        public void OnApplicationStart() {
+            SceneManager.activeSceneChanged += Utils.Utils.OnActiveSceneChanged;
+        }
+        */
     }
 }
