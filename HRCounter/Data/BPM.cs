@@ -1,16 +1,15 @@
-﻿using System;
-
-namespace HRCounter.Data
+﻿namespace HRCounter.Data
 {
     class BPM
     {
-        public int Bpm { get; set; }
-        public string MeasuredAt { get; set; }
+        public static BPM Instance = new BPM(); 
+        public int Bpm { get; internal set; }
+        public string ReceivedAt { get; internal set; }
 
         
         public override string ToString()
         {
-            return String.Format("BPM: {0}, measured at {1}", Bpm, MeasuredAt);
+            return $"BPM: {Bpm}, measured at {ReceivedAt}";
         }
     }
 }

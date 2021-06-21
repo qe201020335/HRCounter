@@ -9,13 +9,13 @@ using UnityEngine;
 
 namespace HRCounter
 {
-    public class HRCounter: BasicCustomCounter
+    public sealed class HRCounter: BasicCustomCounter
     {
         
-        private IPALogger log = Logger.logger;
+        private IPALogger _logger = Logger.logger;
         private TMP_Text counter;
-        private bool updating;
-        private BpmDownloader _bpmDownloader = new BpmDownloader();
+        private bool _updating;
+        private BpmDownloader _bpmDownloader;
 
         // color stuff
         private bool _colorize = PluginConfig.Instance.Colorize;
@@ -28,46 +28,82 @@ namespace HRCounter
 
         public override void CounterInit()
         {
-            if (PluginConfig.Instance.FeedLink == "NotSet")
+            if (PluginConfig.Instance.DataSource == "WebRequest" && PluginConfig.Instance.FeedLink == "NotSet")
             {
-                log.Warn("Feed link not set.");
+                _logger.Warn("Feed link not set.");
                 return;
             }
+            /*
+            if (PluginConfig.Instance.DataSource == "HypeRate" && PluginConfig.Instance.HypeRateSessionID == -1 )
+            {
+                _logger.Warn("Hype Rate Session ID not set.");
+                return;
+            }
+            */
 
             if (PluginConfig.Instance.HideDuringReplay && Utils.Utils.IsInReplay())
             {
-                log.Info("We are in a replay, Counter hides.");
+                _logger.Info("We are in a replay, Counter hides.");
+                return;
+            }
+
+            if (!Refresh())
+            {
                 return;
             }
             
-            Refresh();
+            CreateCounter();
             
-            log.Info("Creating counter");
-            counter = CanvasUtility.CreateTextFromSettings(Settings);
-            counter.fontSize = 3;
-            log.Debug("Starts updating HR");
-            _bpmDownloader.updating = true;
-            SharedCoroutineStarter.instance.StartCoroutine(_bpmDownloader.Updating());
-            updating = true;
-            SharedCoroutineStarter.instance.StartCoroutine(Ticking());
+            _bpmDownloader.Start();
+            
+            Start();
         }
 
-        private void Refresh()
+        private bool Refresh()
         {
-            _bpmDownloader = new BpmDownloader();
+            switch (PluginConfig.Instance.DataSource)
+            {
+                case "WebRequest":
+                    _bpmDownloader = new WebRequest();
+                    break;
+                
+                default:
+                    _bpmDownloader = null;
+                    _logger.Warn("Unknown Data Sources");
+                    return false;
+            }
             _colorize = PluginConfig.Instance.Colorize;
             _hrLow = PluginConfig.Instance.HRLow;
             _hrHigh = PluginConfig.Instance.HRHigh;
             _colorLow = PluginConfig.Instance.LowColor;
             _colorHigh = PluginConfig.Instance.HighColor;
             _colorMid = PluginConfig.Instance.MidColor;
+            return true;
+        }
+
+        private void CreateCounter()
+        {
+            _logger.Info("Creating counter");
+            counter = CanvasUtility.CreateTextFromSettings(Settings);
+            counter.fontSize = 3;
+        }
+
+        private void Start()
+        {
+            _updating = true;
+            SharedCoroutineStarter.instance.StartCoroutine(Ticking());
+        }
+
+        private void Stop()
+        {
+            _updating = false;
         }
 
         private IEnumerator Ticking()
         {
-            while(updating)
+            while(_updating)
             {
-                int bpm = _bpmDownloader.bpm.Bpm;
+                int bpm = BPM.Instance.Bpm;
                 counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
                 yield return new WaitForSecondsRealtime(1);
             }
@@ -97,16 +133,16 @@ namespace HRCounter
                     return ColorUtility.ToHtmlStringRGB(color);
                 }
             }
-            log.Warn("Cannot determine color, please check hr boundaries and color codes.");
+            _logger.Warn("Cannot determine color, please check hr boundaries and color codes.");
             _colorize = false;
             return ColorUtility.ToHtmlStringRGB(Color.white);
         }
 
         public override void CounterDestroy()
         {
-            updating = false;
-            _bpmDownloader.updating = false;
-            log.Debug("Counter destroyed");
+            Stop();
+            _bpmDownloader.Stop();
+            _logger.Info("Counter destroyed");
         }
     }
 }

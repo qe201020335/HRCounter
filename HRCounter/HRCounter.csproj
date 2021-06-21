@@ -128,6 +128,7 @@
     <Compile Include="Configuration\SettingController.cs" />
     <Compile Include="Data\BPM.cs" />
     <Compile Include="Data\BpmDownloader.cs" />
+    <Compile Include="Data\WebRequest.cs" />
     <Compile Include="HRCounter.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />
