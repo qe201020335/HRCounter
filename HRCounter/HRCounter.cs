@@ -12,8 +12,8 @@ namespace HRCounter
     public sealed class HRCounter: BasicCustomCounter
     {
         
-        private IPALogger _logger = Logger.logger;
-        private TMP_Text counter;
+        private readonly IPALogger _logger = Logger.logger;
+        private TMP_Text _counter;
         private bool _updating;
         private BpmDownloader _bpmDownloader;
 
@@ -84,8 +84,8 @@ namespace HRCounter
         private void CreateCounter()
         {
             _logger.Info("Creating counter");
-            counter = CanvasUtility.CreateTextFromSettings(Settings);
-            counter.fontSize = 3;
+            _counter = CanvasUtility.CreateTextFromSettings(Settings);
+            _counter.fontSize = 3;
         }
 
         private void Start()
@@ -104,7 +104,7 @@ namespace HRCounter
             while(_updating)
             {
                 int bpm = BPM.Instance.Bpm;
-                counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
+                _counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
                 yield return new WaitForSecondsRealtime(1);
             }
         }
@@ -142,6 +142,7 @@ namespace HRCounter
         {
             Stop();
             _bpmDownloader.Stop();
+            _counter = null;
             _logger.Info("Counter destroyed");
         }
     }

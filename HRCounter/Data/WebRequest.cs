@@ -16,7 +16,7 @@ namespace HRCounter.Data
         private bool _logHr = PluginConfig.Instance.LogHR;
         private bool _updating;
 
-        private Regex _regex = new Regex("^\\d+$");
+        private readonly Regex _regex = new Regex("^\\d+$");
 
 
         internal WebRequest()
