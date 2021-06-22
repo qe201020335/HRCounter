@@ -28,25 +28,12 @@ namespace HRCounter
 
         public override void CounterInit()
         {
-            if (PluginConfig.Instance.DataSource == "WebRequest" && PluginConfig.Instance.FeedLink == "NotSet")
-            {
-                _logger.Warn("Feed link not set.");
-                return;
-            }
-            /*
-            if (PluginConfig.Instance.DataSource == "HypeRate" && PluginConfig.Instance.HypeRateSessionID == -1 )
-            {
-                _logger.Warn("Hype Rate Session ID not set.");
-                return;
-            }
-            */
-
             if (PluginConfig.Instance.HideDuringReplay && Utils.Utils.IsInReplay())
             {
                 _logger.Info("We are in a replay, Counter hides.");
                 return;
             }
-
+            
             if (!Refresh())
             {
                 return;
@@ -64,7 +51,22 @@ namespace HRCounter
             switch (PluginConfig.Instance.DataSource)
             {
                 case "WebRequest":
+                    if (PluginConfig.Instance.FeedLink == "NotSet")
+                    {
+                        _logger.Warn("Feed link not set.");
+                        return false;
+                    }
                     _bpmDownloader = new WebRequest();
+                    break;
+                
+                case "HypeRate":
+                    if (PluginConfig.Instance.HypeRateSessionID == -1)
+                    {
+                        _logger.Warn("Hype Rate Session ID not set.");
+                        return false;
+                    }
+
+                    _bpmDownloader = new HypeRate();
                     break;
                 
                 default:

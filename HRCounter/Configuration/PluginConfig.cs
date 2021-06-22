@@ -11,9 +11,10 @@ namespace HRCounter.Configuration
         // Must be 'virtual' if you want BSIPA to detect a value change and save the config automatically.
         public virtual bool LogHR { get; set; } = false;
 
-        public virtual string DataSource { get; set; } = "WebRequest";
+        public virtual string DataSource { get; set; } = "WebRequest";  // HypeRate or WebRequest
 
-        // public virtual int HypeRateSessionID { get; set; } = -1;
+        public virtual int HypeRateSessionID { get; set; } = -1;
+        
         public virtual string FeedLink { get; set; } = "NotSet";
 
         public virtual bool Colorize { get; set; } = true;
