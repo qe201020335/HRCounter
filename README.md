@@ -40,9 +40,16 @@ Notice: The link should start with `https://pulsoid.net/v1/api/feed/...`.
 
 For example: `"FeedLink": "file:///D:/example/folder/hr.txt",` and `"FeedLink": "http://192.168.1.100:6547/hr",`
 
+### WearOS Smart Watch
+1. Use [Heart for Bluetooth](https://play.google.com/store/apps/details?id=lukas.the.coder.heartforbluetooth) on your watch.
+2. Download [Pulsoid](https://pulsoid.net/) and use yout watch as a heart rate monitor.
+3. Follow instruction for Pulsoid [above](#Pulsoid)
+
+Depending on your watch, monitoring quality may not be as good as a dedicated heart rate monitor. 
+
 ### Others
-When thie mod is requesting hr data, it expects a string contining one of these:
-* A json as `{"bpm":120,"measured_at":"SOME STRING"}`
+When this mod is requesting hr data, it expects a string contining one of these:
+* A json contains key `bpm` with int type value and an optional key `measured_at` with string type value.
 * Only numerical digits. (Regex `^\d+$`)
 
 It can be in a file or can be requested from a link. 
