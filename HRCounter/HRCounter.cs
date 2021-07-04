@@ -107,7 +107,7 @@ namespace HRCounter
             {
                 int bpm = BPM.Instance.Bpm;
                 _counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
-                yield return new WaitForSecondsRealtime(1);
+                yield return new WaitForSecondsRealtime(0.25f);
             }
         }
 
