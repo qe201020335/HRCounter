@@ -34,11 +34,11 @@ The config file is at `Beat Saber/UserData/HRCounter.json`
 Notice: The link should start with `https://pulsoid.net/v1/api/feed/...`.
 
 ### HypeRate
-1. In the HypeRate app on your phone or watch, there is the session ID, which is also the few digits at the end of your overlay link.
+1. In the HypeRate app on your phone or watch, there is the session ID, which is also the few hex digits at the end of your overlay link.
 2. Change the value of `HypeRateSessionID` to yours in the config file.
 3. Set the value of `DataSource` to `"HypeRate"`.
 
-For example, if your overlay link is `https://app.hyperate.io/7398`, then your session ID is `7398`.
+For example, if your overlay link is `https://app.hyperate.io/12ab`, then your session ID is `12ab` and the config will look like `"HypeRateSessionID": "12ab"`
 
 
 ## HR MONITORS
@@ -93,7 +93,7 @@ Here is a table for all the setting options if you want to edit config file inst
 | --------------- |:---------:|:-------------------:| ----------- |
 | `LogHR`       	| bool      | `false`           	| Whether the received HR data will be logged |
 | `DataSource`    | string    | `"WebRequest"`      | The data source you want to use to get hr data |
-| `HypeRateSessionID`| int    | `-1`                | Session ID for HypeRate, it is also the the few digits at the end of your overlay link. |
+| `HypeRateSessionID`| string    | `"-1"`                | Session ID for HypeRate, it is also the the few hex digits at the end of your overlay link. |
 | `FeedLink`      | string    | `"NotSet"`   	    	| Your pulsoid feed link |
 | `Colorize`      | bool      | `true`   	        	| Whether the hr value will be colorized by the following 4 detail settings |
 | `HideDuringReplay`| bool    | `true`   	        	| Hide this counter while in a replay |
