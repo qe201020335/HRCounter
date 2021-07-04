@@ -22,7 +22,7 @@ namespace HRCounter.Data
         private string _sessionJson;
 
         private bool _logHr = PluginConfig.Instance.LogHR;
-        private int _sessionID = PluginConfig.Instance.HypeRateSessionID;
+        private string _sessionID = PluginConfig.Instance.HypeRateSessionID;
         private bool _updating;
 
         private WebSocket _webSocket;
@@ -69,7 +69,7 @@ namespace HRCounter.Data
 
         private IEnumerator HeartBeating()
         {
-            logger.Debug("HeartBeating!");
+            logger.Info("WebSocket HeartBeating!");
             while (_updating)
             {
                 SendMessage(HeartBeatJson);

@@ -13,7 +13,7 @@ namespace HRCounter.Configuration
 
         public virtual string DataSource { get; set; } = "WebRequest";  // HypeRate or WebRequest
 
-        public virtual int HypeRateSessionID { get; set; } = -1;
+        public virtual string HypeRateSessionID { get; set; } = "-1";
         
         public virtual string FeedLink { get; set; } = "NotSet";
 

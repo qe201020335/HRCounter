@@ -60,7 +60,7 @@ namespace HRCounter
                     break;
                 
                 case "HypeRate":
-                    if (PluginConfig.Instance.HypeRateSessionID == -1)
+                    if (PluginConfig.Instance.HypeRateSessionID == "-1")
                     {
                         _logger.Warn("Hype Rate Session ID not set.");
                         return false;
