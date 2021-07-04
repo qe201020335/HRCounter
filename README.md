@@ -110,7 +110,7 @@ Here is a table for all the setting options if you want to edit config file inst
 
 
 ## Notes
-1. Remember to exit the game first before editing config files.
-2. Please open an [issue](https://github.com/qe201020335/HRCounter/issues) if you have problem using this or found a bug.
+* Remember to exit the game first before editing config files.
+* Please open an [issue](https://github.com/qe201020335/HRCounter/issues) if you have problem using this or found a bug.
 
 
