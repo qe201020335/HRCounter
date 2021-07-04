@@ -1,7 +1,7 @@
 # HRCounter
 A Beat Saber Counters+ custom counter that displays your heart rate in game.
 
-**There are more data souces now!**
+**Apple Watch and WearOS Watch!!!**
 
 # ATTENTION
 The pulsoid feed link should shart with `https://pulsoid.net/v1/api/feed/...` **NOT** `https://pulsoid.net/widget/view/...`
@@ -19,17 +19,34 @@ Alternatively, you can also download them from their github repo.
 1. Make sure all the required mods are working correctly
 2. Download and extract the files into `Beat Saber/Plugins/`
 3. Run the game once
-4. Follow the instruction below to add your feed link in the auto generated config file `Beat Saber/UserData/HRCounter.json`
+4. Depend on your devices, follow the instructions below to configure the auto generated config file.
 5. Run the game and enable this counter in Counter+'s counter configuration page
 
+The config file is at `Beat Saber/UserData/HRCounter.json`
 
 ## DATA SOURCES
 ### Pulsoid
 1. Open your pulsoid [widgets configuration page](https://pulsoid.net/ui/configuration).
 2. Copy the link behine `Feed reference` in the **Advanced** section at the bottom of the page.
-3. Paste this link in the config file.
+3. Paste this link in the config file as `"FeedLink": "https://pulsoid.net/v1/api/feed/..."`.
+4. Set the value of `DataSource` to `"WebRequest"`.
 
 Notice: The link should start with `https://pulsoid.net/v1/api/feed/...`.
+
+### HypeRate
+1. In the HypeRate app on your phone or watch, there is the session ID, which is also the few digits at the end of your overlay link.
+2. Change the value of `HypeRateSessionID` to yours in the config file.
+3. Set the value of `DataSource` to `"HypeRate"`.
+
+For example, if your overlay link is `https://app.hyperate.io/7398`, then your session ID is `7398`.
+
+
+## HR MONITORS
+
+### BLE Compatible HR Monitor
+1. Download [Pulsoid](https://pulsoid.net/) on your phone and set up heart rate broadcast.
+2. Follow instruction for Pulsoid [above](#Pulsoid).
+
 
 ### Galaxy Watch
 1. Use [HeartRateToWeb](https://github.com/loic2665/HeartRateToWeb) and [this](https://galaxystore.samsung.com/geardetail/tUhSWQRbmv) app on your watch.
@@ -40,29 +57,43 @@ Notice: The link should start with `https://pulsoid.net/v1/api/feed/...`.
 
 For example: `"FeedLink": "file:///D:/example/folder/hr.txt",` and `"FeedLink": "http://192.168.1.100:6547/hr",`
 
+
+### Apple Watch
+1. Download [HypeRate](https://hyperate.io/) on your iPhone and Apple Watch.
+2. Follow instructions for HypeRate [above](#HypeRate)
+
+Note: You need to have testflight since HypeRate is still in beta.
+
+Special thanks to iPixelGalaxy for testing!
+
 ### WearOS Smart Watch
-1. Use [Heart for Bluetooth](https://play.google.com/store/apps/details?id=lukas.the.coder.heartforbluetooth) on your watch.
-2. Download [Pulsoid](https://pulsoid.net/) and use yout watch as a heart rate monitor.
-3. Follow instruction for Pulsoid [above](#Pulsoid)
+There are 2 options.
+1. Use [Heart for Bluetooth](https://play.google.com/store/apps/details?id=lukas.the.coder.heartforbluetooth) on your watch and use it as a BLE heart rate monitor. Then download [Pulsoid](https://pulsoid.net/) on your phone and follow instructions for Pulsoid [above](#Pulsoid)
+2. Use [HypeRate](https://hyperate.io/) which you can download it on the [play store](https://play.google.com/store/apps/details?id=de.locxserv.hyperatewearos) and follow instructions for HypeRate [above](#HypeRate)
 
 Depending on your watch, monitoring quality may not be as good as a dedicated heart rate monitor. 
 
+
 ### Others
-When this mod is requesting hr data, it expects a string contining one of these:
+When this mod is requesting hr data, it expects a string containing one of these:
 * A json contains key `bpm` with int type value and an optional key `measured_at` with string type value.
 * Only numerical digits. (Regex `^\d+$`)
 
-It can be in a file or can be requested from a link. 
+It can be in a file or can be requested from a link. Then set `DataSource` to `"WebRequest"` and the link.
 
-More data sources are planned to be supported. See [below](#Data-Dources-To-Be-Supported).
+More data sources and devices are planned to be supported. See [below](#Data-Dources-To-Be-Supported).
+
+Open an [issue](https://github.com/qe201020335/HRCounter/issues) if there is a device or data source you want me to support!
 
 
 ## Settings
-### All the options except the color values and feed link can be changed in game. 
+### Most options can be changed in game. 
 Here is a table for all the setting options if you want to edit config file instead.
 | Field       		| Type      | Default       	    | Description |
 | --------------- |:---------:|:-------------------:| ----------- |
 | `LogHR`       	| bool      | `false`           	| Whether the received HR data will be logged |
+| `DataSource`    | string    | `"WebRequest"`      | The data source you want to use to get hr data |
+| `HypeRateSessionID`| int    | `-1`                | Session ID for HypeRate, it is also the the few digits at the end of your overlay link. |
 | `FeedLink`      | string    | `"NotSet"`   	    	| Your pulsoid feed link |
 | `Colorize`      | bool      | `true`   	        	| Whether the hr value will be colorized by the following 4 detail settings |
 | `HideDuringReplay`| bool    | `true`   	        	| Hide this counter while in a replay |
@@ -73,9 +104,8 @@ Here is a table for all the setting options if you want to edit config file inst
 | `MidColor`      | string    | `"#FFFF00"` (Yellow)| The RGB color in hex which is the middle point of color gredient. |
 
 
-## Data Dources To Be Supported
+## Data Sources To Be Supported
 ### Socket Connection
-* Apple Watch (via [HypeRate](https://hyperate.io/))
 * Fitbit (via [FitbitHRtoWS](https://github.com/200Tigersbloxed/FitbitHRtoWS))
 
 
@@ -83,3 +113,5 @@ Here is a table for all the setting options if you want to edit config file inst
 1. Remember to exit the game first before editing config files.
 2. Compatibility with Apple Watch will come soon&trade;, once I could get one to test.
 3. Please open an [issue](https://github.com/qe201020335/HRCounter/issues) if you have problem using this or found a bug.
+
+
