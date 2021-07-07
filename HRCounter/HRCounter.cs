@@ -36,18 +36,23 @@ namespace HRCounter
             
             if (!Refresh())
             {
+                _logger.Info("Can't Refresh");
+                _logger.Info("Please check your settings about data source and the link or id.");
                 return;
             }
             
             CreateCounter();
             
             _bpmDownloader.Start();
+            _logger.Info("Start updating heart rate");
             
             Start();
+            _logger.Info("Start updating counter text");
         }
 
         private bool Refresh()
         {
+            _logger.Info("Refreshing Settings");
             switch (PluginConfig.Instance.DataSource)
             {
                 case "WebRequest":
