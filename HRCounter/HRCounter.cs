@@ -73,7 +73,16 @@ namespace HRCounter
 
                     _bpmDownloader = new HypeRate();
                     break;
-                
+
+                case "FitbitHRtoWS":
+                    if(PluginConfig.Instance.FitbitWebSocket == string.Empty)
+                    {
+                        _logger.Warn("FitbitWebSocket is empty.");
+                        return false;
+                    }
+                    _bpmDownloader = new FitbitHRtoWS();
+                    break;
+
                 default:
                     _bpmDownloader = null;
                     _logger.Warn("Unknown Data Sources");
