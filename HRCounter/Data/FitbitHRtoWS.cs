@@ -32,6 +32,7 @@ namespace HRCounter.Data
                 Stop();
             }
             webSocket = new WebSocket(_url);
+            webSocket.OnClose += WebSocket_OnClose;
             webSocket.OnMessage += WebSocket_OnMessage;
             webSocket.Connect();
             if (webSocket.IsAlive)
@@ -63,6 +64,11 @@ namespace HRCounter.Data
                     }
                 }
             }
+        }
+
+        private void WebSocket_OnClose(object sender, CloseEventArgs e)
+        {
+            _updating = false;
         }
 
         private void WebSocket_OnMessage(object sender, MessageEventArgs e)
