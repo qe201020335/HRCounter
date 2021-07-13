@@ -1,4 +1,4 @@
-﻿using HRCounter.Configuration;
+using HRCounter.Configuration;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using WebSocketSharp;
+using IPALogger = IPA.Logging.Logger;
 
 namespace HRCounter.Data
 {
@@ -33,8 +34,13 @@ namespace HRCounter.Data
             webSocket = new WebSocket(_url);
             webSocket.OnMessage += WebSocket_OnMessage;
             webSocket.Connect();
-            _updating = true;
-            SharedCoroutineStarter.instance.StartCoroutine(UpdateStuff());
+            if (webSocket.IsAlive)
+            {
+                _updating = true;
+                SharedCoroutineStarter.instance.StartCoroutine(UpdateStuff());
+            }
+            else
+                logger.Warn("Failed to connect to WebSocket. Is it running?");
         }
 
         protected override void RefreshSettings()
