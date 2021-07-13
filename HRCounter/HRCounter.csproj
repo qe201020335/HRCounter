@@ -131,6 +131,7 @@
     <Compile Include="Configuration\SettingController.cs" />
     <Compile Include="Data\BPM.cs" />
     <Compile Include="Data\BpmDownloader.cs" />
+    <Compile Include="Data\FitbitHRtoWS.cs" />
     <Compile Include="Data\HypeRate.cs" />
     <Compile Include="Data\WebRequest.cs" />
     <Compile Include="HRCounter.cs" />
