@@ -105,9 +105,12 @@ Here is a table for all the setting options if you want to edit config file inst
 
 
 ## Data Sources To Be Supported
-### Socket Connection
-* Fitbit (via [FitbitHRtoWS](https://github.com/200Tigersbloxed/FitbitHRtoWS))
+* <s>[HypeRate](https://hyperate.io/)</s>
+* <s>Apple Watch (via HypeRate)</s>
+* <s>WearOS</s>
+* <s>Fitbit (via [FitbitHRtoWS](https://github.com/200Tigersbloxed/FitbitHRtoWS))</s>
 
+Open an [issue](https://github.com/qe201020335/HRCounter/issues) if there is a device or data source you want me to support!
 
 ## Notes
 * Remember to exit the game first before editing config files.
