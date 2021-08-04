@@ -1,7 +1,7 @@
 # HRCounter
 A Beat Saber Counters+ custom counter that displays your heart rate in game.
 
-**Apple Watch and WearOS Watch!!!**
+**Supports BLE HR Monitor, Apple Watch, Fitbit, Galaxy Watch, WearOS and more!**
 
 # ATTENTION
 The pulsoid feed link should shart with `https://pulsoid.net/v1/api/feed/...` **NOT** `https://pulsoid.net/widget/view/...`
@@ -40,6 +40,12 @@ Notice: The link should start with `https://pulsoid.net/v1/api/feed/...`.
 
 For example, if your overlay link is `https://app.hyperate.io/12ab`, then your session ID is `12ab` and the config will look like `"HypeRateSessionID": "12ab"`
 
+### Fitbit
+1. Follow the instruction on [FitbitHRtoWS](https://github.com/200Tigersbloxed/FitbitHRtoWS/wiki/Setup) and set up your heart rate broadcast.
+2. Change the value of `FitbitWebSocket` to `"ws://YOUR_IP:YOUR_PORT/"`.
+3. Set the value of `DataSource` to `"FitbitHRtoWS"`
+
+For example, `"FitbitWebSocket": "ws://localhost:8080/",` or `"FitbitWebSocket": "ws://192.168.1.100:8080/",`
 
 ## HR MONITORS
 
@@ -93,7 +99,8 @@ Here is a table for all the setting options if you want to edit config file inst
 | --------------- |:---------:|:-------------------:| ----------- |
 | `LogHR`       	| bool      | `false`           	| Whether the received HR data will be logged |
 | `DataSource`    | string    | `"WebRequest"`      | The data source you want to use to get hr data |
-| `HypeRateSessionID`| string    | `"-1"`                | Session ID for HypeRate, it is also the the few hex digits at the end of your overlay link. |
+| `HypeRateSessionID`| string | `"-1"`              | Session ID for HypeRate, it is also the the few hex digits at the end of your overlay link. |
+| `FitbitWebSocket` | string  | `"ws://localhost:8080/"`| WebSocket Link for FitbitHRtoWS |
 | `FeedLink`      | string    | `"NotSet"`   	    	| Your pulsoid feed link |
 | `Colorize`      | bool      | `true`   	        	| Whether the hr value will be colorized by the following 4 detail settings |
 | `HideDuringReplay`| bool    | `true`   	        	| Hide this counter while in a replay |
@@ -108,7 +115,7 @@ Here is a table for all the setting options if you want to edit config file inst
 * <s>[HypeRate](https://hyperate.io/)</s>
 * <s>Apple Watch (via HypeRate)</s>
 * <s>WearOS</s>
-* <s>Fitbit (via [FitbitHRtoWS](https://github.com/200Tigersbloxed/FitbitHRtoWS))</s>
+* <s>Fitbit (via [FitbitHRtoWS](https://github.com/200Tigersbloxed/FitbitHRtoWS))</s> (By [200Tigersbloxed](https://github.com/200Tigersbloxed))
 
 Open an [issue](https://github.com/qe201020335/HRCounter/issues) if there is a device or data source you want me to support!
 
