@@ -2,7 +2,8 @@
 using IPALogger = IPA.Logging.Logger;
 using System.Reflection;
 using HarmonyLib;
-
+using System.Collections.Generic;
+using HRCounter.Configuration;
 
 namespace HRCounter.Utils
 {
@@ -10,6 +11,8 @@ namespace HRCounter.Utils
     public class Utils
     {
         // private static IPALogger _logger = Logger.logger;
+
+        internal static List<object> DataSources = new object[] {"HypeRate", "WebRequest", "FitbitHRtoWS"}.ToList();
         
         static MethodBase ScoreSaber_playbackEnabled =
             AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
@@ -23,6 +26,24 @@ namespace HRCounter.Utils
         internal static bool IsModInstalled(string modName)
         {
             return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == modName);
+        }
+
+        internal static string GetCurrentSourceLinkText()
+        {
+            switch (PluginConfig.Instance.DataSource)
+            {
+                case "WebRequest":
+                    return PluginConfig.Instance.FeedLink;
+
+                case "HypeRate":
+                    return PluginConfig.Instance.HypeRateSessionID;
+
+                case "FitbitHRtoWS":
+                    return PluginConfig.Instance.FitbitWebSocket;
+
+                default:
+                    return "Unknown Data Source";
+            }
         }
     }
 }

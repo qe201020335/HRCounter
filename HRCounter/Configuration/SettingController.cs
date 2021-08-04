@@ -1,8 +1,9 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
+using System.Collections.Generic;
 
 namespace HRCounter.Configuration
 {
-    internal  class SettingController
+    internal class SettingController
     {
         [UIValue("LogHR")]
         public bool LogHR
@@ -53,5 +54,19 @@ namespace HRCounter.Configuration
                 PluginConfig.Instance.HideDuringReplay = value;
             }
         }
+        
+        [UIValue("source-list-options")]
+        public List<object> options = Utils.Utils.DataSources;
+
+        [UIValue("source-list-choice")]
+        public string listChoice
+        {
+            get => PluginConfig.Instance.DataSource;
+            set
+            {
+                PluginConfig.Instance.DataSource = value;
+            }
+        }
+        
     }
 }
