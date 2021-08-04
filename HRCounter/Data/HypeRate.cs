@@ -56,15 +56,17 @@ namespace HRCounter.Data
 
         private void CreateAndConnectSocket()
         {
-            if (_webSocket == null || _webSocket.ReadyState == WebSocketState.Closed ||
-                _webSocket.ReadyState != WebSocketState.Closing)
+            if (_webSocket != null && _webSocket.IsAlive)
             {
-                logger.Debug("Creating WebSocket");
-                _webSocket = new WebSocket(URL);
-                _webSocket.OnMessage += OnMessageReceive;
-                _webSocket.Connect();
-                _webSocket.Send(_sessionJson);
+                logger.Info("We have an old WebSocket, destroying");
+                _webSocket.Close();
+                _webSocket = null;
             }
+            logger.Info("Creating new WebSocket");
+            _webSocket = new WebSocket(URL);
+            _webSocket.OnMessage += OnMessageReceive;
+            _webSocket.Connect();
+            _webSocket.Send(_sessionJson);
         }
 
         private IEnumerator HeartBeating()
@@ -117,6 +119,11 @@ namespace HRCounter.Data
             {
                 Bpm.Bpm = json["payload"]["hr"].ToObject<int>();
                 Bpm.ReceivedAt = DateTime.Now.ToString("HH:mm:ss");
+            }
+            
+            if (_logHr)
+            {
+                logger.Info(Bpm.ToString());
             }
         }
     }
