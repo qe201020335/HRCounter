@@ -13,7 +13,7 @@ Alternatively, you can also download them from their github repo.
 * [BSIPA](https://github.com/bsmg/BeatSaber-IPA-Reloaded) v4.1.0+
 * [Counters+](https://github.com/Caeden117/CountersPlus) v2.0.0+
 * [BSML](https://github.com/monkeymanboy/BeatSaberMarkupLanguage) v1.3.4+
-
+* Websocket-sharp
 
 ## HOW TO USE
 1. Make sure all the required mods are working correctly
