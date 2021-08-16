@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using CountersPlus.Counters.Custom;
 using HRCounter.Configuration;
 using HRCounter.Data;
@@ -42,10 +43,19 @@ namespace HRCounter
             }
             
             CreateCounter();
-            
-            _bpmDownloader.Start();
-            _logger.Info("Start updating heart rate");
-            
+
+            try
+            {
+                _bpmDownloader.Start();
+                _logger.Info("Start updating heart rate");
+            }
+            catch (Exception e)
+            {
+                _logger.Critical("Could not start bpm downloader.");
+                _logger.Error(e.ToString());
+                _bpmDownloader.Stop();
+                return;
+            }
             Start();
             _logger.Info("Start updating counter text");
         }

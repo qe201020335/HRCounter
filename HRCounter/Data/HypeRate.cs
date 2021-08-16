@@ -64,7 +64,9 @@ namespace HRCounter.Data
             }
             logger.Info("Creating new WebSocket");
             _webSocket = new WebSocket(URL);
+            _webSocket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
             _webSocket.OnMessage += OnMessageReceive;
+            _webSocket.OnError += OnSocketError;
             _webSocket.Connect();
             _webSocket.Send(_sessionJson);
         }
@@ -81,7 +83,24 @@ namespace HRCounter.Data
 
         private void SendMessage(string s)
         {
-            _webSocket?.Send(s);
+            if (_webSocket == null || !_webSocket.IsAlive)
+            {
+                logger.Warn("Websocket is null or not alive. Terminating hr update");
+                Stop();
+                return;
+            }
+            _webSocket.Send(s);
+        }
+
+        private void OnSocketError(SystemObject sender, ErrorEventArgs e)
+        {
+            if (sender != _webSocket)
+            {
+                return;
+            }
+            Stop();
+            logger.Error(e.Message);
+            logger.Debug(e.Exception);
         }
         
         private void OnMessageReceive(SystemObject sender, MessageEventArgs e)
