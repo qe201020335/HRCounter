@@ -3,6 +3,7 @@ A Beat Saber Counters+ custom counter that displays your heart rate in game.
 
 **Supports BLE HR Monitor, Apple Watch, Fitbit, Galaxy Watch, WearOS and more!**
 
+It also supports **anything** that **Pulsoid** and **HypeRate** support!
 # ATTENTION
 The pulsoid feed link should shart with `https://pulsoid.net/v1/api/feed/...` **NOT** `https://pulsoid.net/widget/view/...`
 
