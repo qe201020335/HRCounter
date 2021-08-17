@@ -66,7 +66,7 @@ For example: `"FeedLink": "file:///D:/example/folder/hr.txt",` and `"FeedLink": 
 
 
 ### Apple Watch
-1. Download [HypeRate](https://hyperate.io/#footer) on your iPhone and Apple Watch.
+1. Download [HypeRate](https://www.hyperate.io/#download) on your iPhone and Apple Watch.
 2. Follow instructions for HypeRate [above](#HypeRate)
 
 Note: You need to have testflight since HypeRate is still in beta.
