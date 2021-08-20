@@ -52,7 +52,8 @@ namespace HRCounter
             catch (Exception e)
             {
                 _logger.Critical("Could not start bpm downloader.");
-                _logger.Error(e.ToString());
+                _logger.Error(e.Message);
+                _logger.Debug(e);
                 _bpmDownloader.Stop();
                 return;
             }

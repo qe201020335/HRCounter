@@ -50,7 +50,7 @@ namespace HRCounter.Data
         internal override void Stop()
         {
             _updating = false;
-            _webSocket?.Close();
+            _webSocket?.CloseAsync();
             _webSocket = null;
         }
 
@@ -68,7 +68,7 @@ namespace HRCounter.Data
             _webSocket.OnMessage += OnMessageReceive;
             _webSocket.OnError += OnSocketError;
             _webSocket.Connect();
-            _webSocket.Send(_sessionJson);
+            SendMessage(_sessionJson);
         }
 
         private IEnumerator HeartBeating()
@@ -83,13 +83,36 @@ namespace HRCounter.Data
 
         private void SendMessage(string s)
         {
-            if (_webSocket == null || !_webSocket.IsAlive)
+            logger.Debug($"Trying to send message {s}");
+            if (_webSocket == null || _webSocket.ReadyState == WebSocketState.Closed)
             {
-                logger.Warn("Websocket is null or not alive. Terminating hr update");
+                logger.Critical("WebSocket is null or Closed. Terminating HR Update.");
+                logger.Notice("Does your internet got disconnected?");
                 Stop();
-                return;
             }
-            _webSocket.Send(s);
+            try
+            {
+                _webSocket?.SendAsync(s, delegate(bool b)
+                {
+                    if (!b)
+                    {
+                        logger.Warn("WebSocket failed to send message");
+                        Stop();
+                    }
+                    else
+                    {
+                        logger.Debug($"Message sent successfully");
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                logger.Error("Error happened when sending message. Terminating HR Update.");
+                logger.Error(e.Message);
+                logger.Debug(e);
+                Stop();
+            }
+            
         }
 
         private void OnSocketError(SystemObject sender, ErrorEventArgs e)
