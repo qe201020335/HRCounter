@@ -18,7 +18,7 @@ Alternatively, you can also download them from their github repo.
 
 ## HOW TO USE
 1. Make sure all the required mods are working correctly
-2. Download and extract the files into `Beat Saber/Plugins/`
+2. Download the [latest release](https://github.com/qe201020335/HRCounter/releases/latest) and extract the files into `Beat Saber/Plugins/`
 3. Run the game once
 4. Depend on your devices, follow the instructions below to configure the auto generated config file.
 5. Run the game and enable this counter in Counter+'s counter configuration page
