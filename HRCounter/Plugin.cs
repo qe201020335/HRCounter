@@ -2,7 +2,7 @@
 using IPA.Config;
 using IPA.Config.Stores;
 using IPALogger = IPA.Logging.Logger;
-using UnityEngine.SceneManagement;
+// using UnityEngine.SceneManagement;
 
 namespace HRCounter
 {

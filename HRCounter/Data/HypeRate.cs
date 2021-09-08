@@ -1,5 +1,4 @@
 ﻿using System;
-using SystemObject = System.Object;
 using System.Collections;
 using HRCounter.Configuration;
 using IPALogger = IPA.Logging.Logger;
@@ -101,7 +100,7 @@ namespace HRCounter.Data
                     }
                     else
                     {
-                        logger.Debug($"Message sent successfully");
+                        logger.Debug("Message sent successfully");
                     }
                 });
             }
@@ -115,7 +114,7 @@ namespace HRCounter.Data
             
         }
 
-        private void OnSocketError(SystemObject sender, ErrorEventArgs e)
+        private void OnSocketError(System.Object sender, ErrorEventArgs e)
         {
             if (sender != _webSocket)
             {
@@ -126,7 +125,7 @@ namespace HRCounter.Data
             logger.Debug(e.Exception);
         }
         
-        private void OnMessageReceive(SystemObject sender, MessageEventArgs e)
+        private void OnMessageReceive(System.Object sender, MessageEventArgs e)
         {
             if (sender != _webSocket)
             {
@@ -140,7 +139,7 @@ namespace HRCounter.Data
 
             try
             {
-                JObject json = JObject.Parse(e.Data);
+                var json = JObject.Parse(e.Data);
                 
                 if (json["event"] != null && json["event"].ToObject<string>() == "hr_update")
                 {

@@ -131,7 +131,7 @@ namespace HRCounter
         {
             while(_updating)
             {
-                int bpm = BPM.Instance.Bpm;
+                var bpm = BPM.Instance.Bpm;
                 _counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
                 yield return new WaitForSecondsRealtime(0.25f);
             }
@@ -155,8 +155,8 @@ namespace HRCounter
                         return _colorHigh.Substring(1);
                     }
 
-                    float ratio = (hr - _hrLow) / (float) (_hrHigh - _hrLow) * 2;
-                    Color color = ratio < 1 ? Color.Lerp(colorLow, colorMid, ratio) : Color.Lerp(colorMid, colorHigh, ratio - 1);
+                    var ratio = (hr - _hrLow) / (float) (_hrHigh - _hrLow) * 2;
+                    var color = ratio < 1 ? Color.Lerp(colorLow, colorMid, ratio) : Color.Lerp(colorMid, colorHigh, ratio - 1);
 
                     return ColorUtility.ToHtmlStringRGB(color);
                 }

@@ -54,7 +54,7 @@ namespace HRCounter.Data
 
         private IEnumerator UpdateHR()
         {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(_url))
+            using (var webRequest = UnityWebRequest.Get(_url))
             {
                 // Request and wait for the desired page.
                 yield return webRequest.SendWebRequest();
@@ -74,7 +74,7 @@ namespace HRCounter.Data
                     // pulsoid: {"bpm":0,"measured_at":"2021-06-21T01:34:39.320Z"}
                     try
                     {
-                        JObject json = JObject.Parse(webRequest.downloadHandler.text);
+                        var json = JObject.Parse(webRequest.downloadHandler.text);
                         if (json["bpm"] != null)
                         {
                             Bpm.Bpm = json["bpm"].ToObject<int>();

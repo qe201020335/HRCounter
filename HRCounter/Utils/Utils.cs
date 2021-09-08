@@ -4,18 +4,17 @@ using System.Reflection;
 using HarmonyLib;
 using System.Collections.Generic;
 using HRCounter.Configuration;
-using UnityEngine;
 
 namespace HRCounter.Utils
 {
     
-    public class Utils
+    public static class Utils
     {
         // private static IPALogger _logger = Logger.logger;
 
-        internal static List<object> DataSources = new object[] {"HypeRate", "WebRequest", "FitbitHRtoWS"}.ToList();
+        internal static readonly List<object> DataSources = new object[] {"HypeRate", "WebRequest", "FitbitHRtoWS"}.ToList();
         
-        static MethodBase ScoreSaber_playbackEnabled =
+        private static readonly MethodBase ScoreSaber_playbackEnabled =
             AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
         // code copied from Camera2
         internal static bool IsInReplay()
