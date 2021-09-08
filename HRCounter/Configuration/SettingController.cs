@@ -68,5 +68,24 @@ namespace HRCounter.Configuration
             }
         }
         
+        [UIValue("PauseHR")]
+        public int PauseHR
+        {
+            get => PluginConfig.Instance.PauseHR;
+            set
+            {
+                PluginConfig.Instance.PauseHR = value;
+            }
+        }
+
+        [UIValue("AutoPause")]
+        public bool AutoPause
+        {
+            get => PluginConfig.Instance.AutoPause;
+            set
+            {
+                PluginConfig.Instance.AutoPause = value;
+            }
+        }
     }
 }
