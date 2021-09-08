@@ -33,5 +33,9 @@ namespace HRCounter.Configuration
         
         public virtual string HighColor { get; set; } = "#FF0000"; // default to red
 
+        public virtual int PauseHR { get; set; } = 200;
+        
+        public virtual bool AutoPause { get; set; } = true;
+
     }
 }

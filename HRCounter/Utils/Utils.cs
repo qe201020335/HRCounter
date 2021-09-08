@@ -4,6 +4,7 @@ using System.Reflection;
 using HarmonyLib;
 using System.Collections.Generic;
 using HRCounter.Configuration;
+using UnityEngine;
 
 namespace HRCounter.Utils
 {

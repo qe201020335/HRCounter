@@ -43,6 +43,7 @@ namespace HRCounter
             }
             
             CreateCounter();
+            Utils.GamePause.GameStart();
 
             try
             {
@@ -170,6 +171,7 @@ namespace HRCounter
             Stop();
             _bpmDownloader.Stop();
             _counter = null;
+            Utils.GamePause.GameEnd();
             _logger.Info("Counter destroyed");
         }
     }
