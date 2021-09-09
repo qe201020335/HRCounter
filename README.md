@@ -110,7 +110,8 @@ Here is a table for all the setting options if you want to edit config file inst
 | `LowColor`      | string    | `"#00FF00"` (Green)	| The RGB color in hex that where your hr is not higher than `HRLow`. This is also the starting point of color gredient. |
 | `HighColor`     | string    | `"#FF0000"` (Red) 	| The RGB color in hex that where your hr is higher than `HRHigh`. This is also the end point of color gredient.  |
 | `MidColor`      | string    | `"#FFFF00"` (Yellow)| The RGB color in hex which is the middle point of color gredient. |
-
+| `PauseHR`       | int       | `200`              	| The heart rate that game pause will be triggered |
+| `AutoPause`     | bool      | `true`           	  | Whether the mod will pause the game if heart rate reaches `PauseHR` |
 
 ## Data Sources To Be Supported
 * <s>[HypeRate](https://hyperate.io/)</s>
