@@ -1,53 +1,17 @@
-﻿using Newtonsoft.Json;
-using System.Collections;
-using System.Net;
-using HRCounter.Configuration;
-using UnityEngine.Networking;
-using IPALogger = IPA.Logging.Logger;
-using UnityEngine;
+﻿using IPALogger = IPA.Logging.Logger;
 
 namespace HRCounter.Data
 {
-    public class BpmDownloader
+    internal abstract class BpmDownloader
     {
+        protected readonly BPM Bpm = BPM.Instance;
+        protected readonly IPALogger logger = Logger.logger;
 
-        internal BPM bpm { get; } = new BPM();
-        private readonly string URL = PluginConfig.Instance.FeedLink;
-        private IPALogger log = Logger.logger;
-        private bool Log_HR = PluginConfig.Instance.LogHR;
-        public bool updating;
+        protected abstract void RefreshSettings();
 
-        public IEnumerator Updating()
-        {   
-            log.Debug("Requesting HR data");
-            while (updating)
-            {
-                yield return Update();
-                yield return new WaitForSecondsRealtime((float) 0.25);
-            }
-        }
+        internal abstract void Start();
 
-        private IEnumerator Update()
-        {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(URL))
-            {
-                // Request and wait for the desired page.
-                yield return webRequest.SendWebRequest();
-                if (webRequest.isNetworkError)
-                {
-                    log.Error($"Error Requesting HR data: {webRequest.error}");
-                    throw new WebException();
-                }
-
-                JsonConvert.PopulateObject(webRequest.downloadHandler.text, bpm);
-                if (Log_HR)
-                {
-                    log.Info(bpm.ToString());
-                }
-            }
-        }
-        
-        
+        internal abstract void Stop();
         
     }
 }
