@@ -7,7 +7,7 @@ namespace HRCounter.Configuration
     internal class SettingController : BSMLResourceViewController
     {
         
-        public override string ResourceName => "RCounter.Configuration.config.bsml";
+        public override string ResourceName => "HRCounter.Configuration.configMenu.bsml";
 
         [UIValue("LogHR")] public bool LogHR => PluginConfig.Instance.LogHR;
 

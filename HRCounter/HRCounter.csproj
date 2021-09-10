@@ -139,6 +139,7 @@
     <Compile Include="Plugin.cs" />
     <Compile Include="Configuration\PluginConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\ConfigViewFlowCoordinator.cs" />
     <Compile Include="Utils\GamePause.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
@@ -160,6 +161,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Configuration\config.bsml" />
     <EmbeddedResource Include="Resources\hrcounter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Configuration\configMenu.bsml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

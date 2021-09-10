@@ -1,4 +1,7 @@
-﻿using IPA;
+﻿using BeatSaberMarkupLanguage.MenuButtons;
+using BeatSaberMarkupLanguage;
+using HMUI;
+using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPALogger = IPA.Logging.Logger;
@@ -15,6 +18,9 @@ namespace HRCounter
 
         internal static string Name => "HR Counter";
 
+        internal MenuButton MenuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick, true);
+
+        private UI.ConfigViewFlowCoordinator _configViewFlowCoordinator;
 
         [Init]
         /// <summary>
@@ -28,20 +34,12 @@ namespace HRCounter
             Logger.logger = logger;
             Log = logger;
             Log.Info("HRCounter initialized.");
-
-            /*
-            HRCounter.ScoreSaberInstalled = Utils.Utils.IsModInstalled("ScoreSaber");
-            if (HRCounter.ScoreSaberInstalled)
-            {
-                logger.Info("ScoreSaber Detected.");
-            }
-            */
         }
 
         #region BSIPA Config
 
         [Init]
-        public void InitWithConfig(Config conf)
+        public void InitWithConfig(IPA.Config.Config conf)
         {
             Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
             Logger.logger = Log;
@@ -49,11 +47,21 @@ namespace HRCounter
         }
 
         #endregion
-        /*
+        
         [OnStart]
-        public void OnApplicationStart() {
-            SceneManager.activeSceneChanged += Utils.Utils.OnActiveSceneChanged;
+        public void OnStart() {
+            MenuButtons.instance.RegisterButton(MenuButton);
         }
-        */
+        
+        private static void OnMenuButtonClick()
+        {
+            if (Instance._configViewFlowCoordinator == null)
+            {
+                Instance._configViewFlowCoordinator = BeatSaberUI.CreateFlowCoordinator<UI.ConfigViewFlowCoordinator>();
+            }
+            BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(Instance._configViewFlowCoordinator);
+        }
+        
+        
     }
 }

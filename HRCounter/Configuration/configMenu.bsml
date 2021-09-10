@@ -1,0 +1,11 @@
+﻿<settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+        <bool-setting text="Hide During Replay" value="HideDuringReplay" hover-hint="Hide this counter while in a replay"/>
+        <bool-setting text="Colorize HR Text" value="Colorize" hover-hint="Colorize the heart rate number."/>
+        <dropdown-list-setting text="Data Source" value="source-list-choice" choices="source-list-options"/>
+        <text text="Don't forget to add your data source link or session id in the config file." align="Center"/>
+        <increment-setting text="Heart Rate Lower Bound" value="HRLow" integer-only="true" min="60" max="140" increment="1"/>
+        <increment-setting text="Heart Rate Upper Bound" value="HRHigh" integer-only="true" min="140" max="220" increment="1"/>
+        <bool-setting text="Auto Pause" value="AutoPause" hover-hint="Automatically pause the game if your heart rate is too high, set threshold below"/>
+        <increment-setting text="Pause Heart Rate" value="PauseHR" integer-only="true" min="150" max="250" increment="5"/>
+        <bool-setting text="Log Heart Rate" value="LogHR" hover-hint="Whether the received HR data will be logged."/>
+</settings-container>
