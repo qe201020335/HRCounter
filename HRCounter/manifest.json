@@ -26,8 +26,8 @@
                 "Distance": 1
             },
             "BSML": {
-                "Resource": "HRCounter.Configuration.config.bsml",
-                "Host": "HRCounter.Configuration.SettingController",
+                "Resource": "HRCounter.UI.BSML.config.bsml",
+                "Host": "HRCounter.UI.SettingController",
                 "Icon": "HRCounter.Resources.hrcounter.png"
             }
         }

@@ -1,12 +1,12 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using System.Collections.Generic;
 using BeatSaberMarkupLanguage.ViewControllers;
+using HRCounter.Configuration;
 
-namespace HRCounter.Configuration
+namespace HRCounter.UI
 {
     internal class SettingController : BSMLResourceViewController
     {
-        
         public override string ResourceName => "HRCounter.Configuration.configMenu.bsml";
 
         [UIValue("LogHR")] public bool LogHR => PluginConfig.Instance.LogHR;
@@ -26,5 +26,7 @@ namespace HRCounter.Configuration
         [UIValue("PauseHR")] public int PauseHR => PluginConfig.Instance.PauseHR;
 
         [UIValue("AutoPause")] public bool AutoPause => PluginConfig.Instance.AutoPause;
+        
+        
     }
 }
