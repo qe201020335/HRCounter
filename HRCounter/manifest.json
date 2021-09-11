@@ -27,7 +27,7 @@
             },
             "BSML": {
                 "Resource": "HRCounter.UI.BSML.config.bsml",
-                "Host": "HRCounter.UI.SettingController",
+                "Host": "HRCounter.Configuration.SettingController",
                 "Icon": "HRCounter.Resources.hrcounter.png"
             }
         }

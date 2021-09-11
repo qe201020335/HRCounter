@@ -128,6 +128,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\SettingController.cs" />
     <Compile Include="Data\BPM.cs" />
     <Compile Include="Data\BpmDownloader.cs" />
     <Compile Include="Data\FitbitHRtoWS.cs" />
@@ -139,7 +140,7 @@
     <Compile Include="Configuration\PluginConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\ConfigViewFlowCoordinator.cs" />
-    <Compile Include="UI\SettingController.cs" />
+    <Compile Include="UI\SettingMenuController.cs" />
     <Compile Include="Utils\GamePause.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>

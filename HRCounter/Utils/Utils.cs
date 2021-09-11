@@ -33,13 +33,13 @@ namespace HRCounter.Utils
             switch (PluginConfig.Instance.DataSource)
             {
                 case "WebRequest":
-                    return PluginConfig.Instance.FeedLink;
+                    return "FeedLink: " + PluginConfig.Instance.FeedLink;
 
                 case "HypeRate":
-                    return PluginConfig.Instance.HypeRateSessionID;
+                    return "SessionID: " + PluginConfig.Instance.HypeRateSessionID;
 
                 case "FitbitHRtoWS":
-                    return PluginConfig.Instance.FitbitWebSocket;
+                    return "WebSocket Server: " + PluginConfig.Instance.FitbitWebSocket;
 
                 default:
                     return "Unknown Data Source";
