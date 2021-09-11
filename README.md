@@ -115,7 +115,7 @@ Here is a table for all the setting options if you want to edit config file inst
 | `HighColor`     | string    | `"#FF0000"` (Red) 	| The RGB color in hex that where your hr is higher than `HRHigh`. This is also the end point of color gredient.  |
 | `MidColor`      | string    | `"#FFFF00"` (Yellow)| The RGB color in hex which is the middle point of color gredient. |
 | `PauseHR`       | int       | `200`              	| The heart rate that game pause will be triggered |
-| `AutoPause`     | bool      | `true`           	  | Whether the mod will pause the game if heart rate reaches `PauseHR` |
+| `AutoPause`     | bool      | `false`           	  | Whether the mod will pause the game if heart rate reaches `PauseHR` |
 
 ## Data Sources To Be Supported
 * <s>[HypeRate](https://hyperate.io/)</s>
@@ -128,5 +128,5 @@ Open an [issue](https://github.com/qe201020335/HRCounter/issues) if there is a d
 ## Notes
 * Remember to exit the game first before editing config files.
 * Please open an [issue](https://github.com/qe201020335/HRCounter/issues) if you have problem using this or found a bug.
-
+* The beautiful lightshow map in the screenshot is [!bsr 17726](https://beatsaver.com/maps/17726)
 
