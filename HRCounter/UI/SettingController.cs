@@ -7,7 +7,7 @@ namespace HRCounter.UI
 {
     internal class SettingController : BSMLResourceViewController
     {
-        public override string ResourceName => "HRCounter.Configuration.configMenu.bsml";
+        public override string ResourceName => "HRCounter.UI.BSML.configMenu.bsml";
 
         [UIValue("LogHR")]
         public bool LogHR
@@ -18,8 +18,14 @@ namespace HRCounter.UI
                 PluginConfig.Instance.LogHR = value;
             }
         }
+        [UIAction("SetLogHR")]
+        public void SetLogHR(bool value)
+        {
+            LogHR = value;
+        }
         
-
+        //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
         [UIValue("Colorize")]
         public bool Colorize
         {
@@ -29,7 +35,14 @@ namespace HRCounter.UI
                 PluginConfig.Instance.Colorize = value;
             }
         }
+        [UIAction("SetColorize")]
+        public void SetColorize(bool value)
+        {
+            Colorize = value;
+        }
 
+        //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
         [UIValue("HRLow")]
         public int HRLow
         {
@@ -39,7 +52,14 @@ namespace HRCounter.UI
                 PluginConfig.Instance.HRLow = value;
             }
         }
-        
+        [UIAction("SetHRLow")]
+        public void SetHRLow(int value)
+        {
+            HRLow = value;
+        }
+
+        //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
         [UIValue("HRHigh")]
         public int HRHigh
         {
@@ -49,7 +69,14 @@ namespace HRCounter.UI
                 PluginConfig.Instance.HRHigh = value;
             }
         }
+        [UIAction("SetHRHigh")]
+        public void SetHRHigh(int value)
+        {
+            HRLow = value;
+        }
         
+        //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
         [UIValue("HideDuringReplay")]
         public bool HideDuringReplay
         {
@@ -60,6 +87,8 @@ namespace HRCounter.UI
             }
         }
         
+        //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
         [UIValue("source-list-options")]
         public List<object> options = Utils.Utils.DataSources;
 
@@ -73,6 +102,8 @@ namespace HRCounter.UI
             }
         }
         
+        //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
         [UIValue("PauseHR")]
         public int PauseHR
         {
@@ -82,7 +113,9 @@ namespace HRCounter.UI
                 PluginConfig.Instance.PauseHR = value;
             }
         }
-
+        
+        //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
         [UIValue("AutoPause")]
         public bool AutoPause
         {
