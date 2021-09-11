@@ -2,6 +2,10 @@
     <bool-setting text="Hide During Replay" value="HideDuringReplay" hover-hint="Hide this counter while in a replay" apply-on-change="true"/>
     <bool-setting text="Colorize HR Text" value="Colorize" hover-hint="Colorize the heart rate number." apply-on-change="true"/>
     <dropdown-list-setting text="Data Source" value="source-list-choice" choices="source-list-options" apply-on-change="true"/>
+    <!-- Don't know why it is horizontal but it works! Thank you Aeroluna! :D-->
+    <horizontal pad-top="1" pad-bottom="1">
+        <text id='modified-text' text="Don't forget to add your data source link or session id in the config file." italics="true" align="Center"/>
+    </horizontal>
     
     <increment-setting text="Heart Rate Lower Bound" value="HRLow" integer-only="true" min="60" max="140" increment="1" apply-on-change="true"/>
     <increment-setting text="Heart Rate Upper Bound" value="HRHigh" integer-only="true" min="140" max="220" increment="1" apply-on-change="true"/>

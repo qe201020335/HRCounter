@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
+using TMPro;
 
 namespace HRCounter.UI
 {
-    internal class SettingController : BSMLResourceViewController
+    internal class SettingMenuController : BSMLResourceViewController
     {
         public override string ResourceName => "HRCounter.UI.BSML.configMenu.bsml";
 
@@ -70,6 +71,7 @@ namespace HRCounter.UI
             set
             {
                 PluginConfig.Instance.DataSource = value;
+                UpdateText();
             }
         }
         
@@ -92,5 +94,14 @@ namespace HRCounter.UI
                 PluginConfig.Instance.AutoPause = value;
             }
         }
+        
+        [UIComponent("modified-text")]
+        private TextMeshProUGUI modifiedText;
+
+        private void UpdateText()
+        {
+            modifiedText.text = Utils.Utils.GetCurrentSourceLinkText();
+        }
+        
     }
 }

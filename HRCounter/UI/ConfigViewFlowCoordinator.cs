@@ -7,12 +7,12 @@ namespace HRCounter.UI
 {
     public class ConfigViewFlowCoordinator : FlowCoordinator
     {
-        private SettingController _mainPanel;
+        private SettingMenuController _mainPanel;
         public void Awake()
         {
             if (_mainPanel == null)
             {
-                _mainPanel = BeatSaberUI.CreateViewController<SettingController>();
+                _mainPanel = BeatSaberUI.CreateViewController<SettingMenuController>();
             }
         }
 
