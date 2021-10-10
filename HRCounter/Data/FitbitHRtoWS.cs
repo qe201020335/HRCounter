@@ -24,6 +24,22 @@ namespace HRCounter.Data
 
         internal FitbitHRtoWS() => RefreshSettings();
 
+        private void isSocketSecure(string url)
+        {
+            bool btr = false;
+            try
+            {
+                string[] colonSplit = url.Split(':');
+                wsurii.isSecure = colonSplit[0] == "wss";
+            }
+            catch(Exception)
+            {
+                logger.Warn("WebSocket URI is not valid! Assuming insecure.");
+            }
+
+            return btr;
+        }
+
         internal override void Start()
         {
             if(webSocket != null)
@@ -32,6 +48,8 @@ namespace HRCounter.Data
                 Stop();
             }
             webSocket = new WebSocket(_url);
+            if(isSocketSecure(_url))
+                webSocket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
             webSocket.OnClose += WebSocket_OnClose;
             webSocket.OnMessage += WebSocket_OnMessage;
             webSocket.Connect();
