@@ -19,10 +19,17 @@ namespace HRCounter.Utils
         
         internal static void PauseGame()
         {
-            if (!ReferenceEquals(_pauseController, null) && _pauseController.isActiveAndEnabled)
+            if (ReferenceEquals(_pauseController, null))
+            {
+                Logger.logger.Warn("Can't find game pause controller");
+            } else if (_pauseController.isActiveAndEnabled)
             {
                 Logger.logger.Info("Pausing Game");
                 _pauseController.Pause();
+            }
+            else
+            {
+                Logger.logger.Warn("Pause controller is not active");
             }
         }
     }
