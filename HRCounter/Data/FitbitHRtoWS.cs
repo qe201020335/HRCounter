@@ -67,7 +67,7 @@ namespace HRCounter.Data
                 while (_updating)
                 {
                     if (webSocket != null)
-                        if (webSocket.IsAlive)
+                        if (webSocket.ReadyState == WebSocketState.Open)
                         {
                             webSocket.Send("getHR");
                             webSocket.Send("checkFitbitConnection");
@@ -116,7 +116,7 @@ namespace HRCounter.Data
         {
             if(webSocket != null)
             {
-                if (webSocket.IsAlive)
+                if (webSocket.ReadyState == WebSocketState.Open)
                     webSocket.Close();
                 webSocket = null;
             }
