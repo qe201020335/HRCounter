@@ -35,7 +35,7 @@ namespace HRCounter.Configuration
 
         public virtual int PauseHR { get; set; } = 200;
         
-        public virtual bool AutoPause { get; set; } = true;
+        public virtual bool AutoPause { get; set; } = false;
 
     }
 }
