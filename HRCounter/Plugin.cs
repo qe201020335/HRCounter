@@ -1,4 +1,8 @@
-﻿using IPA;
+﻿using System;
+using System.Reflection;
+using HarmonyLib;
+using HRCounter.Data;
+using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPALogger = IPA.Logging.Logger;
@@ -49,11 +53,40 @@ namespace HRCounter
         }
 
         #endregion
-        /*
         [OnStart]
-        public void OnApplicationStart() {
-            SceneManager.activeSceneChanged += Utils.Utils.OnActiveSceneChanged;
+        public void OnApplicationStart() 
+        {
+            //SceneManager.activeSceneChanged += Utils.Utils.OnActiveSceneChanged;
+            if (Configuration.PluginConfig.Instance.YURModIntegration)
+            {
+                if (Utils.Utils.IsModInstalled("YUR.fit-BeatSaber-Mod"))
+                {
+                    // YUR Exists! Lets get some data!
+                    Logger.logger.Log(IPALogger.Level.Info, "Found Yur Mod!");
+                    Assembly YurModAssembly = Utils.Utils.GetModAssembly("YUR.fit-BeatSaber-Mod");
+                    if (YurModAssembly != null)
+                    {
+                        // Found the YUR Mod; use Harmony to postfix ActivityViewController.OverlayUpdateAction
+                        Type avcType = YurModAssembly.GetType("YUR.ViewControllers.ActivityViewController");
+                        if (avcType != null)
+                        {
+                            Harmony harmony = new Harmony("HRCounter.YURPatch");
+
+                            MethodInfo mOriginal = AccessTools.Method(avcType, "OverlayUpdateAction");
+                            MethodInfo mPostfix = typeof(ActivityViewControllerPatch).GetMethod("OverlayUpdateAction");
+
+                            harmony.Patch(mOriginal, postfix: new HarmonyMethod(mPostfix));
+                            Logger.logger.Log(IPALogger.Level.Info, "Patched OverlayUpdateAction()!");
+                        }
+                        else
+                            Logger.logger.Error("Failed to find the YUR Mod's ActivityViewController!");
+                    }
+                    else
+                        Logger.logger.Error("Found the YUR Mod, but can't get it's assembly!");
+                }
+                else
+                    Logger.logger.Warn("YURModIntegration is enabled, but failed to find the YUR Mod!");
+            }
         }
-        */
     }
 }

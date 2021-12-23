@@ -37,5 +37,7 @@ namespace HRCounter.Configuration
         
         public virtual bool AutoPause { get; set; } = false;
 
+        public virtual bool YURModIntegration { get; set; } = true;
+
     }
 }

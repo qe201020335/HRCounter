@@ -28,6 +28,9 @@ namespace HRCounter.Utils
             return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == modName);
         }
 
+        internal static Assembly GetModAssembly(string modName) => IPA.Loader.PluginManager.EnabledPlugins.ToList()
+            .Find(metadata => metadata.Name == modName).Assembly;
+
         internal static string GetCurrentSourceLinkText()
         {
             switch (PluginConfig.Instance.DataSource)

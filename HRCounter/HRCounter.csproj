@@ -40,7 +40,7 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.0.2.0, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="0Harmony, Version=2.5.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="BSML, Version=1.5.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -116,6 +116,9 @@
     <Reference Include="websocket-sharp, Version=1.0.2.1803, Culture=neutral, PublicKeyToken=5660b08a1845a91e">
       <HintPath>$(BeatSaberDir)\Libs\websocket-sharp.dll</HintPath>
     </Reference>
+    <Reference Include="YUR.Fit.Unity, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>$(BeatSaberDir)\Libs\YUR.Fit.Unity.dll</HintPath>
+    </Reference>
     <Reference Include="Zenject, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
@@ -134,6 +137,7 @@
     <Compile Include="Data\FitbitHRtoWS.cs" />
     <Compile Include="Data\HypeRate.cs" />
     <Compile Include="Data\WebRequest.cs" />
+    <Compile Include="Data\YURHR.cs" />
     <Compile Include="HRCounter.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />
