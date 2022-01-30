@@ -1,33 +1,36 @@
 ﻿using System;
 using System.Collections;
+using System.Threading.Tasks;
 using HRCounter.Configuration;
 using IPALogger = IPA.Logging.Logger;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace HRCounter.Data
-{  
-    [ObsoleteAttribute("Deprecated and won't work after Feb 5, 2022")]
-    internal sealed class HypeRate : BpmDownloader
+{
+    internal sealed class HRProxy : BpmDownloader
     {
-        // Register: {"topic": "hr:1234","event": "phx_join","payload": {},"ref": 0}
+         // Register: {"topic": "hr:1234","event": "phx_join","payload": {},"ref": 0}
         // HeartBeat: "{"topic": "phoenix","event": "heartbeat","payload": {},"ref": 123456}"
         
-        private const string URL = "wss://app.hyperate.io/socket/websocket";
+        private const string URL = "wss://hrproxy.fortnite.lol/hrproxy";
 
-        private const string HeartBeatJson =
-            "{\"topic\": \"phoenix\",\"event\": \"heartbeat\",\"payload\": {},\"ref\": 123456}";
+        private const string PONG = "{\"method\": \"pong\"}";
+        
         private string _sessionJson;
 
+        private string _reader = PluginConfig.Instance.DataSource;
+
         private bool _logHr = PluginConfig.Instance.LogHR;
-        private string _sessionID = PluginConfig.Instance.HypeRateSessionID;
+        private string _id;
         private bool _updating;
 
         private WebSocket _webSocket;
 
-        internal HypeRate()
+        internal HRProxy()
         {
             RefreshSettings();
         }
@@ -35,16 +38,28 @@ namespace HRCounter.Data
         protected override void RefreshSettings()
         {
             _logHr = PluginConfig.Instance.LogHR;
-            _sessionID = PluginConfig.Instance.HypeRateSessionID;
+            _reader = PluginConfig.Instance.DataSource;
 
-            _sessionJson = "{\"topic\": \"hr:" + _sessionID + "\",\"event\": \"phx_join\",\"payload\": {},\"ref\": 0}";
+            if (_reader == "HypeRate")
+            {
+                _id = PluginConfig.Instance.HypeRateSessionID;
+            }
+            else
+            {
+                _id = PluginConfig.Instance.PulsoidWidgetID;
+            }
+
+            JObject _subscribe = new JObject();
+            _subscribe["reader"] = _reader;
+            _subscribe["identifier"] = _id;
+            
+            _sessionJson = _subscribe.ToString();
         }
 
         internal override void Start()
         {
             _updating = true;
             CreateAndConnectSocket();
-            SharedCoroutineStarter.instance.StartCoroutine(HeartBeating());
         }
 
         internal override void Stop()
@@ -71,13 +86,13 @@ namespace HRCounter.Data
             SendMessage(_sessionJson);
         }
 
-        private IEnumerator HeartBeating()
+        private async Task Pong()
         {
-            logger.Info("WebSocket HeartBeating!");
-            while (_updating)
+            await Task.Delay(Random.Range(30, 15000)); // random delay between 30 ms and 15 sec
+            if (_updating)
             {
-                SendMessage(HeartBeatJson);
-                yield return new WaitForSecondsRealtime(15);
+                logger.Debug("Pong!");
+                SendMessage(PONG);
             }
         }
 
@@ -87,7 +102,7 @@ namespace HRCounter.Data
             if (_webSocket == null || _webSocket.ReadyState == WebSocketState.Closed)
             {
                 logger.Critical("WebSocket is null or Closed. Terminating HR Update.");
-                logger.Notice("Does your internet got disconnected?");
+                logger.Notice("Does your internet get disconnected?");
                 Stop();
             }
             try
@@ -141,10 +156,17 @@ namespace HRCounter.Data
             try
             {
                 var json = JObject.Parse(e.Data);
-                
-                if (json["event"] != null && json["event"].ToObject<string>() == "hr_update")
+
+                if (json["method"]?.ToString() == "ping")
                 {
-                    // {"event":"hr_update","payload":{"hr":89,"id":"2340"},"ref":null,"topic":"hr:2340"}
+                    logger.Debug("Ping!");
+                    logger.Debug("Pong Block Test");
+                    Pong();
+                    logger.Debug("Pong Block Test Finish");
+                }
+                else
+                {
+                    // {"reader": "","identifier": "","hr": "0","timestamp": "0"}
                     UpdateHR(json);
                 } 
             }
@@ -157,10 +179,10 @@ namespace HRCounter.Data
 
         private void UpdateHR(JObject json)
         {
-            if (json["payload"] != null && json["payload"]["hr"] != null)
+            if (json["hr"] != null)
             {
-                Bpm.Bpm = json["payload"]["hr"].ToObject<int>();
-                Bpm.ReceivedAt = DateTime.Now.ToString("HH:mm:ss");
+                Bpm.Bpm = json["hr"].ToObject<int>();
+                Bpm.ReceivedAt = json["timestamp"]?.ToString() ?? DateTime.Now.ToString("HH:mm:ss");
             }
             
             if (_logHr)

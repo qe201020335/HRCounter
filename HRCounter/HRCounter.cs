@@ -83,7 +83,17 @@ namespace HRCounter
                         return false;
                     }
 
-                    _bpmDownloader = new HypeRate();
+                    _bpmDownloader = new HRProxy();
+                    break;
+                    
+                case "Pulsoid":
+                    if (PluginConfig.Instance.PulsoidWidgetID == "NotSet")
+                    {
+                        _logger.Warn("Pulsoid Widget ID not set.");
+                        return false;
+                    }
+
+                    _bpmDownloader = new HRProxy();
                     break;
 
                 case "FitbitHRtoWS":
