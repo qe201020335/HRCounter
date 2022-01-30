@@ -3,10 +3,10 @@
     "id": "HRCounter",
     "name": "HRCounter",
     "author": "qe201020335",
-    "version": "1.4.1",
+    "version": "1.5.0",
     "icon": "HRCounter.Resources.hrcounter.png",
     "description": "A Counters+ custom counter that displays your heart rate in game.",
-    "gameVersion": "1.17.0",
+    "gameVersion": "1.19.0",
     "dependsOn": {
         "Counters+": "^2.0.0",
         "BSIPA": "^4.1.0",
