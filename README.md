@@ -1,15 +1,13 @@
 # HRCounter
 A Beat Saber Counters+ custom counter that displays your heart rate in game.
 
-
-
-![In Game Screenshot](./HRCounter/Resources/hrcounter_cover.png)
 **Supports BLE HR Monitor, Apple Watch, Fitbit, Galaxy Watch, WearOS and more!**
 
 It also supports **anything** that **Pulsoid** and **HypeRate** support!
 
-# ATTENTION
-The pulsoid feed link should shart with `https://pulsoid.net/v1/api/feed/...` **NOT** `https://pulsoid.net/widget/view/...`
+# ⚠️DEPRECATION NOTICE⚠️
+## 1. Pulsoid Feed Link is DEPRECATED and will stop working in Feb 2022. Please download the [latest](https://github.com/qe201020335/HRCounter/releases/latest) version and see [below](#Pulsoid) for instructions!
+## 2. Due to HypeRate API changes on Feb 5, 2022, HypeRate will not work on HRCounter version 1.4.1 and below. Please download the [latest](https://github.com/qe201020335/HRCounter/releases/latest) version!
 
 ## Requirements
 These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using [Mod Assistant](https://github.com/Assistant/ModAssistant/releases/latest).
@@ -31,12 +29,12 @@ The config file is at `Beat Saber/UserData/HRCounter.json`
 
 ## DATA SOURCES
 ### Pulsoid
-1. Open your pulsoid [widgets configuration page](https://pulsoid.net/ui/configuration).
-2. Copy the link behine `Feed reference` in the **Advanced** section at the bottom of the page.
-3. Paste this link in the config file as `"FeedLink": "https://pulsoid.net/v1/api/feed/..."`.
-4. Set the value of `DataSource` to `"WebRequest"`.
-
-Notice: The link should start with `https://pulsoid.net/v1/api/feed/...`.
+⚠️ Pulsoid Feed Link is DEPRECATED. Follow below to set up new version config.
+1. Open your pulsoid [widgets configuration page](https://pulsoid.net/ui/configuration) and configure your default widget.
+2. Copy the last part of the widget link as shown in this here.
+![pulsoid widget conig screenshot](https://i.imgur.com/KWtfIH2.png)
+4. Paste this in the config file as `"PulsoidWidgetID": "ff7936d8-██████████████20086244"`.
+5. Set the value of `DataSource` to `"Pulsoid"`.
 
 ### HypeRate
 1. In the HypeRate app on your phone or watch, there is the session ID, which is also the few hex digits at the end of your overlay link.
@@ -51,6 +49,10 @@ For example, if your overlay link is `https://app.hyperate.io/12ab`, then your s
 3. Set the value of `DataSource` to `"FitbitHRtoWS"`
 
 For example, `"FitbitWebSocket": "ws://localhost:8080/",` or `"FitbitWebSocket": "ws://192.168.1.100:8080/",`
+
+### YUR App
+1. Download and start YUR from [Steam](https://store.steampowered.com/app/1188920/YUR/)
+2. Set the value of `DataSource` to `"YUR APP"`
 
 ## HR MONITORS
 
@@ -105,6 +107,7 @@ Here is a table for all the setting options if you want to edit config file inst
 | `LogHR`       	| bool      | `false`           	| Whether the received HR data will be logged |
 | `DataSource`    | string    | `"WebRequest"`      | The data source you want to use to get hr data |
 | `HypeRateSessionID`| string | `"-1"`              | Session ID for HypeRate, it is also the the few hex digits at the end of your overlay link. |
+| `PulsoidWidgetID`| string   | `"NotSet"`          | Widget ID for HypeRate, it is also the last part of your widget link. |
 | `FitbitWebSocket` | string  | `"ws://localhost:8080/"`| WebSocket Link for FitbitHRtoWS |
 | `FeedLink`      | string    | `"NotSet"`   	    	| Your pulsoid feed link |
 | `Colorize`      | bool      | `true`   	        	| Whether the hr value will be colorized by the following 4 detail settings |
