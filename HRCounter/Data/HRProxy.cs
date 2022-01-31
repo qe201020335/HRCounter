@@ -16,9 +16,9 @@ namespace HRCounter.Data
          // Register: {"topic": "hr:1234","event": "phx_join","payload": {},"ref": 0}
         // HeartBeat: "{"topic": "phoenix","event": "heartbeat","payload": {},"ref": 123456}"
         
-        private const string URL = "wss://hrproxy.fortnite.lol/hrproxy";
+        private const string URL = "wss://hrproxy.fortnite.lol:2096/hrproxy";
 
-        private const string PONG = "{\"method\": \"pong\"}";
+        // private const string PONG = "{\"method\": \"pong\"}";
         
         private string _sessionJson;
 
@@ -86,13 +86,13 @@ namespace HRCounter.Data
             SendMessage(_sessionJson);
         }
 
-        private async Task Pong()
+        private async Task Pong(JObject data)
         {
             await Task.Delay(Random.Range(30, 15000)); // random delay between 30 ms and 15 sec
             if (_updating)
             {
                 logger.Debug("Pong!");
-                SendMessage(PONG);
+                SendMessage(data.ToString());
             }
         }
 
@@ -160,9 +160,8 @@ namespace HRCounter.Data
                 if (json["method"]?.ToString() == "ping")
                 {
                     logger.Debug("Ping!");
-                    logger.Debug("Pong Block Test");
-                    Pong();
-                    logger.Debug("Pong Block Test Finish");
+                    json["method"] = "pong";
+                    Pong(json);
                 }
                 else
                 {
