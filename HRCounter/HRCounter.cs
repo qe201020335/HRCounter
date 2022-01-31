@@ -104,6 +104,10 @@ namespace HRCounter
                     }
                     _bpmDownloader = new FitbitHRtoWS();
                     break;
+                
+                case "YUR APP":
+                    _bpmDownloader = new YURApp();
+                    break;
 
                 default:
                     _bpmDownloader = null;

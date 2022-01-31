@@ -137,6 +137,7 @@
     <Compile Include="Data\HRProxy.cs" />
     <Compile Include="Data\HypeRate.cs" />
     <Compile Include="Data\WebRequest.cs" />
+    <Compile Include="Data\YURApp.cs" />
     <Compile Include="HRCounter.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />
