@@ -69,6 +69,23 @@ namespace HRCounter.Data
             _webSocket = null;
         }
 
+        private void OnSocketClose(object sender, CloseEventArgs e)
+        {
+            if (sender != _webSocket)
+            {
+                return;
+            }
+
+            if (!_updating)
+            {
+                // we are not updating anyways.
+                return;
+            }
+            
+            logger.Warn("WebSocket is closed. Stopping HR updates");
+            Stop();
+        }
+
         private void CreateAndConnectSocket()
         {
             if (_webSocket != null && _webSocket.IsAlive)
@@ -82,13 +99,16 @@ namespace HRCounter.Data
             _webSocket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
             _webSocket.OnMessage += OnMessageReceive;
             _webSocket.OnError += OnSocketError;
+            _webSocket.OnClose += OnSocketClose;
             _webSocket.Connect();
             SendMessage(_sessionJson);
         }
 
         private async Task Pong(JObject data)
         {
-            await Task.Delay(Random.Range(30, 15000)); // random delay between 30 ms and 15 sec
+            var delay = Random.Range(30, 15000);
+            logger.Debug($"Random delay {delay} ms for pong.");
+            await Task.Delay(delay); // random delay between 30 ms and 15 sec
             if (_updating)
             {
                 logger.Debug("Pong!");
@@ -99,10 +119,15 @@ namespace HRCounter.Data
         private void SendMessage(string s)
         {
             logger.Debug($"Trying to send message {s}");
+            if (!_updating)
+            {
+                logger.Debug($"Not updating, no message sent.");
+                return;
+            }
             if (_webSocket == null || _webSocket.ReadyState == WebSocketState.Closed)
             {
                 logger.Critical("WebSocket is null or Closed. Terminating HR Update.");
-                logger.Notice("Does your internet get disconnected?");
+                logger.Notice("Server unreachable! Does your internet get disconnected?");
                 Stop();
             }
             try
@@ -171,8 +196,8 @@ namespace HRCounter.Data
             }
             catch (JsonReaderException)
             {
-                logger.Critical("Invalid json received.");
-                logger.Critical(e.Data);
+                logger.Warn("Invalid json received.");
+                logger.Warn(e.Data);
             }
         }
 
