@@ -25,7 +25,7 @@ Alternatively, you can also download them from their github repo.
 4. Depend on your devices, follow the instructions below to configure the auto generated config file.
 5. Run the game and enable this counter in Counter+'s counter configuration page
 
-The config file is at `Beat Saber/UserData/HRCounter.json`
+The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad to open and edit it.
 
 ## DATA SOURCES
 ### Pulsoid
