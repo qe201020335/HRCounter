@@ -44,6 +44,8 @@ The config file is at `Beat Saber/UserData/HRCounter.json`
 For example, if your overlay link is `https://app.hyperate.io/12ab`, then your session ID is `12ab` and the config will look like `"HypeRateSessionID": "12ab"`
 
 ### Fitbit
+
+For support on how to set up FitbitHRtoWS, please ask for help in [200Tigersbloxed's Discord server](https://www.fortnite.lol/discord)
 1. Follow the instruction on [FitbitHRtoWS](https://github.com/200Tigersbloxed/FitbitHRtoWS/wiki/Setup) and set up your heart rate broadcast.
 2. Change the value of `FitbitWebSocket` to `"ws://YOUR_IP:YOUR_PORT/"`.
 3. Set the value of `DataSource` to `"FitbitHRtoWS"`
