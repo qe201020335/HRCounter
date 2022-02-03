@@ -3,6 +3,7 @@ using System.Collections;
 using CountersPlus.Counters.Custom;
 using HRCounter.Configuration;
 using HRCounter.Data;
+using JetBrains.Annotations;
 using TMPro;
 using IPALogger = IPA.Logging.Logger;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace HRCounter
         private readonly IPALogger _logger = Logger.logger;
         private TMP_Text _counter;
         private bool _updating;
-        private BpmDownloader _bpmDownloader;
+        [CanBeNull] private BpmDownloader _bpmDownloader;
 
         // color stuff
         private bool _colorize = PluginConfig.Instance.Colorize;
@@ -183,7 +184,7 @@ namespace HRCounter
         public override void CounterDestroy()
         {
             Stop();
-            _bpmDownloader.Stop();
+            _bpmDownloader?.Stop();
             _counter = null;
             Utils.GamePause.GameEnd();
             _logger.Info("Counter destroyed");
