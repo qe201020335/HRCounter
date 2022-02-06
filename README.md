@@ -5,6 +5,8 @@ A Beat Saber Counters+ custom counter that displays your heart rate in game.
 
 It also supports **anything** that **Pulsoid**, **HypeRate**, **YUR Desktop App** support!
 
+It can even **pause** the game for you if your heart is beating **too fast**!
+
 # ⚠️DEPRECATION NOTICE⚠️
 ## 1. Pulsoid Feed Link is DEPRECATED and will stop working in Feb 2022. Please download the [latest](https://github.com/qe201020335/HRCounter/releases/latest) version and see [below](#Pulsoid) for instructions!
 ## 2. Due to HypeRate API changes on Feb 5, 2022, HypeRate will not work on HRCounter version 1.4.1 and below. Please download the [latest](https://github.com/qe201020335/HRCounter/releases/latest) version!
@@ -24,6 +26,7 @@ Alternatively, you can also download them from their github repo.
 3. Run the game once
 4. Depend on your devices, follow the instructions below to configure the auto generated config file.
 5. Run the game and enable this counter in Counter+'s counter configuration page
+6. Toggle on **Auto Pause** if you want the mod to pause the game for you. Also set the **Pause Heart Rate** for yourself!
 
 The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad to open and edit it.
 
