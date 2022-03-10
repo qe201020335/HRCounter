@@ -12,7 +12,7 @@ namespace HRCounter.Utils
     {
         // private static IPALogger _logger = Logger.logger;
 
-        internal static readonly List<object> DataSources = new object[] {"HypeRate", "WebRequest", "FitbitHRtoWS"}.ToList();
+        internal static readonly List<object> DataSources = new object[] {"HypeRate", "WebRequest", "FitbitHRtoWS", "Pulsoid", "YUR APP"}.ToList();
         
         private static readonly MethodBase ScoreSaber_playbackEnabled =
             AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
@@ -33,13 +33,19 @@ namespace HRCounter.Utils
             switch (PluginConfig.Instance.DataSource)
             {
                 case "WebRequest":
-                    return "FeedLink: " + PluginConfig.Instance.FeedLink;
+                    return PluginConfig.Instance.FeedLink;
 
                 case "HypeRate":
-                    return "SessionID: " + PluginConfig.Instance.HypeRateSessionID;
+                    return PluginConfig.Instance.HypeRateSessionID;
 
                 case "FitbitHRtoWS":
-                    return "WebSocket Server: " + PluginConfig.Instance.FitbitWebSocket;
+                    return PluginConfig.Instance.FitbitWebSocket;
+                
+                case "Pulsoid":
+                    return PluginConfig.Instance.PulsoidWidgetID;
+                
+                case "YUR APP":
+                    return "Make sure to have your desktop YUR app running";
 
                 default:
                     return "Unknown Data Source";

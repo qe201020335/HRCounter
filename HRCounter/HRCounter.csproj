@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HRCounter</RootNamespace>
     <AssemblyName>HRCounter</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
@@ -20,6 +20,8 @@
     <!--<PathMap>$(AppOutputBase)=X:\$(AssemblyName)\</PathMap>-->
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TargetFrameworkProfile />
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <Optimize>false</Optimize>
@@ -48,7 +50,7 @@
       <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Counters+, Version=2.1.4.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Counters+, Version=2.2.5.0, Culture=neutral, processorArchitecture=MSIL">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Plugins\Counters+.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
@@ -132,8 +134,10 @@
     <Compile Include="Data\BPM.cs" />
     <Compile Include="Data\BpmDownloader.cs" />
     <Compile Include="Data\FitbitHRtoWS.cs" />
+    <Compile Include="Data\HRProxy.cs" />
     <Compile Include="Data\HypeRate.cs" />
     <Compile Include="Data\WebRequest.cs" />
+    <Compile Include="Data\YURApp.cs" />
     <Compile Include="HRCounter.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />
