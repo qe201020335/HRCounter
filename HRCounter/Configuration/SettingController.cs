@@ -4,6 +4,7 @@ using TMPro;
 
 namespace HRCounter.Configuration
 {
+    // setting controller for Counters+ counter configuration page
     internal class SettingController
     {
         [UIValue("LogHR")]

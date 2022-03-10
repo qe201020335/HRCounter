@@ -6,6 +6,7 @@ using TMPro;
 
 namespace HRCounter.UI
 {
+    // setting controller for menu button
     internal class SettingMenuController : BSMLResourceViewController
     {
         public override string ResourceName => "HRCounter.UI.BSML.configMenu.bsml";
