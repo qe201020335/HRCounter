@@ -95,6 +95,16 @@ namespace HRCounter.UI
                 PluginConfig.Instance.AutoPause = value;
             }
         }
+
+        [UIValue("UseCountersPlus")]
+        public bool UseCountersPlus
+        {
+            get => PluginConfig.Instance.UseCountersPlus;
+            set
+            {
+                PluginConfig.Instance.UseCountersPlus = value;
+            }
+        }
         
         [UIComponent("modified-text")]
         private TextMeshProUGUI modifiedText;

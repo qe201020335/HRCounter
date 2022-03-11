@@ -12,4 +12,5 @@
     <bool-setting text="Auto Pause" value="AutoPause" hover-hint="Automatically pause the game if your heart rate is too high, set threshold below" apply-on-change="true"/>
     <increment-setting text="Pause Heart Rate" value="PauseHR" integer-only="true" min="150" max="250" increment="5" apply-on-change="true"/>
     <bool-setting text="Log Heart Rate" value="LogHR" hover-hint="Whether the received HR data will be logged." apply-on-change="true"/>
+    <bool-setting text="Prefer Counters+" value="UseCountersPlus" hover-hint="Whether to use legacy Counters+ or new UI" apply-on-change="true"/>
 </settings-container>
