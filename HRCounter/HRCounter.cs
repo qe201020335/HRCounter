@@ -8,7 +8,6 @@ using TMPro;
 using IPALogger = IPA.Logging.Logger;
 using UnityEngine;
 
-
 namespace HRCounter
 {
     public sealed class HRCounter: BasicCustomCounter
@@ -42,6 +41,7 @@ namespace HRCounter
                 _logger.Info("Please check your settings about data source and the link or id.");
                 return;
             }
+            
             
             CreateCounter();
             Utils.GamePause.GameStart();
@@ -129,6 +129,7 @@ namespace HRCounter
             _logger.Info("Creating counter");
             _counter = CanvasUtility.CreateTextFromSettings(Settings);
             _counter.fontSize = 3;
+            AssetBundleManager.SetupCanvasInScene();
         }
 
         private void Start()
@@ -147,7 +148,17 @@ namespace HRCounter
             while(_updating)
             {
                 var bpm = BPM.Instance.Bpm;
-                _counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
+                if (PluginConfig.Instance.UseCountersPlus)
+                {
+                    _counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
+                    AssetBundleManager.CurrentCanvas.SetActive(false);
+                }
+                else
+                {
+                    _counter.text = String.Empty;
+                    AssetBundleManager.CurrentCanvas.SetActive(true);
+                    AssetBundleManager.SetHR(_colorize ? $"<color=#{DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}");
+                }
                 yield return new WaitForSecondsRealtime(0.25f);
             }
         }

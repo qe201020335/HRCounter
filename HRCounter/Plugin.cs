@@ -31,6 +31,7 @@ namespace HRCounter
             Instance = this;
             Logger.logger = logger;
             Log = logger;
+            AssetBundleManager.LoadAssetBundle();
             Log.Info("HRCounter initialized.");
         }
 

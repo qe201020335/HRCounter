@@ -38,6 +38,7 @@ namespace HRCounter.Configuration
         public virtual int PauseHR { get; set; } = 200;
         
         public virtual bool AutoPause { get; set; } = false;
+        public virtual bool UseCountersPlus { get; set; }
 
     }
 }
