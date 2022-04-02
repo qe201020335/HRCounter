@@ -58,24 +58,24 @@ namespace HRCounter
             }
 
             var rootGameObject = standardGameplayScene.GetRootGameObjects().FirstOrDefault(x => x.name == "Wrapper");
-
             if (rootGameObject == null)
             {
                 Logger.logger.Warn("Cannot find Wrapper GameObject");
                 return false;
             }
             
-            var gameCore = rootGameObject.transform.Find("StandardGameplay/GameplayCore")?.gameObject;
-            if (gameCore == null)
+            // Find the GameplayCore
+            var gamePlayCore = rootGameObject.transform.Find("StandardGameplay/GameplayCore")?.gameObject;
+            if (gamePlayCore == null)
             {
-                Logger.logger.Warn("Cannot find gameCore");
+                Logger.logger.Warn("Cannot find gamePlayCore");
                 return false;
             }
 
             try
             {
                 // Get the component and start the reflection...
-                var gameplayCoreInstaller = gameCore.GetComponent<GameplayCoreInstaller>();
+                var gameplayCoreInstaller = gamePlayCore.GetComponent<GameplayCoreInstaller>();
                 var sceneSetupData = gameplayCoreInstaller.GetField<GameplayCoreSceneSetupData, GameplayCoreInstaller>("_sceneSetupData");
                 var beatmapCharacteristic = sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic;
                 var sn = beatmapCharacteristic.serializedName;
