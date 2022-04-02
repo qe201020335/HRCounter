@@ -19,7 +19,7 @@ namespace HRCounter
         private static AssetBundle loadedAssetBundle;
         private static GameObject CanvasOverlay;
 
-        public static void LoadAssetBundle()
+        internal static void LoadAssetBundle()
         {
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("HRCounter.hrcounter"))
             {
@@ -39,8 +39,7 @@ namespace HRCounter
             }
         }
 
-        private static bool IsGameCoreLoaded =>
-            SceneManager.GetAllScenes().Where(x => x.name == "GameCore").ToArray().Length > 0;
+        private static bool IsGameCoreLoaded => SceneManager.GetSceneByName("GameCore").IsValid();
 
         private static bool IsCurrentMap360or90()
         {
@@ -49,11 +48,17 @@ namespace HRCounter
                 Logger.logger.Warn("GameCore is not loaded");
                 return false;
             }
+            
+            // Get the StandardGameplay Scene
+            Scene standardGameplayScene = SceneManager.GetSceneByName("StandardGameplay");
+            if (!standardGameplayScene.IsValid())
+            {
+                Logger.logger.Warn("Cannot find StandardGameplay scene");
+                return false;
+            }
 
             try
             {
-                // Get the StandardGameplay Scene
-                Scene standardGameplayScene = SceneManager.GetSceneByName("StandardGameplay")!;
                 foreach (GameObject rootGameObject in standardGameplayScene.GetRootGameObjects())
                 {
                     if (rootGameObject.name != "Wrapper")
@@ -73,7 +78,7 @@ namespace HRCounter
                         Logger.logger.Warn("Beatmap Characteristic name is null or empty");
                         return false;
                     }
-                    return sn.Contains("360")|| sn.Contains("90");
+                    return sn.Contains("360") || sn.Contains("90");
                 }
             }
             catch (Exception e)
@@ -89,25 +94,17 @@ namespace HRCounter
         [CanBeNull]
         private static GameObject GetFlyingHUD()
         {
-            bool foundOne = false;
-            foreach (Scene allScene in SceneManager.GetAllScenes())
+            // There should only be one
+            Scene scene = SceneManager.GetAllScenes().FirstOrDefault(x => x.name.Contains("Environment") && x.isLoaded);
+
+            // Find the GameObject
+            GameObject environment = scene.GetRootGameObjects().FirstOrDefault(x => x.name == "Environment");
+
+            if (environment != null)
             {
-                if (allScene.name.Contains("Environment") && allScene.isLoaded)
-                {
-                    // There should only be one
-                    if (!foundOne)
-                    {
-                        foundOne = true;
-                        // Find the GameObject
-                        GameObject envGO = allScene.GetRootGameObjects().FirstOrDefault(x => x.name == "Environment")!;
-                        if (envGO != null)
-                        {
-                            GameObject fghud = envGO.transform.Find("FlyingGameHUD").Find("Container").gameObject;
-                            return fghud;
-                        }
-                    }
-                }
+                return environment.transform.Find("FlyingGameHUD/Container")?.gameObject;
             }
+
             return null;
         }
 
@@ -128,7 +125,7 @@ namespace HRCounter
                 CurrentCanvas.transform.localScale = Vector3.one / 150;
                 Numbers.alignment = TextAlignmentOptions.MidlineLeft;
                 Icon.GetComponent<Image>().material = Resources.FindObjectsOfTypeAll<Material>()
-                    .Where(x => x.name == "UINoGlow").FirstOrDefault();
+                    .FirstOrDefault(x => x.name == "UINoGlow");
                 if (!IsCurrentMap360or90())
                 {
                     // Place our Canvas in a Static Location
@@ -174,20 +171,33 @@ namespace HRCounter
         /// </summary>
         private class MapMover : MonoBehaviour
         {
-            private GameObject fhud;
-            private RectTransform icon_rt;
+            private GameObject _flyingHUD;
+            private RectTransform _iconRtTransform;
+
+            private bool _check = false;
+
+            private void Awake()
+            {
+                if (_flyingHUD == null && IsCurrentMap360or90())
+                {
+                    _flyingHUD = GetFlyingHUD();
+                }
+                if (_iconRtTransform == null)
+                {
+                    _iconRtTransform = Icon.gameObject.GetComponent<RectTransform>();
+                }
+
+                _check = CanFind && CurrentCanvas != null;
+            }
 
             private void Update()
             {
-                if(fhud == null && IsCurrentMap360or90())
-                    fhud = GetFlyingHUD();
-                else if (CanFind && CurrentCanvas != null)
+                if (_check)
                 {
-                    CurrentCanvas.transform.position = fhud.transform.position;
-                    if(icon_rt == null)
-                        icon_rt = Icon.gameObject.GetComponent<RectTransform>();
-                    icon_rt.localPosition = new Vector3(icon_rt.localPosition.x, -186, icon_rt.localPosition.z);
-                    CurrentCanvas.transform.rotation = fhud.transform.rotation;
+                    CurrentCanvas.transform.position = _flyingHUD.transform.position;
+                    Vector3 position = _iconRtTransform.localPosition;
+                    _iconRtTransform.localPosition = new Vector3(position.x, -186, position.z);
+                    CurrentCanvas.transform.rotation = _flyingHUD.transform.rotation;
                 }
             }
         }
