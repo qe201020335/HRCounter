@@ -44,55 +44,45 @@ namespace HRCounter
 
         private static bool IsCurrentMap360or90()
         {
-            if (IsGameCoreLoaded)
+            if (!IsGameCoreLoaded)
+            {
+                Logger.logger.Warn("GameCore is not loaded");
+                return false;
+            }
+
+            try
             {
                 // Get the StandardGameplay Scene
-                Scene sgs = SceneManager.GetSceneByName("StandardGameplay")!;
-                if (sgs != null)
+                Scene standardGameplayScene = SceneManager.GetSceneByName("StandardGameplay")!;
+                foreach (GameObject rootGameObject in standardGameplayScene.GetRootGameObjects())
                 {
-                    // Find the GameplayCore
-                    foreach (GameObject rootGameObject in sgs.GetRootGameObjects())
+                    if (rootGameObject.name != "Wrapper")
                     {
-                        if (rootGameObject.name == "Wrapper")
-                        {
-                            GameObject gc = rootGameObject.transform.Find("StandardGameplay").Find("GameplayCore").gameObject;
-                            if (gc != null)
-                            {
-                                // Get the component and start the reflection...
-                                GameplayCoreInstaller gci = gc.GetComponent<GameplayCoreInstaller>();
-                                if (gci != null)
-                                {
-                                    GameplayCoreSceneSetupData ssd =
-                                        gci.GetField<GameplayCoreSceneSetupData, GameplayCoreInstaller>(
-                                            "_sceneSetupData");
-                                    
-                                    if (ssd != null)
-                                    {
-                                        IDifficultyBeatmap db = ssd.difficultyBeatmap;
-                                        IDifficultyBeatmapSet dbs = db.parentDifficultyBeatmapSet;
-                                        BeatmapCharacteristicSO bcso = dbs.beatmapCharacteristic;
-
-                                        var sn = bcso.serializedName;
-                                        
-                                        bool contains360 = sn?.Contains("360") ?? false;
-                                        bool contains90 = sn?.Contains("90") ?? false;
-                                        return contains360 || contains90;
-                                    }
-                                    Logger.logger.Error("ssd null");
-                                }
-                                else
-                                    Logger.logger.Error("gci null");
-                            }
-                            else
-                                Logger.logger.Error("gc null");
-                        }
+                        continue;
                     }
+                    GameObject gameCore = rootGameObject.transform.Find("StandardGameplay").Find("GameplayCore").gameObject;
+
+                    // Get the component and start the reflection...
+                    GameplayCoreInstaller gci = gameCore.GetComponent<GameplayCoreInstaller>();
+                    GameplayCoreSceneSetupData ssd = gci.GetField<GameplayCoreSceneSetupData, GameplayCoreInstaller>("_sceneSetupData");
+                    BeatmapCharacteristicSO beatmapCharacteristic = ssd.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic;
+                    var sn = beatmapCharacteristic.serializedName;
+
+                    if (string.IsNullOrEmpty(sn))
+                    {
+                        Logger.logger.Warn("Beatmap Characteristic name is null or empty");
+                        return false;
+                    }
+                    return sn.Contains("360")|| sn.Contains("90");
                 }
-                else
-                    Logger.logger.Error("sgs null");
             }
-            Logger.logger.Error("false lol");
-            // lol idk
+            catch (Exception e)
+            {
+                Logger.logger.Critical("Exception occured while trying to determine 360/60");
+                Logger.logger.Critical(e.Message);
+                Logger.logger.Debug(e);
+            }
+            Logger.logger.Warn("Cannot determine if map is 360/90");
             return false;
         }
 
