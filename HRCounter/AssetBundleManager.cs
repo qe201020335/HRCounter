@@ -50,36 +50,42 @@ namespace HRCounter
             }
             
             // Get the StandardGameplay Scene
-            Scene standardGameplayScene = SceneManager.GetSceneByName("StandardGameplay");
+            var standardGameplayScene = SceneManager.GetSceneByName("StandardGameplay");
             if (!standardGameplayScene.IsValid())
             {
                 Logger.logger.Warn("Cannot find StandardGameplay scene");
                 return false;
             }
 
+            var rootGameObject = standardGameplayScene.GetRootGameObjects().FirstOrDefault(x => x.name == "Wrapper");
+
+            if (rootGameObject == null)
+            {
+                Logger.logger.Warn("Cannot find Wrapper GameObject");
+                return false;
+            }
+            
+            var gameCore = rootGameObject.transform.Find("StandardGameplay/GameplayCore")?.gameObject;
+            if (gameCore == null)
+            {
+                Logger.logger.Warn("Cannot find gameCore");
+                return false;
+            }
+
             try
             {
-                foreach (GameObject rootGameObject in standardGameplayScene.GetRootGameObjects())
+                // Get the component and start the reflection...
+                var gameplayCoreInstaller = gameCore.GetComponent<GameplayCoreInstaller>();
+                var sceneSetupData = gameplayCoreInstaller.GetField<GameplayCoreSceneSetupData, GameplayCoreInstaller>("_sceneSetupData");
+                var beatmapCharacteristic = sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic;
+                var sn = beatmapCharacteristic.serializedName;
+
+                if (string.IsNullOrEmpty(sn))
                 {
-                    if (rootGameObject.name != "Wrapper")
-                    {
-                        continue;
-                    }
-                    GameObject gameCore = rootGameObject.transform.Find("StandardGameplay").Find("GameplayCore").gameObject;
-
-                    // Get the component and start the reflection...
-                    GameplayCoreInstaller gci = gameCore.GetComponent<GameplayCoreInstaller>();
-                    GameplayCoreSceneSetupData ssd = gci.GetField<GameplayCoreSceneSetupData, GameplayCoreInstaller>("_sceneSetupData");
-                    BeatmapCharacteristicSO beatmapCharacteristic = ssd.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic;
-                    var sn = beatmapCharacteristic.serializedName;
-
-                    if (string.IsNullOrEmpty(sn))
-                    {
-                        Logger.logger.Warn("Beatmap Characteristic name is null or empty");
-                        return false;
-                    }
-                    return sn.Contains("360") || sn.Contains("90");
+                    Logger.logger.Warn("Beatmap Characteristic name is null or empty");
+                    return false;
                 }
+                return sn.Contains("360") || sn.Contains("90");
             }
             catch (Exception e)
             {
