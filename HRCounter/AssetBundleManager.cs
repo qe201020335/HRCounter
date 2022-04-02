@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using IPA.Utilities;
 
 namespace HRCounter
 {
@@ -61,21 +62,18 @@ namespace HRCounter
                                 GameplayCoreInstaller gci = gc.GetComponent<GameplayCoreInstaller>();
                                 if (gci != null)
                                 {
-                                    GameplayCoreSceneSetupData ssd = (GameplayCoreSceneSetupData) Convert.ChangeType(gci.GetType().GetField(
-                                            "_sceneSetupData",
-                                            BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(gci),
-                                        typeof(GameplayCoreSceneSetupData))!;
+                                    GameplayCoreSceneSetupData ssd =
+                                        gci.GetField<GameplayCoreSceneSetupData, GameplayCoreInstaller>(
+                                            "_sceneSetupData");
+                                    
                                     if (ssd != null)
                                     {
                                         IDifficultyBeatmap db = ssd.difficultyBeatmap;
                                         IDifficultyBeatmapSet dbs = db.parentDifficultyBeatmapSet;
                                         BeatmapCharacteristicSO bcso = dbs.beatmapCharacteristic;
-                                        // I HATE PRIVATE FIELDS
-                                        //90Degree
-                                        string? sn = (string) Convert.ChangeType(bcso.GetType().GetField(
-                                                "_serializedName",
-                                                BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(bcso),
-                                            typeof(string))!;
+
+                                        var sn = bcso.serializedName;
+                                        
                                         bool contains360 = sn?.Contains("360") ?? false;
                                         bool contains90 = sn?.Contains("90") ?? false;
                                         return contains360 || contains90;
