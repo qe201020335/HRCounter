@@ -7,9 +7,11 @@ using TMPro;
 namespace HRCounter.UI
 {
     // setting controller for menu button
-    internal class SettingMenuController : BSMLResourceViewController
+    [HotReload(RelativePathToLayout = @"BSML\configMenu.bsml")]
+    [ViewDefinition("HRCounter.UI.BSML.configMenu.bsml")]
+    internal class SettingMenuController : BSMLAutomaticViewController
     {
-        public override string ResourceName => "HRCounter.UI.BSML.configMenu.bsml";
+        // public override string ResourceName => "HRCounter.UI.BSML.configMenu.bsml";
 
         [UIValue("LogHR")]
         public bool LogHR
@@ -106,12 +108,16 @@ namespace HRCounter.UI
             }
         }
         
-        [UIComponent("modified-text")]
+        [UIComponent("data-source-info-text")]
         private TextMeshProUGUI modifiedText;
+
+        [UIValue("data-source-info-text")]
+        private string dataSourceInfo = Utils.Utils.GetCurrentSourceLinkText();
 
         private void UpdateText()
         {
             modifiedText.text = Utils.Utils.GetCurrentSourceLinkText();
+            dataSourceInfo = Utils.Utils.GetCurrentSourceLinkText();
         }
         
     }
