@@ -1,12 +1,14 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using System.Collections.Generic;
 using TMPro;
+using HRCounter.Configuration;
 
-namespace HRCounter.Configuration
+namespace HRCounter.UI.CountersPlus
 {
     // setting controller for Counters+ counter configuration page
     internal class SettingController
     {
+        /*
         [UIValue("LogHR")]
         public bool LogHR
         {
@@ -99,6 +101,12 @@ namespace HRCounter.Configuration
         {
             modifiedText.text = Utils.Utils.GetCurrentSourceLinkText();
         }
+        */
         
+        [UIValue("data-source-info-text")]
+        private string dataSourceInfo => Utils.Utils.GetCurrentSourceLinkText();
+
+        [UIValue("data-source-text")]
+        private string dataSource => $"Current DataSource: {PluginConfig.Instance.DataSource}";
     }
 }
