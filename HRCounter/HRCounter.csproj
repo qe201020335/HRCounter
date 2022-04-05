@@ -42,7 +42,7 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.0.2.0, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="0Harmony, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="BSML, Version=1.5.2.0, Culture=neutral, processorArchitecture=MSIL">
