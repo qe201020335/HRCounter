@@ -1,10 +1,18 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using System.Collections.Generic;
+using BeatSaberMarkupLanguage.ViewControllers;
+using HRCounter.Configuration;
+using TMPro;
 
-namespace HRCounter.Configuration
+namespace HRCounter.UI
 {
-    internal class SettingController
+    // setting controller for menu button
+    [HotReload(RelativePathToLayout = @"BSML\configMenu.bsml")]
+    [ViewDefinition("HRCounter.UI.BSML.configMenu.bsml")]
+    internal class SettingMenuController : BSMLAutomaticViewController
     {
+        // public override string ResourceName => "HRCounter.UI.BSML.configMenu.bsml";
+
         [UIValue("LogHR")]
         public bool LogHR
         {
@@ -14,6 +22,7 @@ namespace HRCounter.Configuration
                 PluginConfig.Instance.LogHR = value;
             }
         }
+        
 
         [UIValue("Colorize")]
         public bool Colorize
@@ -65,6 +74,7 @@ namespace HRCounter.Configuration
             set
             {
                 PluginConfig.Instance.DataSource = value;
+                UpdateText();
             }
         }
         
@@ -87,5 +97,18 @@ namespace HRCounter.Configuration
                 PluginConfig.Instance.AutoPause = value;
             }
         }
+        
+        [UIComponent("data-source-info-text")]
+        private TextMeshProUGUI modifiedText;
+
+        [UIValue("data-source-info-text")]
+        private string dataSourceInfo = Utils.Utils.GetCurrentSourceLinkText();
+
+        private void UpdateText()
+        {
+            modifiedText.text = Utils.Utils.GetCurrentSourceLinkText();
+            dataSourceInfo = Utils.Utils.GetCurrentSourceLinkText();
+        }
+        
     }
 }
