@@ -60,8 +60,7 @@ namespace HRCounter.Data
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
                 {
-                    logger.Error($"Error Requesting HR data: {webRequest.error}");
-                    throw new WebException();
+                    logger.Warn($"Error Requesting HR data: {webRequest.error}");
                 }
 
                 if (_regex.IsMatch(webRequest.downloadHandler.text))
