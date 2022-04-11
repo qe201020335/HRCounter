@@ -15,8 +15,6 @@ namespace HRCounter.Utils
         internal static void GameEnd()
         {
             _pauseController = null;
-            // Currently reliant on Counters+, will be phased out later
-            AssetBundleManager.ForceRemoveCanvas();
         }
         
         internal static void PauseGame()

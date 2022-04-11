@@ -198,6 +198,8 @@ namespace HRCounter
             _bpmDownloader?.Stop();
             _counter = null;
             Utils.GamePause.GameEnd();
+            // Currently reliant on Counters+, will be phased out later
+            AssetBundleManager.ForceRemoveCanvas();
             _logger.Info("Counter destroyed");
         }
     }
