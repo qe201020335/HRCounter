@@ -98,13 +98,13 @@ namespace HRCounter.UI
             }
         }
 
-        [UIValue("UseCountersPlus")]
+        [UIValue("TextOnlyCounter")]
         public bool UseCountersPlus
         {
-            get => PluginConfig.Instance.UseCountersPlus;
+            get => PluginConfig.Instance.TextOnlyCounter;
             set
             {
-                PluginConfig.Instance.UseCountersPlus = value;
+                PluginConfig.Instance.TextOnlyCounter = value;
             }
         }
         

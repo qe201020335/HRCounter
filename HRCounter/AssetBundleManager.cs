@@ -147,17 +147,44 @@ namespace HRCounter
                 }
             }
         }
-        
+
+        internal static void SetupCanvasInScene(Canvas canvas, TMP_Text countersPlusText)
+        {
+            if (!CanFind)
+            {
+                CurrentCanvas = Object.Instantiate(CanvasOverlay);
+                Icon = CurrentCanvas.transform.GetChild(0).gameObject;
+                Numbers = Icon.transform.GetChild(0).GetComponent<TMP_Text>();
+                CanFind = true;
+                Numbers.alignment = TextAlignmentOptions.MidlineLeft;
+                Icon.GetComponent<Image>().material = Resources.FindObjectsOfTypeAll<Material>()
+                    .FirstOrDefault(x => x.name == "UINoGlow");
+                Icon.transform.localScale = Vector3.one / 30;
+                CurrentCanvas.SetActive(false);
+                Icon.transform.SetParent(canvas.transform, false);
+                Icon.GetComponent<RectTransform>().anchoredPosition =
+                    countersPlusText.rectTransform.anchoredPosition;
+                Icon.transform.localPosition -= new Vector3(2, 0, 0); // recenter
+
+                Icon.SetActive(true);
+            }
+            else
+            {
+                Logger.logger.Warn("GameCore not loaded or we have a previous counter");
+            }
+        }
+
         public static void ForceRemoveCanvas()
         {
             if (CanFind)
             {
                 if (CurrentCanvas != null)
                 {
-                    Object.Destroy(CurrentCanvas);
-                    CurrentCanvas = null;
+                    Object.Destroy(Icon);
                     Icon = null;
                     Numbers = null;
+                    Object.Destroy(CurrentCanvas);
+                    CurrentCanvas = null;
                 }
                 CanFind = false;
             }
@@ -171,7 +198,7 @@ namespace HRCounter
                 if (CanFind && IsGameCoreLoaded && !IsCurrentMap360or90())
                 {
                     var location = PluginConfig.Instance.StaticCounterPosition;
-                    CurrentCanvas.transform.position = new Vector3(location.x, location.y, location.z);
+                    // CurrentCanvas.transform.position = new Vector3(location.x, location.y, location.z);
                 }
             }
             catch (Exception exception)

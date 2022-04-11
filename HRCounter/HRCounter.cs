@@ -129,7 +129,15 @@ namespace HRCounter
             _logger.Info("Creating counter");
             _counter = CanvasUtility.CreateTextFromSettings(Settings);
             _counter.fontSize = 3;
-            AssetBundleManager.SetupCanvasInScene();
+
+            var canvas = CanvasUtility.GetCanvasFromID(Settings.CanvasID);
+            if (canvas == null)
+            {
+                Logger.logger.Warn("Cannot find counters+ canvas");
+                return;
+            }
+            
+            AssetBundleManager.SetupCanvasInScene(canvas, _counter);
         }
 
         private void Start()
@@ -148,7 +156,7 @@ namespace HRCounter
             while(_updating)
             {
                 var bpm = BPM.Instance.Bpm;
-                if (PluginConfig.Instance.UseCountersPlus)
+                if (PluginConfig.Instance.TextOnlyCounter)
                 {
                     _counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
                     AssetBundleManager.CurrentCanvas.SetActive(false);
