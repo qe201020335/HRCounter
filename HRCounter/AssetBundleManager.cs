@@ -120,7 +120,7 @@ namespace HRCounter
         public static GameObject Icon;
         public static TMP_Text Numbers;
         
-        public static void SetupCanvasInScene()
+        public static GameObject SetupCanvasInScene()
         {
             // Only add it if we haven't already
             if (!CanFind && IsGameCoreLoaded)
@@ -146,9 +146,11 @@ namespace HRCounter
                     CurrentCanvas.AddComponent<MapMover>();
                 }
             }
+
+            return CurrentCanvas;
         }
 
-        internal static void SetupCanvasInScene(Canvas canvas, TMP_Text countersPlusText)
+        internal static GameObject SetupCanvasInScene(Canvas canvas, TMP_Text countersPlusText)
         {
             if (!CanFind)
             {
@@ -166,12 +168,14 @@ namespace HRCounter
                     countersPlusText.rectTransform.anchoredPosition;
                 Icon.transform.localPosition -= new Vector3(2, 0, 0); // recenter
 
-                Icon.SetActive(true);
+                Icon.SetActive(!PluginConfig.Instance.TextOnlyCounter);
             }
             else
             {
                 Logger.logger.Warn("GameCore not loaded or we have a previous counter");
             }
+
+            return Icon;
         }
 
         public static void ForceRemoveCanvas()

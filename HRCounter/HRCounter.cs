@@ -25,6 +25,8 @@ namespace HRCounter
         private string _colorLow = PluginConfig.Instance.LowColor;
         private string _colorHigh = PluginConfig.Instance.HighColor;
         private string _colorMid = PluginConfig.Instance.MidColor;
+
+        private GameObject _customCounter;
         
 
         public override void CounterInit()
@@ -109,6 +111,10 @@ namespace HRCounter
                 case "YUR APP":
                     _bpmDownloader = new YURApp();
                     break;
+                
+                case "Random":
+                    _bpmDownloader = new RandomHR();
+                    break;
 
                 default:
                     _bpmDownloader = null;
@@ -137,7 +143,12 @@ namespace HRCounter
                 return;
             }
             
-            AssetBundleManager.SetupCanvasInScene(canvas, _counter);
+            _customCounter = AssetBundleManager.SetupCanvasInScene(canvas, _counter);
+            if (_customCounter == null)
+            {
+                _logger.Error("Cannot create custom counter");
+                Stop();
+            }
         }
 
         private void Start()
@@ -159,12 +170,12 @@ namespace HRCounter
                 if (PluginConfig.Instance.TextOnlyCounter)
                 {
                     _counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
-                    AssetBundleManager.CurrentCanvas.SetActive(false);
+                    _customCounter.SetActive(false);
                 }
                 else
                 {
                     _counter.text = String.Empty;
-                    AssetBundleManager.CurrentCanvas.SetActive(true);
+                    _customCounter.SetActive(true);
                     AssetBundleManager.SetHR(_colorize ? $"<color=#{DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}");
                 }
                 yield return new WaitForSecondsRealtime(0.25f);
