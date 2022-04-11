@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using BeatSaberMarkupLanguage;
+using HRCounter.Configuration;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
@@ -135,7 +136,8 @@ namespace HRCounter
                 if (!IsCurrentMap360or90())
                 {
                     // Place our Canvas in a Static Location
-                    CurrentCanvas.transform.position = new Vector3(0, 1.2f, 7f);
+                    var location = PluginConfig.Instance.StaticCounterPosition;
+                    CurrentCanvas.transform.position = new Vector3(location.x, location.y, location.z);
                     CurrentCanvas.transform.rotation = Quaternion.identity;
                 }
                 else
@@ -158,6 +160,24 @@ namespace HRCounter
                     Numbers = null;
                 }
                 CanFind = false;
+            }
+        }
+
+        internal static void OnSettingChange(object sender, EventArgs e)
+        {
+            Logger.logger.Info("Settings changed, updating counter location.");
+            try
+            {
+                if (CanFind && IsGameCoreLoaded && !IsCurrentMap360or90())
+                {
+                    var location = PluginConfig.Instance.StaticCounterPosition;
+                    CurrentCanvas.transform.position = new Vector3(location.x, location.y, location.z);
+                }
+            }
+            catch (Exception exception)
+            {
+                Logger.logger.Warn($"Exception Caught during counter location update");
+                Logger.logger.Warn(exception);
             }
         }
         

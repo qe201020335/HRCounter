@@ -43,6 +43,7 @@ namespace HRCounter
             Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
             Logger.logger = Log;
             Log.Debug("Config loaded");
+            Configuration.PluginConfig.Instance.OnSettingsChanged += AssetBundleManager.OnSettingChange;
         }
 
         #endregion
