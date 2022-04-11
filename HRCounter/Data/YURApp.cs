@@ -98,9 +98,7 @@ namespace HRCounter.Data
                     if (type[0] == 1)
                     {
                         // ping message
-#if DEBUG
-                        logger.Debug("Ping!");
-#endif
+                        Logger.DebugSpam("Ping!");
                         await Pong();
                     }
                     else if (type[0] == 20)
@@ -166,10 +164,8 @@ namespace HRCounter.Data
         private void HandleData(string data)
         {
             
-#if DEBUG
-            logger.Debug(data);
-#endif
-            
+            Logger.DebugSpam(data);
+
             try
             {
                 var json = JObject.Parse(data);
@@ -185,10 +181,8 @@ namespace HRCounter.Data
 
                 var osu = JObject.Parse(json["jsonData"]?.ToString());
                 
-#if DEBUG
-                logger.Debug(osu.ToString());
-#endif
-                
+                Logger.DebugSpam(osu.ToString());
+
                 var hrToken = osu["status"]?["heartRate"]?.Type != JTokenType.Null
                     ? osu["status"]?["heartRate"]
                     : osu["status"]?["calculationMetrics"]?["estHeartRate"];
@@ -215,9 +209,7 @@ namespace HRCounter.Data
 
         private async Task Pong()
         {
-#if DEBUG
-            logger.Debug("Pong!");
-#endif
+            Logger.DebugSpam("Pong!");
             await SendMessage(2, null);
         }
         

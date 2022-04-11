@@ -132,12 +132,10 @@ namespace HRCounter.Data
             {
                 return;
             }
-
-#if DEBUG
+            
          
-            logger.Debug(e.Data);
-#endif        
-
+            Logger.DebugSpam(e.Data);
+            
             try
             {
                 var json = JObject.Parse(e.Data);
