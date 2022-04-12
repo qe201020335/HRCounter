@@ -43,9 +43,7 @@ namespace HRCounter.Data.BpmDownloaders
                 Logger.logger.Critical(e);
             }
         }
-
-        protected abstract void RefreshSettings();
-
+        
         internal abstract void Start();
 
         internal abstract void Stop();

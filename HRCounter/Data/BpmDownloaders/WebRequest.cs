@@ -15,8 +15,6 @@ namespace HRCounter.Data.BpmDownloaders
 
         private readonly Regex _regex = new Regex("^\\d+$");
 
-        protected override void RefreshSettings() {}
-
         internal override void Start()
         {
             logger.Info("Starts updating HR");

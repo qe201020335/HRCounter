@@ -31,7 +31,7 @@ namespace HRCounter.Data.BpmDownloaders
             RefreshSettings();
         }
 
-        protected override void RefreshSettings()
+        private void RefreshSettings()
         {
             _reader = PluginConfig.Instance.DataSource;
 

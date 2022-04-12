@@ -6,10 +6,7 @@ namespace HRCounter.Data.BpmDownloaders
     internal class RandomHR : BpmDownloader
     {
         private bool _updating = false;
-        protected override void RefreshSettings()
-        {
-            
-        }
+
         internal override void Start()
         {
             _updating = true;

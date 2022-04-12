@@ -18,8 +18,6 @@ namespace HRCounter.Data.BpmDownloaders
         
         private Thread _worker;
 
-        protected override void RefreshSettings() {}
-
         internal override void Start()
         {
             _running = true;

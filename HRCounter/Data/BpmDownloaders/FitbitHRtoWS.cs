@@ -78,7 +78,7 @@ namespace HRCounter.Data.BpmDownloaders
             _worker.Start();
         }
 
-        protected override void RefreshSettings()
+        private void RefreshSettings()
         {
             _url = PluginConfig.Instance.FitbitWebSocket;
         }
