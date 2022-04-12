@@ -14,6 +14,7 @@ namespace HRCounter.Installers
 
         public override void InstallBindings()
         {
+            
             if (_sceneSetupData == null)
             {
                 Logger.logger.Warn("GameplayCoreSceneSetupData is null");

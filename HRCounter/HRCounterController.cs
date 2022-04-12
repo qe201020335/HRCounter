@@ -39,6 +39,12 @@ namespace HRCounter
                 return;
             }
             
+            if (PluginConfig.Instance.HideDuringReplay && Utils.Utils.IsInReplay())
+            {
+                _logger.Info("We are in a replay, HRCounter hides.");
+                return;
+            }
+            
             _needs360Move = _sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic
                 .requires360Movement;
             Plugin.Log.Info($"360/90?: {_needs360Move}");

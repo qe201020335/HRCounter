@@ -11,7 +11,6 @@ namespace HRCounter.Utils
     
     public static class Utils
     {
-        // private static IPALogger _logger = Logger.logger;
 
         internal static readonly List<object> DataSources = new object[] {"HypeRate", "WebRequest", "FitbitHRtoWS", "Pulsoid", "YUR APP"}.ToList();
         
@@ -24,9 +23,9 @@ namespace HRCounter.Utils
             return ScoreSaber_playbackEnabled != null && (bool) ScoreSaber_playbackEnabled.Invoke(null, null) == false;
         }
         
-        internal static bool IsModInstalled(string modName)
+        internal static bool IsModEnabled(string id)
         {
-            return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == modName);
+            return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == id);
         }
 
         internal static string GetCurrentSourceLinkText()

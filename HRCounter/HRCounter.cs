@@ -18,7 +18,6 @@ namespace HRCounter
         private readonly IPALogger _logger = Logger.logger;
         private TMP_Text _counter;
         private bool _updating;
-        // [CanBeNull] private BpmDownloader _bpmDownloader;
 
         private static bool Colorize => PluginConfig.Instance.Colorize;
 
@@ -43,84 +42,9 @@ namespace HRCounter
                 _logger.Info("Please check your settings about data source and the link or id.");
                 return;
             }
-
-            // try
-            // {
-            //     _bpmDownloader.Start();
-            //     _logger.Info("Start updating heart rate");
-            // }
-            // catch (Exception e)
-            // {
-            //     _logger.Critical("Could not start bpm downloader.");
-            //     _logger.Error(e.Message);
-            //     _logger.Debug(e);
-            //     _bpmDownloader.Stop();
-            //     return;
-            // }
-            // Start();
+            
             _logger.Info("Start updating counter text");
         }
-
-        /*
-        private bool Refresh()
-        {
-            _logger.Info("Refreshing Settings");
-            switch (PluginConfig.Instance.DataSource)
-            {
-                case "WebRequest":
-                    if (PluginConfig.Instance.FeedLink == "NotSet")
-                    {
-                        _logger.Warn("Feed link not set.");
-                        return false;
-                    }
-                    _bpmDownloader = new WebRequest();
-                    break;
-                
-                case "HypeRate":
-                    if (PluginConfig.Instance.HypeRateSessionID == "-1")
-                    {
-                        _logger.Warn("Hype Rate Session ID not set.");
-                        return false;
-                    }
-
-                    _bpmDownloader = new HRProxy();
-                    break;
-                    
-                case "Pulsoid":
-                    if (PluginConfig.Instance.PulsoidWidgetID == "NotSet")
-                    {
-                        _logger.Warn("Pulsoid Widget ID not set.");
-                        return false;
-                    }
-
-                    _bpmDownloader = new HRProxy();
-                    break;
-
-                case "FitbitHRtoWS":
-                    if(PluginConfig.Instance.FitbitWebSocket == string.Empty)
-                    {
-                        _logger.Warn("FitbitWebSocket is empty.");
-                        return false;
-                    }
-                    _bpmDownloader = new FitbitHRtoWS();
-                    break;
-                
-                case "YUR APP":
-                    _bpmDownloader = new YURApp();
-                    break;
-                
-                case "Random":
-                    _bpmDownloader = new RandomHR();
-                    break;
-
-                default:
-                    _bpmDownloader = null;
-                    _logger.Warn("Unknown Data Sources");
-                    return false;
-            }
-            return true;
-        }
-        */
 
         private void CreateCounter()
         {
@@ -160,63 +84,17 @@ namespace HRCounter
             
         }
 
-        /*
-        private void Start()
-        {
-            _updating = true;
-            SharedCoroutineStarter.instance.StartCoroutine(Ticking());
-        }
-
-        private void Stop()
-        {
-            _updating = false;
-        }
-
-        private IEnumerator Ticking()
-        {
-            while(_updating)
-            {
-                var bpm = BPM.Instance.Bpm;
-                if (PluginConfig.Instance.TextOnlyCounter)
-                {
-                    _counter.text = Colorize ? $"<color=#FFFFFF>HR </color><color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
-                    _customCounter.SetActive(false);
-                }
-                else
-                {
-                    _counter.text = String.Empty;
-                    _customCounter.SetActive(true);
-                    _customCounterText.text = (Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}");
-                }
-                yield return new WaitForSecondsRealtime(0.25f);
-            }
-        }
-        */
-
         private void OnHRUpdate(object sender, HRUpdateEventArgs args)
         {
             var bpm = args.HeartRate;
-            if (PluginConfig.Instance.TextOnlyCounter)
-            {
-                _counter.text = Colorize ? $"<color=#FFFFFF>HR </color><color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
-                _customCounter.SetActive(false);
-            }
-            else
-            {
-                _counter.text = String.Empty;
-                _customCounter.SetActive(true);
-                _customCounterText.text = Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
-            }
+            _customCounter.SetActive(true);
+            _customCounterText.text = Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
         }
 
         public override void CounterDestroy()
         {
-            // Stop();
-            // _bpmDownloader?.Stop();
             _counter = null;
             Utils.GamePause.GameEnd();
-            // Currently reliant on Counters+, will be phased out later
-            // AssetBundleManager.ForceRemoveCanvas();
             HRController.OnHRUpdate -= OnHRUpdate;
             if (_customCounter != null)
             {

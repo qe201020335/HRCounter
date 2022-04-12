@@ -10,6 +10,6 @@
     <increment-setting text="Heart Rate Upper Bound" value="HRHigh" integer-only="true" min="140" max="220" increment="1" apply-on-change="true"/>
     <bool-setting text="Auto Pause" value="AutoPause" hover-hint="Automatically pause the game if your heart rate is too high, set threshold below" apply-on-change="true"/>
     <increment-setting text="Pause Heart Rate" value="PauseHR" integer-only="true" min="150" max="250" increment="5" apply-on-change="true"/>
-    <bool-setting text="Text Only Counter" value="TextOnlyCounter" hover-hint="Whether to use legacy Counters+ or new UI" apply-on-change="true"/>
+    <bool-setting text="Ignore Counters+" value="IgnoreCounters+" hover-hint="Ignore whether Counters+ is installed, ignore it to allow 2 hr counters to present at the same time" apply-on-change="true"/>
     <bool-setting text="Log Heart Rate" value="LogHR" hover-hint="Whether the received HR data will be logged." apply-on-change="true"/>
 </settings-container>

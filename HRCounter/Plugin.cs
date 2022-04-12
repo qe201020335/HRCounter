@@ -1,10 +1,13 @@
-﻿using BeatSaberMarkupLanguage.MenuButtons;
+﻿using System.Linq;
+using BeatSaberMarkupLanguage.MenuButtons;
 using BeatSaberMarkupLanguage;
 using IPA;
 using IPA.Config.Stores;
 using SiraUtil.Zenject;
 using IPALogger = IPA.Logging.Logger;
 using HRCounter.Installers;
+using IPA.Loader;
+
 // using UnityEngine.SceneManagement;
 
 namespace HRCounter
@@ -32,7 +35,6 @@ namespace HRCounter
             Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
             Log.Debug("Config loaded");
             AssetBundleManager.LoadAssetBundle();
-            
             zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);
             Log.Debug("Installers!");
         }
@@ -50,7 +52,5 @@ namespace HRCounter
             }
             BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(Instance._configViewFlowCoordinator);
         }
-        
-        
     }
 }

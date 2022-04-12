@@ -40,7 +40,8 @@ namespace HRCounter.Configuration
         public virtual int PauseHR { get; set; } = 200;
         
         public virtual bool AutoPause { get; set; } = false;
-        public virtual bool TextOnlyCounter { get; set; } = false;
+        
+        public virtual bool IgnoreCountersPlus { get; set; } = false;
 
         public virtual bool DebugSpam { get; set; } = false;
 

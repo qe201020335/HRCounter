@@ -11,7 +11,6 @@ namespace HRCounter.UI
     [ViewDefinition("HRCounter.UI.BSML.configMenu.bsml")]
     internal class SettingMenuController : BSMLAutomaticViewController
     {
-        // public override string ResourceName => "HRCounter.UI.BSML.configMenu.bsml";
 
         [UIValue("LogHR")]
         public bool LogHR
@@ -98,13 +97,13 @@ namespace HRCounter.UI
             }
         }
 
-        [UIValue("TextOnlyCounter")]
+        [UIValue("IgnoreCounters+")]
         public bool UseCountersPlus
         {
-            get => PluginConfig.Instance.TextOnlyCounter;
+            get => PluginConfig.Instance.IgnoreCountersPlus;
             set
             {
-                PluginConfig.Instance.TextOnlyCounter = value;
+                PluginConfig.Instance.IgnoreCountersPlus = value;
             }
         }
         
