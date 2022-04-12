@@ -2,7 +2,9 @@
 using BeatSaberMarkupLanguage;
 using IPA;
 using IPA.Config.Stores;
+using SiraUtil.Zenject;
 using IPALogger = IPA.Logging.Logger;
+using HRCounter.Installers;
 // using UnityEngine.SceneManagement;
 
 namespace HRCounter
@@ -21,33 +23,20 @@ namespace HRCounter
         private UI.ConfigViewFlowCoordinator _configViewFlowCoordinator;
 
         [Init]
-        /// <summary>
-        /// Called when the plugin is first loaded by IPA (either when the game starts or when the plugin is enabled if it starts disabled).
-        /// [Init] methods that use a Constructor or called before regular methods like InitWithConfig.
-        /// Only use [Init] with one Constructor.
-        /// </summary>
-        public void Init(IPALogger logger)
+        public void InitWithConfig(IPALogger logger, IPA.Config.Config conf, Zenjector zenject)
         {
             Instance = this;
             Logger.logger = logger;
             Log = logger;
-            AssetBundleManager.LoadAssetBundle();
             Log.Info("HRCounter initialized.");
-        }
-
-        #region BSIPA Config
-
-        [Init]
-        public void InitWithConfig(IPA.Config.Config conf)
-        {
             Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
-            Logger.logger = Log;
             Log.Debug("Config loaded");
-            Configuration.PluginConfig.Instance.OnSettingsChanged += AssetBundleManager.OnSettingChange;
+            AssetBundleManager.LoadAssetBundle();
+            
+            zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);
+            Log.Debug("Installers!");
         }
 
-        #endregion
-        
         [OnStart]
         public void OnStart() {
             MenuButtons.instance.RegisterButton(MenuButton);

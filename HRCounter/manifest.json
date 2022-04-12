@@ -8,9 +8,9 @@
     "description": "A Counters+ custom counter that displays your heart rate in game.",
     "gameVersion": "1.19.0",
     "dependsOn": {
-        "Counters+": "^2.0.0",
         "BSIPA": "^4.1.0",
-        "BeatSaberMarkupLanguage": "^1.3.4"
+        "BeatSaberMarkupLanguage": "^1.3.4",
+        "SiraUtil": "^3.0.0"
     },
     "loadAfter": [
         "Counters+"

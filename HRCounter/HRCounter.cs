@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using TMPro;
 using IPALogger = IPA.Logging.Logger;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace HRCounter
 {
@@ -18,16 +19,11 @@ namespace HRCounter
         private bool _updating;
         [CanBeNull] private BpmDownloader _bpmDownloader;
 
-        // color stuff
-        private bool _colorize = PluginConfig.Instance.Colorize;
-        private int _hrLow = PluginConfig.Instance.HRLow;
-        private int _hrHigh = PluginConfig.Instance.HRHigh;
-        private string _colorLow = PluginConfig.Instance.LowColor;
-        private string _colorHigh = PluginConfig.Instance.HighColor;
-        private string _colorMid = PluginConfig.Instance.MidColor;
+        private static bool Colorize => PluginConfig.Instance.Colorize;
+        
 
         private GameObject _customCounter;
-        
+        private TMP_Text _customCounterText;
 
         public override void CounterInit()
         {
@@ -121,12 +117,6 @@ namespace HRCounter
                     _logger.Warn("Unknown Data Sources");
                     return false;
             }
-            _colorize = PluginConfig.Instance.Colorize;
-            _hrLow = PluginConfig.Instance.HRLow;
-            _hrHigh = PluginConfig.Instance.HRHigh;
-            _colorLow = PluginConfig.Instance.LowColor;
-            _colorHigh = PluginConfig.Instance.HighColor;
-            _colorMid = PluginConfig.Instance.MidColor;
             return true;
         }
 
@@ -135,20 +125,37 @@ namespace HRCounter
             _logger.Info("Creating counter");
             _counter = CanvasUtility.CreateTextFromSettings(Settings);
             _counter.fontSize = 3;
-
+            _counter.text = "";
+            
             var canvas = CanvasUtility.GetCanvasFromID(Settings.CanvasID);
             if (canvas == null)
             {
                 Logger.logger.Warn("Cannot find counters+ canvas");
                 return;
             }
+
+            var counter = AssetBundleManager.SetupCustomCounter();
+            _customCounter = counter.Icon;
+            _customCounterText = counter.Numbers;
             
-            _customCounter = AssetBundleManager.SetupCanvasInScene(canvas, _counter);
-            if (_customCounter == null)
+            if (_customCounter == null || _customCounterText == null)
             {
                 _logger.Error("Cannot create custom counter");
-                Stop();
             }
+            
+            // position the counter as the counters+ one
+            _customCounter.transform.localScale = Vector3.one / 30;
+            _customCounter.transform.SetParent(canvas.transform, false);
+            _customCounter.GetComponent<RectTransform>().anchoredPosition =
+                _counter.rectTransform.anchoredPosition;
+            _customCounter.transform.localPosition -= new Vector3(2, 0, 0); // recenter
+
+            if (counter.CurrentCanvas != null)
+            {
+                // destroy the unused game obj
+                Object.Destroy(counter.CurrentCanvas);
+            }
+            
         }
 
         private void Start()
@@ -169,46 +176,17 @@ namespace HRCounter
                 var bpm = BPM.Instance.Bpm;
                 if (PluginConfig.Instance.TextOnlyCounter)
                 {
-                    _counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
+                    _counter.text = Colorize ? $"<color=#FFFFFF>HR </color><color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
                     _customCounter.SetActive(false);
                 }
                 else
                 {
                     _counter.text = String.Empty;
                     _customCounter.SetActive(true);
-                    AssetBundleManager.SetHR(_colorize ? $"<color=#{DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}");
+                    _customCounterText.text = (Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}");
                 }
                 yield return new WaitForSecondsRealtime(0.25f);
             }
-        }
-
-        private string DetermineColor(int hr)
-        {
-            if (_hrHigh >= _hrLow && _hrLow > 0)
-            {
-                if (ColorUtility.TryParseHtmlString(_colorHigh, out Color colorHigh) &&
-                    ColorUtility.TryParseHtmlString(_colorLow, out Color colorLow) && 
-                    ColorUtility.TryParseHtmlString(_colorMid, out Color colorMid))
-                {
-                    if (hr <= _hrLow)
-                    {
-                        return _colorLow.Substring(1); //the rgb color in setting are #RRGGBB, need to omit the #
-                    }
-
-                    if (hr >= _hrHigh)
-                    {
-                        return _colorHigh.Substring(1);
-                    }
-
-                    var ratio = (hr - _hrLow) / (float) (_hrHigh - _hrLow) * 2;
-                    var color = ratio < 1 ? Color.Lerp(colorLow, colorMid, ratio) : Color.Lerp(colorMid, colorHigh, ratio - 1);
-
-                    return ColorUtility.ToHtmlStringRGB(color);
-                }
-            }
-            _logger.Warn("Cannot determine color, please check hr boundaries and color codes.");
-            _colorize = false;
-            return ColorUtility.ToHtmlStringRGB(Color.white);
         }
 
         public override void CounterDestroy()
@@ -218,7 +196,13 @@ namespace HRCounter
             _counter = null;
             Utils.GamePause.GameEnd();
             // Currently reliant on Counters+, will be phased out later
-            AssetBundleManager.ForceRemoveCanvas();
+            // AssetBundleManager.ForceRemoveCanvas();
+
+            if (_customCounter != null)
+            {
+                Object.Destroy(_customCounter);
+            }
+            
             _logger.Info("Counter destroyed");
         }
     }

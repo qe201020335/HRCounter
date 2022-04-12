@@ -131,18 +131,26 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+      <Reference Include="SiraUtil">
+          <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
+          <Private>false</Private>
+      </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssetBundleManager.cs" />
     <Compile Include="Data\BPM.cs" />
     <Compile Include="Data\BpmDownloader.cs" />
     <Compile Include="Data\FitbitHRtoWS.cs" />
+    <Compile Include="Data\HRController.cs" />
     <Compile Include="Data\HRProxy.cs" />
     <Compile Include="Data\HypeRate.cs" />
     <Compile Include="Data\RandomHR.cs" />
     <Compile Include="Data\WebRequest.cs" />
     <Compile Include="Data\YURApp.cs" />
+    <Compile Include="Events\HRUpdateEventArgs.cs" />
     <Compile Include="HRCounter.cs" />
+    <Compile Include="HRCounterController.cs" />
+    <Compile Include="Installers\GameplayCoreInstaller.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Configuration\PluginConfig.cs" />
