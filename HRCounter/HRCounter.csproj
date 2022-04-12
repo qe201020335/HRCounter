@@ -157,7 +157,7 @@
     <Compile Include="UI\ConfigViewFlowCoordinator.cs" />
     <Compile Include="UI\CountersPlus\SettingController.cs" />
     <Compile Include="UI\SettingMenuController.cs" />
-    <Compile Include="Utils\GamePause.cs" />
+    <Compile Include="Utils\GamePauseController.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,24 +1,29 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using System;
+using HRCounter.Configuration;
+using Zenject;
 
 namespace HRCounter.Utils
 {
-    internal static class GamePause
+    internal class GamePauseController : IDisposable
     {
         private static PauseController _pauseController;
 
-        internal static void GameStart()
+        internal GamePauseController([InjectOptional] PauseController pauseController)
         {
-            _pauseController = Resources.FindObjectsOfTypeAll<PauseController>().FirstOrDefault();
+            _pauseController = pauseController;
         }
 
-        internal static void GameEnd()
+        public void Dispose()
         {
             _pauseController = null;
         }
         
         internal static void PauseGame()
         {
+            if (!PluginConfig.Instance.AutoPause)
+            {
+                return;
+            }
             if (ReferenceEquals(_pauseController, null))
             {
                 Logger.logger.Warn("Can't find game pause controller");

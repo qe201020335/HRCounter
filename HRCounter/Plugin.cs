@@ -9,8 +9,6 @@ using IPALogger = IPA.Logging.Logger;
 using HRCounter.Installers;
 using IPA.Loader;
 
-// using UnityEngine.SceneManagement;
-
 namespace HRCounter
 {
 

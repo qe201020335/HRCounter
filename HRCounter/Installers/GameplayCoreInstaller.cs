@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using HRCounter.Configuration;
+using HRCounter.Utils;
+using JetBrains.Annotations;
 using Zenject;
 
 namespace HRCounter.Installers
@@ -14,6 +16,13 @@ namespace HRCounter.Installers
 
         public override void InstallBindings()
         {
+            if (PluginConfig.Instance.AutoPause)
+            {
+                Logger.logger.Debug("Binging game pause");
+                Container.BindInterfacesAndSelfTo<GamePauseController>().AsSingle().NonLazy();
+                Logger.logger.Debug("Game pause bound");
+
+            }
             
             if (_sceneSetupData == null)
             {
@@ -27,7 +36,7 @@ namespace HRCounter.Installers
             {
                 Logger.logger.Debug("Binging counter");
                 Container.BindInterfacesTo<HRCounterController>().AsSingle().NonLazy();
-                Logger.logger.Debug("Counter binded");
+                Logger.logger.Debug("Counter bound");
 
             }
         }

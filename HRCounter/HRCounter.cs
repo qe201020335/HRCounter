@@ -38,8 +38,7 @@ namespace HRCounter
                 return;
             }
             
-            Utils.GamePause.GameStart();
-
+            
             if (!HRController.InitAndStartDownloader())
             {
                 _logger.Warn("Can't start bpm downloader");
@@ -102,7 +101,6 @@ namespace HRCounter
         public override void CounterDestroy()
         {
             _counter = null;
-            Utils.GamePause.GameEnd();
             HRController.OnHRUpdate -= OnHRUpdate;
             if (_customCounter != null)
             {

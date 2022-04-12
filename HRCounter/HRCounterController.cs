@@ -55,8 +55,6 @@ namespace HRCounter
                 return;
             }
             
-            Utils.GamePause.GameStart();
-            
             if (!HRController.InitAndStartDownloader())
             {
                 _logger.Warn("Can't start bpm downloader");
@@ -127,7 +125,6 @@ namespace HRCounter
         
         public void Dispose()
         {
-            Utils.GamePause.GameEnd();
             HRController.OnHRUpdate -= OnHRUpdate;
             HRController.Stop();
             PluginConfig.Instance.OnSettingsChanged -= OnSettingChange;
