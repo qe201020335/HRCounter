@@ -19,7 +19,7 @@ namespace HRCounter.Data.BpmDownloaders
         
         private string _sessionJson;
 
-        private string _reader = PluginConfig.Instance.DataSource;
+        private string _reader = Config.DataSource;
 
         private string _id;
         private bool _updating;
@@ -33,15 +33,15 @@ namespace HRCounter.Data.BpmDownloaders
 
         private void RefreshSettings()
         {
-            _reader = PluginConfig.Instance.DataSource;
+            _reader = Config.DataSource;
 
             if (_reader == "HypeRate")
             {
-                _id = PluginConfig.Instance.HypeRateSessionID;
+                _id = Config.HypeRateSessionID;
             }
             else
             {
-                _id = PluginConfig.Instance.PulsoidWidgetID;
+                _id = Config.PulsoidWidgetID;
             }
 
             JObject _subscribe = new JObject();

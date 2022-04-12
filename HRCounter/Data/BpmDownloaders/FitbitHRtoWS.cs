@@ -80,7 +80,7 @@ namespace HRCounter.Data.BpmDownloaders
 
         private void RefreshSettings()
         {
-            _url = PluginConfig.Instance.FitbitWebSocket;
+            _url = Config.FitbitWebSocket;
         }
 
         private void WebSocket_OnClose(object sender, CloseEventArgs e) => Stop();

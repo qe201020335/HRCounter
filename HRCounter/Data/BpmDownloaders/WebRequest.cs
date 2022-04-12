@@ -10,7 +10,7 @@ namespace HRCounter.Data.BpmDownloaders
 {
     internal sealed class WebRequest : BpmDownloader
     {
-        private static string FeelLink => PluginConfig.Instance.FeedLink;
+        private static string FeelLink => Config.FeedLink;
         private bool _updating;
 
         private readonly Regex _regex = new Regex("^\\d+$");
