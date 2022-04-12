@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
 
-namespace HRCounter.Data
+namespace HRCounter.Data.BpmDownloaders
 {
     internal class RandomHR : BpmDownloader
     {
@@ -17,8 +17,8 @@ namespace HRCounter.Data
             {
                 while (_updating)
                 {
-                    Bpm.Bpm = Random.Range(60, 180);
-                    await Task.Delay(250);
+                    OnHearRateDataReceived(Random.Range(60, 180));
+                    await Task.Delay(Random.Range(250, 1000));
                 }
             });
         }

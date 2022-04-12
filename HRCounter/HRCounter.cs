@@ -3,6 +3,7 @@ using System.Collections;
 using CountersPlus.Counters.Custom;
 using HRCounter.Configuration;
 using HRCounter.Data;
+using HRCounter.Events;
 using JetBrains.Annotations;
 using TMPro;
 using IPALogger = IPA.Logging.Logger;
@@ -17,10 +18,9 @@ namespace HRCounter
         private readonly IPALogger _logger = Logger.logger;
         private TMP_Text _counter;
         private bool _updating;
-        [CanBeNull] private BpmDownloader _bpmDownloader;
+        // [CanBeNull] private BpmDownloader _bpmDownloader;
 
         private static bool Colorize => PluginConfig.Instance.Colorize;
-        
 
         private GameObject _customCounter;
         private TMP_Text _customCounterText;
@@ -33,34 +33,35 @@ namespace HRCounter
                 return;
             }
             
-            if (!Refresh())
+            CreateCounter();
+            Utils.GamePause.GameStart();
+            HRController.OnHRUpdate += OnHRUpdate;
+            
+            if (!HRController.InitAndStartDownloader())
             {
-                _logger.Info("Can't Refresh");
+                _logger.Info("Can't start bpm downloader");
                 _logger.Info("Please check your settings about data source and the link or id.");
                 return;
             }
-            
-            
-            CreateCounter();
-            Utils.GamePause.GameStart();
 
-            try
-            {
-                _bpmDownloader.Start();
-                _logger.Info("Start updating heart rate");
-            }
-            catch (Exception e)
-            {
-                _logger.Critical("Could not start bpm downloader.");
-                _logger.Error(e.Message);
-                _logger.Debug(e);
-                _bpmDownloader.Stop();
-                return;
-            }
-            Start();
+            // try
+            // {
+            //     _bpmDownloader.Start();
+            //     _logger.Info("Start updating heart rate");
+            // }
+            // catch (Exception e)
+            // {
+            //     _logger.Critical("Could not start bpm downloader.");
+            //     _logger.Error(e.Message);
+            //     _logger.Debug(e);
+            //     _bpmDownloader.Stop();
+            //     return;
+            // }
+            // Start();
             _logger.Info("Start updating counter text");
         }
 
+        /*
         private bool Refresh()
         {
             _logger.Info("Refreshing Settings");
@@ -119,6 +120,7 @@ namespace HRCounter
             }
             return true;
         }
+        */
 
         private void CreateCounter()
         {
@@ -158,6 +160,7 @@ namespace HRCounter
             
         }
 
+        /*
         private void Start()
         {
             _updating = true;
@@ -188,16 +191,33 @@ namespace HRCounter
                 yield return new WaitForSecondsRealtime(0.25f);
             }
         }
+        */
+
+        private void OnHRUpdate(object sender, HRUpdateEventArgs args)
+        {
+            var bpm = args.HeartRate;
+            if (PluginConfig.Instance.TextOnlyCounter)
+            {
+                _counter.text = Colorize ? $"<color=#FFFFFF>HR </color><color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
+                _customCounter.SetActive(false);
+            }
+            else
+            {
+                _counter.text = String.Empty;
+                _customCounter.SetActive(true);
+                _customCounterText.text = Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
+            }
+        }
 
         public override void CounterDestroy()
         {
-            Stop();
-            _bpmDownloader?.Stop();
+            // Stop();
+            // _bpmDownloader?.Stop();
             _counter = null;
             Utils.GamePause.GameEnd();
             // Currently reliant on Counters+, will be phased out later
             // AssetBundleManager.ForceRemoveCanvas();
-
+            HRController.OnHRUpdate -= OnHRUpdate;
             if (_customCounter != null)
             {
                 Object.Destroy(_customCounter);

@@ -4,11 +4,9 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using HRCounter.Configuration;
 using Newtonsoft.Json.Linq;
 
-
-namespace HRCounter.Data
+namespace HRCounter.Data.BpmDownloaders
 {
     internal sealed class YURApp: BpmDownloader
     {
@@ -18,19 +16,9 @@ namespace HRCounter.Data
 
         private bool _running = false;
         
-        private bool _logHr = PluginConfig.Instance.LogHR;
-
         private Thread _worker;
 
-        internal YURApp()
-        {
-            RefreshSettings();
-        }
-
-        protected override void RefreshSettings()
-        {
-            _logHr = PluginConfig.Instance.LogHR;
-        }
+        protected override void RefreshSettings() {}
 
         internal override void Start()
         {
@@ -187,15 +175,12 @@ namespace HRCounter.Data
                     ? osu["status"]?["heartRate"]
                     : osu["status"]?["calculationMetrics"]?["estHeartRate"];
 
-                var hr = hrToken?.ToObject<int>() ?? 0;
-                
-                // Console.WriteLine($"HR {hr}");
-                Bpm.Bpm = hr;
-                Bpm.ReceivedAt = DateTimeOffset.Now.ToUnixTimeSeconds().ToString();
-                if (_logHr)
+                if (hrToken != null)
                 {
-                    logger.Info(Bpm.ToString());
+                    OnHearRateDataReceived(hrToken.ToObject<int>());
                 }
+                
+
             }
             catch (Exception e)
             {

@@ -4,6 +4,11 @@ namespace HRCounter.Events
 {
     public class HRUpdateEventArgs : EventArgs
     {
-        public int HeartRate;
+        public readonly int HeartRate;
+
+        internal HRUpdateEventArgs(int hr)
+        {
+            HeartRate = hr;
+        }
     }
 }
