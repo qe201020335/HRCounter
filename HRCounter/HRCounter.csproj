@@ -149,6 +149,7 @@
     <Compile Include="Events\HRUpdateEventArgs.cs" />
     <Compile Include="HRCounter.cs" />
     <Compile Include="HRCounterController.cs" />
+    <Compile Include="Installers\GamePauseInstaller.cs" />
     <Compile Include="Installers\GameplayCoreInstaller.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />

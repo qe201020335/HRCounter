@@ -1,21 +1,24 @@
 ﻿using System;
+using System.Collections;
 using HRCounter.Configuration;
+using SiraUtil.Tools.SongControl;
 using Zenject;
 
 namespace HRCounter.Utils
 {
     internal class GamePauseController : IDisposable
     {
-        private static PauseController _pauseController;
+        private static ISongControl _songControl;
 
-        internal GamePauseController([InjectOptional] PauseController pauseController)
+        internal GamePauseController([InjectOptional] ISongControl songControl)
         {
-            _pauseController = pauseController;
+            _songControl = songControl;
         }
 
         public void Dispose()
         {
-            _pauseController = null;
+            _songControl = null;
+            Logger.logger.Debug("SongControl got yeeted.");
         }
         
         internal static void PauseGame()
@@ -24,18 +27,19 @@ namespace HRCounter.Utils
             {
                 return;
             }
-            if (ReferenceEquals(_pauseController, null))
+
+            if (_songControl != null && !_songControl.IsPaused)
             {
-                Logger.logger.Warn("Can't find game pause controller");
-            } else if (_pauseController.isActiveAndEnabled)
-            {
-                Logger.logger.Info("Pausing Game");
-                _pauseController.Pause();
+                // have to do this or some wierd stuff could be broken in some other pause menu related mods
+                // for example "Fail Mod"
+                SharedCoroutineStarter.instance.StartCoroutine(Pause());
             }
-            else
-            {
-                Logger.logger.Warn("Pause controller is not active");
-            }
+        }
+
+        private static IEnumerator Pause()
+        {
+            yield return null;
+            _songControl.Pause();
         }
     }
 }

@@ -16,14 +16,7 @@ namespace HRCounter.Installers
 
         public override void InstallBindings()
         {
-            if (PluginConfig.Instance.AutoPause)
-            {
-                Logger.logger.Debug("Binging game pause");
-                Container.BindInterfacesAndSelfTo<GamePauseController>().AsSingle().NonLazy();
-                Logger.logger.Debug("Game pause bound");
 
-            }
-            
             if (_sceneSetupData == null)
             {
                 Logger.logger.Warn("GameplayCoreSceneSetupData is null");
