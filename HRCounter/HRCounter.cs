@@ -37,15 +37,19 @@ namespace HRCounter
                 _logger.Warn("Cannot create counter");
                 return;
             }
-            
-            
-            if (!HRController.InitAndStartDownloader())
+
+            if (!PluginConfig.Instance.IgnoreCountersPlus)
             {
-                _logger.Warn("Can't start bpm downloader");
-                _logger.Warn("Please check your settings about data source and the link or id.");
-                return;
+                // only init the downloader if the presence of Counters+ is NOT ignored.
+                // Otherwise, standalone counter will call init, then here is called again, not good
+                if (!HRController.InitAndStartDownloader())
+                {
+                    _logger.Warn("Can't start bpm downloader");
+                    _logger.Warn("Please check your settings about data source and the link or id.");
+                    return;
+                }
             }
-            
+
             _logger.Info("Start updating counter text");
         }
 
