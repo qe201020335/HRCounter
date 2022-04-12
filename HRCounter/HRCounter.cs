@@ -32,21 +32,25 @@ namespace HRCounter
                 return;
             }
             
-            CreateCounter();
-            Utils.GamePause.GameStart();
-            HRController.OnHRUpdate += OnHRUpdate;
+            if (!CreateCounter())
+            {
+                _logger.Warn("Cannot create counter");
+                return;
+            }
             
+            Utils.GamePause.GameStart();
+
             if (!HRController.InitAndStartDownloader())
             {
-                _logger.Info("Can't start bpm downloader");
-                _logger.Info("Please check your settings about data source and the link or id.");
+                _logger.Warn("Can't start bpm downloader");
+                _logger.Warn("Please check your settings about data source and the link or id.");
                 return;
             }
             
             _logger.Info("Start updating counter text");
         }
 
-        private void CreateCounter()
+        private bool CreateCounter()
         {
             _logger.Info("Creating counter");
             _counter = CanvasUtility.CreateTextFromSettings(Settings);
@@ -57,7 +61,7 @@ namespace HRCounter
             if (canvas == null)
             {
                 Logger.logger.Warn("Cannot find counters+ canvas");
-                return;
+                return false;
             }
 
             var counter = AssetBundleManager.SetupCustomCounter();
@@ -67,6 +71,7 @@ namespace HRCounter
             if (_customCounter == null || _customCounterText == null)
             {
                 _logger.Error("Cannot create custom counter");
+                return false;
             }
             
             // position the counter as the counters+ one
@@ -76,12 +81,15 @@ namespace HRCounter
                 _counter.rectTransform.anchoredPosition;
             _customCounter.transform.localPosition -= new Vector3(2, 0, 0); // recenter
 
+            OnHRUpdate(null, new HRUpdateEventArgs(BPM.Instance.Bpm));  // give it an initial value
+
             if (counter.CurrentCanvas != null)
             {
                 // destroy the unused game obj
                 Object.Destroy(counter.CurrentCanvas);
             }
-            
+            HRController.OnHRUpdate += OnHRUpdate;
+            return true;
         }
 
         private void OnHRUpdate(object sender, HRUpdateEventArgs args)

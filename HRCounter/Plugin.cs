@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using BeatSaberMarkupLanguage.MenuButtons;
 using BeatSaberMarkupLanguage;
+using HRCounter.Data;
 using IPA;
 using IPA.Config.Stores;
 using SiraUtil.Zenject;
@@ -42,6 +43,7 @@ namespace HRCounter
         [OnStart]
         public void OnStart() {
             MenuButtons.instance.RegisterButton(MenuButton);
+            HRController.ClearThings();
         }
         
         private static void OnMenuButtonClick()

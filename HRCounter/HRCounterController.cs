@@ -49,29 +49,41 @@ namespace HRCounter
                 .requires360Movement;
             Plugin.Log.Info($"360/90?: {_needs360Move}");
 
-            CreateCounter();
+            if (!CreateCounter())
+            {
+                _logger.Warn("Cannot create HRCounter");
+                return;
+            }
+            
             Utils.GamePause.GameStart();
-            HRController.OnHRUpdate += OnHRUpdate;
-            PluginConfig.Instance.OnSettingsChanged += OnSettingChange;
             
             if (!HRController.InitAndStartDownloader())
             {
-                _logger.Info("Can't start bpm downloader");
-                _logger.Info("Please check your settings about data source and the link or id.");
+                _logger.Warn("Can't start bpm downloader");
+                _logger.Warn("Please check your settings about data source and the link or id.");
                 return;
             }
             _logger.Info("HRCounter Initialized");
         }
 
-        private void CreateCounter()
+        private bool CreateCounter()
         {
+            _logger.Info("Creating HRCounter");
             var counter = AssetBundleManager.SetupCustomCounter();
 
             CurrentCanvas = counter.CurrentCanvas;
             Numbers = counter.Numbers;
-
+            
+            if (CurrentCanvas == null)
+            {
+                _logger.Error("Cannot create custom counter");
+                return false;
+            }
+            
             CurrentCanvas.transform.localScale = Vector3.one / 150;
             
+            OnHRUpdate(null, new HRUpdateEventArgs(BPM.Instance.Bpm));  // give it an initial value
+
             if (!_needs360Move)
             {
                 // Place our Canvas in a Static Location
@@ -84,6 +96,9 @@ namespace HRCounter
                 // Attach it to the FlyingHUD
                 CurrentCanvas.AddComponent<MapMover>();
             }
+            HRController.OnHRUpdate += OnHRUpdate;
+            PluginConfig.Instance.OnSettingsChanged += OnSettingChange;
+            return true;
         }
 
         private void OnHRUpdate(object sender, HRUpdateEventArgs args)
@@ -114,6 +129,7 @@ namespace HRCounter
         {
             Utils.GamePause.GameEnd();
             HRController.OnHRUpdate -= OnHRUpdate;
+            HRController.Stop();
             PluginConfig.Instance.OnSettingsChanged -= OnSettingChange;
 
             if (CurrentCanvas != null)
