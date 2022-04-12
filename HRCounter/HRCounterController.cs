@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Linq;
 using HRCounter.Configuration;
+using HRCounter.Data;
+using HRCounter.Events;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
+using Object = UnityEngine.Object;
+using IPALogger = IPA.Logging.Logger;
 
 namespace HRCounter
 {
@@ -18,7 +22,10 @@ namespace HRCounter
         
         private GameObject CurrentCanvas;
         private TMP_Text Numbers;
-            
+        private static bool Colorize => PluginConfig.Instance.Colorize;
+        private readonly IPALogger _logger = Logger.logger;
+
+        
         internal HRCounterController([InjectOptional] GameplayCoreSceneSetupData gameplayCoreSceneSetupData)
         {
             _sceneSetupData = gameplayCoreSceneSetupData;
@@ -31,11 +38,27 @@ namespace HRCounter
                 Plugin.Log.Warn("GameplayCoreSceneSetupData is null");
                 return;
             }
-
+            
             _needs360Move = _sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic
                 .requires360Movement;
             Plugin.Log.Info($"360/90?: {_needs360Move}");
 
+            CreateCounter();
+            Utils.GamePause.GameStart();
+            HRController.OnHRUpdate += OnHRUpdate;
+            PluginConfig.Instance.OnSettingsChanged += OnSettingChange;
+            
+            if (!HRController.InitAndStartDownloader())
+            {
+                _logger.Info("Can't start bpm downloader");
+                _logger.Info("Please check your settings about data source and the link or id.");
+                return;
+            }
+            _logger.Info("HRCounter Initialized");
+        }
+
+        private void CreateCounter()
+        {
             var counter = AssetBundleManager.SetupCustomCounter();
 
             CurrentCanvas = counter.CurrentCanvas;
@@ -55,17 +78,15 @@ namespace HRCounter
                 // Attach it to the FlyingHUD
                 CurrentCanvas.AddComponent<MapMover>();
             }
-            
-            
-            
         }
 
-        public void Dispose()
+        private void OnHRUpdate(object sender, HRUpdateEventArgs args)
         {
-            Plugin.Log.Info("Disposed lol");
+            var bpm = args.HeartRate;
+            Numbers.text = Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
         }
 
-        internal void OnSettingChange(object sender, EventArgs e)
+        private void OnSettingChange(object sender, EventArgs e)
         {
             Logger.logger.Info("Settings changed, updating counter location.");
             try
@@ -81,6 +102,19 @@ namespace HRCounter
                 Logger.logger.Warn($"Exception Caught during counter location update");
                 Logger.logger.Warn(exception);
             }
+        }
+        
+        public void Dispose()
+        {
+            Utils.GamePause.GameEnd();
+            HRController.OnHRUpdate -= OnHRUpdate;
+            PluginConfig.Instance.OnSettingsChanged -= OnSettingChange;
+
+            if (CurrentCanvas != null)
+            {
+                Object.Destroy(CurrentCanvas);
+            }
+            Plugin.Log.Info("HRCounter Disposed");
         }
 
         /// <summary>
@@ -113,7 +147,7 @@ namespace HRCounter
             {
                 _currentCanvas.transform.position = _flyingHUD.transform.position;
                 Vector3 position = _iconRtTransform.localPosition;
-                _iconRtTransform.localPosition = new Vector3(position.x, -186, position.z);
+                _iconRtTransform.localPosition = new Vector3(position.x, 150, position.z);
                 _currentCanvas.transform.rotation = _flyingHUD.transform.rotation;
             }
             
