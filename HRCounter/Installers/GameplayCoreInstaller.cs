@@ -16,6 +16,11 @@ namespace HRCounter.Installers
 
         public override void InstallBindings()
         {
+            if (!PluginConfig.Instance.IgnoreCountersPlus && Utils.Utils.IsModEnabled("Counters+"))
+            {
+                Logger.logger.Info("Counters+ mod is enabled! Not binding!");
+                return;
+            }
 
             if (_sceneSetupData == null)
             {
@@ -27,9 +32,9 @@ namespace HRCounter.Installers
             }
             else
             {
-                Logger.logger.Debug("Binging counter");
+                Logger.logger.Debug("Binding HR Counter");
                 Container.BindInterfacesTo<HRCounterController>().AsSingle().NonLazy();
-                Logger.logger.Debug("Counter bound");
+                Logger.logger.Debug("HR Counter binded");
 
             }
         }
