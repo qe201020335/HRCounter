@@ -121,23 +121,27 @@ Open an [issue](https://github.com/qe201020335/HRCounter/issues) if there is a d
 ## Settings
 ### Most options can be changed in game. 
 Here is a table for all the setting options if you want to edit config file instead.
-| Field       		| Type      | Default       	    | Description |
+| Field       	  | Type      | Default       	    | Description |
 | --------------- |:---------:|:-------------------:| ----------- |
-| `LogHR`       	| bool      | `false`           	| Whether the received HR data will be logged |
-| `DataSource`    | string    | `"WebRequest"`      | The data source you want to use to get hr data |
+| `ModEnable`     | bool      | `true`           	| DUH |
+| `LogHR`         | bool      | `false`           	| Whether the received HR data will be logged |
+| `DataSource`    | string    | `"YUR MOD"`         | The data source you want to use to get hr data. Use `Random` if you want to test things|
 | `HypeRateSessionID`| string | `"-1"`              | Session ID for HypeRate, it is also the the few hex digits at the end of your overlay link. |
 | `PulsoidWidgetID`| string   | `"NotSet"`          | Widget ID for HypeRate, it is also the last part of your widget link. |
 | `FitbitWebSocket` | string  | `"ws://localhost:8080/"`| WebSocket Link for FitbitHRtoWS |
-| `FeedLink`      | string    | `"NotSet"`   	    	| Your pulsoid feed link |
-| `Colorize`      | bool      | `true`   	        	| Whether the hr value will be colorized by the following 4 detail settings |
-| `HideDuringReplay`| bool    | `true`   	        	| Hide this counter while in a replay |
-| `HRLow`         | int       | `120`           	 	| The lower bound heart rate for when the color gredient will start |
+| `FeedLink`      | string    | `"NotSet"`   	   	| Your pulsoid feed link |
+| `Colorize`      | bool      | `true`   	       	| Whether the hr value will be colorized by the following 4 detail settings |
+| `HideDuringReplay`| bool    | `true`   	       	| Hide this counter while in a replay |
+| `HRLow`         | int       | `120`           		| The lower bound heart rate for when the color gredient will start |
 | `HRHigh`        | int       | `180`              	| The upper bound heart rate for when the color gredient will end |
 | `LowColor`      | string    | `"#00FF00"` (Green)	| The RGB color in hex that where your hr is not higher than `HRLow`. This is also the starting point of color gredient. |
-| `HighColor`     | string    | `"#FF0000"` (Red) 	| The RGB color in hex that where your hr is higher than `HRHigh`. This is also the end point of color gredient.  |
 | `MidColor`      | string    | `"#FFFF00"` (Yellow)| The RGB color in hex which is the middle point of color gredient. |
+| `HighColor`     | string    | `"#FF0000"` (Red) 	| The RGB color in hex that where your hr is higher than `HRHigh`. This is also the end point of color gredient.  |
 | `PauseHR`       | int       | `200`              	| The heart rate that game pause will be triggered |
-| `AutoPause`     | bool      | `false`           	  | Whether the mod will pause the game if heart rate reaches `PauseHR` |
+| `AutoPause`     | bool      | `false`             | Whether the mod will pause the game if heart rate reaches `PauseHR` |
+| `IgnoreCountersPlus`| bool  | `false`             | Ignore whether Counters+ is installed, ignore it to allow 2 hr counters to present at the same time |
+| `DebugSpam`     | bool      | `false`             | Only effective in Debug build, toggle spamming of debug message in logs |
+| `StaticCounterPosition` | 3D Vector | `(0, 1.2, 7)` | Location of the standalone static counter, has no effect on the counters+ counter |
 
 ## Data Sources To Be Supported
 * <s>[HypeRate](https://hyperate.io/)</s>
