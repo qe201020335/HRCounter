@@ -83,10 +83,20 @@ namespace HRCounter
             var mOriginal =
                 typeof(ActivityViewController).GetMethod(nameof(ActivityViewController.OverlayUpdateAction));
             var mPostfix =
-                typeof(YURActivityViewControllerPatch).GetMethod(nameof(YURActivityViewControllerPatch
-                    .OverlayUpdateAction));
-            _harmony.Patch(mOriginal, postfix: new HarmonyMethod(mPostfix));
+                typeof(YURActivityViewControllerPatch).GetMethod(
+                    nameof(YURActivityViewControllerPatch.OverlayUpdateAction),
+                    BindingFlags.Static | BindingFlags.NonPublic);
 
+            if (mOriginal == null || mPostfix == null)
+            {
+                Logger.logger.Error("At least one of patch methods is null! Not Patching YUR MOD!");
+                Logger.logger.Error($"{mOriginal}, {mPostfix}");
+            }
+            else
+            {
+                _harmony.Patch(mOriginal, postfix: new HarmonyMethod(mPostfix));
+
+            }
         }
 
         private void UnPatchYURMod()
@@ -99,7 +109,15 @@ namespace HRCounter
             var mOriginal =
                 typeof(ActivityViewController).GetMethod(nameof(ActivityViewController.OverlayUpdateAction));
 
-            _harmony.Unpatch(mOriginal, HarmonyPatchType.All);
+            if (mOriginal == null)
+            {
+                Logger.logger.Error("Original method is null! Cannot unpatch!");
+            }
+            else
+            {
+                _harmony.Unpatch(mOriginal, HarmonyPatchType.All);
+
+            }
         }
     }
 }
