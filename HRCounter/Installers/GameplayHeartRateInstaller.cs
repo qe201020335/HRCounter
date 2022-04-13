@@ -8,13 +8,16 @@ namespace HRCounter.Installers
     public class GameplayHearRateInstaller : Installer<GameplayHearRateInstaller>
     {
         private static PluginConfig Config => PluginConfig.Instance;
+        private const string YUR_MOD_ID = "YUR Fit Calorie Tracker";
+        private const string WEBSOCKET_SHARP_MOD_ID = "websocket-sharp";
+
 
         public override void InstallBindings()
         {
             Logger.logger.Debug("Binding BPM Downloader");
-            if (!Utils.Utils.IsModEnabled("websocket-sharp") && Utils.Utils.NeedWebSocket(Config.DataSource))
+            if (!Utils.Utils.IsModEnabled(WEBSOCKET_SHARP_MOD_ID) && Utils.Utils.NeedWebSocket(Config.DataSource))
             {
-                Logger.logger.Error($"websocket-sharp is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
+                Logger.logger.Error($"{WEBSOCKET_SHARP_MOD_ID} is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
                 return;
             }
             
@@ -58,6 +61,15 @@ namespace HRCounter.Installers
                 
                 case "YUR APP":
                     Container.Bind<BpmDownloader>().To<YURApp>().AsSingle();
+                    break;
+                
+                case "YUR MOD":
+                    if (!Utils.Utils.IsModEnabled(YUR_MOD_ID))
+                    {
+                        Logger.logger.Error($"{YUR_MOD_ID} is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
+                        return;
+                    }
+                    Container.Bind<BpmDownloader>().To<YURMod>().AsSingle();
                     break;
                 
                 case "Random":

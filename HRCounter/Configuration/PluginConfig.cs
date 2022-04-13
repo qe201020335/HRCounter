@@ -13,8 +13,8 @@ namespace HRCounter.Configuration
         // Must be 'virtual' if you want BSIPA to detect a value change and save the config automatically.
         public virtual bool LogHR { get; set; } = false;
 
-        public virtual string DataSource { get; set; } = "Pulsoid";  // HypeRate, Pulsoid, WebRequest, YUR APP or FitbitHRtoWS
-
+        public virtual string DataSource { get; set; } = "Pulsoid";  // HypeRate, Pulsoid, WebRequest, YUR APP, FitbitHRtoWS, YUR MOD, Also Random for testing 
+        
         public virtual string HypeRateSessionID { get; set; } = "-1";
         
         public virtual string PulsoidWidgetID { get; set; } = "NotSet";

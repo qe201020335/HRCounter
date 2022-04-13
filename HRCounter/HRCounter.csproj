@@ -149,10 +149,9 @@
     <Compile Include="Data\BpmDownloaders\RandomHR.cs" />
     <Compile Include="Data\BpmDownloaders\WebRequest.cs" />
     <Compile Include="Data\BpmDownloaders\YURApp.cs" />
-    <Compile Include="Data\BpmDownloaders\YURHR.cs" />
+    <Compile Include="Data\BpmDownloaders\YURMod.cs" />
     <Compile Include="Data\HRController.cs" />
     <Compile Include="Events\HRUpdateEventArgs.cs" />
-    <Compile Include="Harmony\YURActivityViewControllerPatch.cs" />
     <Compile Include="HRCounter.cs" />
     <Compile Include="HRCounterController.cs" />
     <Compile Include="Installers\GamePauseInstaller.cs" />

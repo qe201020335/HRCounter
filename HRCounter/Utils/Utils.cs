@@ -12,7 +12,7 @@ namespace HRCounter.Utils
     public static class Utils
     {
 
-        internal static readonly List<object> DataSources = new object[] {"HypeRate", "WebRequest", "FitbitHRtoWS", "Pulsoid", "YUR APP"}.ToList();
+        internal static readonly List<object> DataSources = new object[] {"HypeRate", "WebRequest", "FitbitHRtoWS", "Pulsoid", "YUR APP", "YUR MOD"}.ToList();
         private static readonly List<string> DataSourcesRequireWebSocket = new [] {"HypeRate", "FitbitHRtoWS", "Pulsoid"}.ToList();
         
         private static readonly MethodBase ScoreSaber_playbackEnabled =
