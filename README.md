@@ -37,12 +37,13 @@ The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad 
 #### Pulsoid Widget (Experimental, A proper authentication method will be implemented in the future)
 1. Open your pulsoid [widgets configuration page](https://pulsoid.net/ui/configuration) and configure your default widget.
 2. Copy the last part of the widget link as shown in this here.
-![pulsoid widget conig screenshot](https://i.imgur.com/KWtfIH2.png)
-4. Paste this in the config file as `"PulsoidWidgetID": "ff7936d8-██████████████20086244"`.
-5. Set the value of `DataSource` to `"Pulsoid"`.
-#### Pulsoid JSON Feed Link (DEPRECATED)
+![pulsoid widget config screenshot](https://i.imgur.com/KWtfIH2.png)
+3. Paste this in the config file as `"PulsoidWidgetID": "ff7936d8-██████████████20086244"`.
+4. Set the value of `DataSource` to `"Pulsoid"`.
+#### Pulsoid JSON Feed Link (DEPRECATED, will stop working at the end of 2022)
 1. Open your pulsoid [widgets configuration page](https://pulsoid.net/ui/configuration).
 2. Copy the link behine `Feed reference` in the **Advanced** section at the bottom of the page.
+![pulsoid json feed config screenshot](https://i.imgur.com/HS9bXRU.png)
 3. Paste this link in the config file as `"FeedLink": "https://pulsoid.net/v1/api/feed/..."`.
 4. Set the value of `DataSource` to `"WebRequest"`.
 
