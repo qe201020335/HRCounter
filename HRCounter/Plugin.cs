@@ -1,9 +1,11 @@
-﻿using BeatSaberMarkupLanguage.MenuButtons;
+using BeatSaberMarkupLanguage.MenuButtons;
 using BeatSaberMarkupLanguage;
+using HRCounter.Data;
 using IPA;
 using IPA.Config.Stores;
+using SiraUtil.Zenject;
 using IPALogger = IPA.Logging.Logger;
-// using UnityEngine.SceneManagement;
+using HRCounter.Installers;
 
 namespace HRCounter
 {
@@ -19,38 +21,40 @@ namespace HRCounter
         internal MenuButton MenuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick, true);
 
         private UI.ConfigViewFlowCoordinator _configViewFlowCoordinator;
+        
+        private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
+
 
         [Init]
-        /// <summary>
-        /// Called when the plugin is first loaded by IPA (either when the game starts or when the plugin is enabled if it starts disabled).
-        /// [Init] methods that use a Constructor or called before regular methods like InitWithConfig.
-        /// Only use [Init] with one Constructor.
-        /// </summary>
-        public void Init(IPALogger logger)
+        public void InitWithConfig(IPALogger logger, IPA.Config.Config conf, Zenjector zenject)
         {
             Instance = this;
             Logger.logger = logger;
             Log = logger;
             Log.Info("HRCounter initialized.");
-        }
-
-        #region BSIPA Config
-
-        [Init]
-        public void InitWithConfig(IPA.Config.Config conf)
-        {
             Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
-            Logger.logger = Log;
             Log.Debug("Config loaded");
+            AssetBundleManager.LoadAssetBundle();
+            zenject.Install<GameplayHearRateInstaller>(Location.Player);
+            zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);
+            zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer); 
+            // we don't want to popup the pause menu during multiplayer, that's not gonna help anything!
+            // TODO: Add Plugin Disable Option
+            Log.Debug("Installers!");
         }
-
-        #endregion
         
         [OnStart]
         public void OnStart() {
             MenuButtons.instance.RegisterButton(MenuButton);
+            HRController.ClearThings();
         }
-        
+
+        [OnExit]
+        public void OnExit()
+        {
+            MenuButtons.instance.UnregisterButton(MenuButton);
+        }
+
         private static void OnMenuButtonClick()
         {
             if (Instance._configViewFlowCoordinator == null)
@@ -59,7 +63,5 @@ namespace HRCounter
             }
             BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(Instance._configViewFlowCoordinator);
         }
-        
-        
     }
 }

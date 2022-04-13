@@ -1,5 +1,7 @@
 ﻿
+using System;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using IPA.Config.Stores;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
@@ -9,10 +11,12 @@ namespace HRCounter.Configuration
     {
         public static PluginConfig Instance { get; set; }
         // Must be 'virtual' if you want BSIPA to detect a value change and save the config automatically.
+
+        public virtual bool ModEnable { get; set; } = true;
         public virtual bool LogHR { get; set; } = false;
 
-        public virtual string DataSource { get; set; } = "Pulsoid";  // HypeRate, Pulsoid, WebRequest, YUR APP or FitbitHRtoWS
-
+        public virtual string DataSource { get; set; } = "YUR MOD";  // HypeRate, Pulsoid, WebRequest, YUR APP, FitbitHRtoWS, YUR MOD, Also Random for testing 
+        
         public virtual string HypeRateSessionID { get; set; } = "-1";
         
         public virtual string PulsoidWidgetID { get; set; } = "NotSet";
@@ -38,6 +42,44 @@ namespace HRCounter.Configuration
         public virtual int PauseHR { get; set; } = 200;
         
         public virtual bool AutoPause { get; set; } = false;
+        
+        public virtual bool IgnoreCountersPlus { get; set; } = false;
+
+        public virtual bool DebugSpam { get; set; } = false;
+
+        public virtual V3 StaticCounterPosition { get; set; } = new V3
+        {
+            x = 0f,
+            y = 1.2f,
+            z = 7f
+        };
+
+        internal event EventHandler<EventArgs> OnSettingsChanged;
+        
+        public virtual void OnReload()
+        {
+            Logger.logger.Notice("HRCounter Settings Changed!");
+            try
+            {
+                EventHandler<EventArgs> handler = OnSettingsChanged;
+                Task.Factory.StartNew(() =>
+                {
+                    handler?.Invoke(this, EventArgs.Empty);
+                });
+            }
+            catch (Exception e)
+            {
+                Logger.logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
+                Logger.logger.Critical(e);
+            }
+        }
+        
+        public struct V3
+        {
+            public float x;
+            public float y;
+            public float z;
+        }
 
     }
 }
