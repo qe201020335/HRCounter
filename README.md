@@ -1,43 +1,53 @@
 # HRCounter
-A Beat Saber Counters+ custom counter that displays your heart rate in game.
+A Beat Saber custom counter that displays your heart rate in game.
 
 **Supports BLE HR Monitor, Apple Watch, Fitbit, Galaxy Watch, WearOS and more!**
 
-It also supports **anything** that **Pulsoid**, **HypeRate**, **YUR Desktop App** support!
+It also supports **anything** that **Pulsoid**, **HypeRate**, **YUR Desktop App / MOD** support!
 
 It can even **pause** the game for you if your heart is beating **too fast**!
 
-# ⚠️DEPRECATION NOTICE⚠️
-## 1. Pulsoid Feed Link is DEPRECATED and will stop working in Feb 2022. Please download the [latest](https://github.com/qe201020335/HRCounter/releases/latest) version and see [below](#Pulsoid) for instructions!
-## 2. Due to HypeRate API changes on Feb 5, 2022, HypeRate will not work on HRCounter version 1.4.1 and below. Please download the [latest](https://github.com/qe201020335/HRCounter/releases/latest) version!
-
 ## Requirements
-These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using [Mod Assistant](https://github.com/Assistant/ModAssistant/releases/latest).
+These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using [Mod Assistant](https://github.com/Assistant/ModAssistant/releases/latest) (Recommended!).
 
-Alternatively, you can also download them from their github repo.
-* [BSIPA](https://github.com/bsmg/BeatSaber-IPA-Reloaded) v4.1.0+
-* [Counters+](https://github.com/Caeden117/CountersPlus) v2.0.0+
-* [BSML](https://github.com/monkeymanboy/BeatSaberMarkupLanguage) v1.3.4+
-* Websocket-sharp
+Alternatively, you can also download them from their own site.
+* [BSIPA](https://github.com/bsmg/BeatSaber-IPA-Reloaded) v4.2.0+
+* [BSML](https://github.com/monkeymanboy/BeatSaberMarkupLanguage) v1.6.0+
+* [SiraUtil](https://github.com/Auros/SiraUtil) v3.0.0+
+* [Counters+](https://github.com/Caeden117/CountersPlus) v2.0.0+ (Recommended Optional, install if you want to use Counters+ custom counter system)
+* Websocket-sharp (Optional, install if you want to use Pulsoid, HypeRate or FitbitHRtoWS)
+* YUR Mod (Optional, install if you want to enable YUR Mod support)
+* [YUR Desktop App](https://store.steampowered.com/app/1188920/YUR/) (Optional, install if you want to enable YUR App support)
 
 ## HOW TO USE
 1. Make sure all the required mods are working correctly
 2. Download the [latest release](https://github.com/qe201020335/HRCounter/releases/latest) and extract the files into `Beat Saber/Plugins/`
 3. Run the game once
 4. Depend on your devices, follow the instructions below to configure the auto generated config file.
-5. Run the game and enable this counter in Counter+'s counter configuration page
-6. Toggle on **Auto Pause** if you want the mod to pause the game for you. Also set the **Pause Heart Rate** for yourself!
+5. Run the game 
+6. If you are using Counters+, enable this counter in Counter+'s counter configuration page
+7. Click the "HRCounter" button in the main menu mods section to see the full configuration page of the mod
+8. Toggle on **Auto Pause** in the "Health & Safty" tab if you want the mod to pause the game for you. Also set the **Pause Heart Rate** for yourself!
 
 The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad to open and edit it.
 
 ## DATA SOURCES
 ### Pulsoid
-⚠️ Pulsoid Feed Link is DEPRECATED. Follow below to set up new version config.
+⚠️ Pulsoid Feed Link is **DEPRECATED** and will stop working at the end of 2022.
+#### Pulsoid Widget (Experimental, A proper authentication method will be implemented in the future)
 1. Open your pulsoid [widgets configuration page](https://pulsoid.net/ui/configuration) and configure your default widget.
 2. Copy the last part of the widget link as shown in this here.
 ![pulsoid widget conig screenshot](https://i.imgur.com/KWtfIH2.png)
 4. Paste this in the config file as `"PulsoidWidgetID": "ff7936d8-██████████████20086244"`.
 5. Set the value of `DataSource` to `"Pulsoid"`.
+#### Pulsoid JSON Feed Link (DEPRECATED)
+1. Open your pulsoid [widgets configuration page](https://pulsoid.net/ui/configuration).
+2. Copy the link behine `Feed reference` in the **Advanced** section at the bottom of the page.
+3. Paste this link in the config file as `"FeedLink": "https://pulsoid.net/v1/api/feed/..."`.
+4. Set the value of `DataSource` to `"WebRequest"`.
+
+Notice: The link should start with `https://pulsoid.net/v1/api/feed/...`.
+
 
 ### HypeRate
 1. In the HypeRate app on your phone or watch, there is the session ID, which is also the few hex digits at the end of your overlay link.
