@@ -14,6 +14,8 @@ namespace HRCounter.Utils
 
         internal static readonly List<object> DataSources = new object[] {"HypeRate", "WebRequest", "FitbitHRtoWS", "Pulsoid", "YUR APP", "YUR MOD"}.ToList();
         private static readonly List<string> DataSourcesRequireWebSocket = new [] {"HypeRate", "FitbitHRtoWS", "Pulsoid"}.ToList();
+        internal const string YUR_MOD_ID = "YUR Fit Calorie Tracker";
+        internal const string WEBSOCKET_SHARP_MOD_ID = "websocket-sharp";
         
         private static readonly MethodBase ScoreSaber_playbackEnabled =
             AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
@@ -52,10 +54,19 @@ namespace HRCounter.Utils
                 
                 case "Pulsoid":
                     return PluginConfig.Instance.PulsoidWidgetID;
-                
-                case "YUR APP":
-                    return "Make sure to have your desktop YUR app running";
 
+                case "YUR APP":  // TODO: Check YUR Process
+                    return "Make sure to have your desktop YUR app running";
+                
+                case "YUR MOD":
+                    if (!IsModEnabled(YUR_MOD_ID))
+                    {
+                        return "<color=#FF0000>YUR MOD IS NOT INSTALLED OR ENABLED!</color>";
+                    }
+                    return "YUR MOD Detected!";
+
+                // TODO: Check mod installation!
+                
                 default:
                     return "Unknown Data Source";
             }

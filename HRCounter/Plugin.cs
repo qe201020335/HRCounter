@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Reflection;
 using BeatSaberMarkupLanguage.MenuButtons;
 using BeatSaberMarkupLanguage;
 using HRCounter.Data;
@@ -8,12 +6,6 @@ using IPA.Config.Stores;
 using SiraUtil.Zenject;
 using IPALogger = IPA.Logging.Logger;
 using HRCounter.Installers;
-using HarmonyLib;
-using YUR.Fit.Core.Models;
-using YUR.Fit.Unity;
-using YUR.ViewControllers;
-using IPA.Utilities;
-using YUR.Core.Models;
 
 namespace HRCounter
 {
@@ -47,7 +39,7 @@ namespace HRCounter
             zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);
             zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer); 
             // we don't want to popup the pause menu during multiplayer, that's not gonna help anything!
-
+            // TODO: Add Plugin Disable Option
             Log.Debug("Installers!");
         }
         
@@ -55,7 +47,6 @@ namespace HRCounter
         public void OnStart() {
             MenuButtons.instance.RegisterButton(MenuButton);
             HRController.ClearThings();
-            
         }
 
         [OnExit]
