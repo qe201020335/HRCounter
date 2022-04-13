@@ -12,55 +12,46 @@ namespace HRCounter.UI
     internal class SettingMenuController : BSMLAutomaticViewController
     {
 
+        private static PluginConfig Config => PluginConfig.Instance;
+
         [UIValue("LogHR")]
         public bool LogHR
         {
-            get => PluginConfig.Instance.LogHR;
-            set
-            {
-                PluginConfig.Instance.LogHR = value;
-            }
+            get => Config.LogHR;
+            set => Config.LogHR = value;
         }
         
 
         [UIValue("Colorize")]
         public bool Colorize
         {
-            get => PluginConfig.Instance.Colorize;
-            set
-            {
-                PluginConfig.Instance.Colorize = value;
-            }
+            get => Config.Colorize;
+            set => Config.Colorize = value;
         }
 
         [UIValue("HRLow")]
         public int HRLow
         {
-            get => PluginConfig.Instance.HRLow;
-            set
-            {
-                PluginConfig.Instance.HRLow = value;
-            }
+            get => Config.HRLow;
+            set => Config.HRLow = value;
         }
         
         [UIValue("HRHigh")]
         public int HRHigh
         {
-            get => PluginConfig.Instance.HRHigh;
-            set
-            {
-                PluginConfig.Instance.HRHigh = value;
-            }
+            get => Config.HRHigh;
+            set => Config.HRHigh = value;
         }
+
+        [UIValue("color-info-text")]
+        public string ColorInfoText =>
+            $"Current Colors: <color={Config.LowColor}>Low</color> -> <color={Config.MidColor}>Middle</color> -> <color={Config.HighColor}>High</color>";
         
         [UIValue("HideDuringReplay")]
         public bool HideDuringReplay
         {
-            get => PluginConfig.Instance.HideDuringReplay;
-            set
-            {
-                PluginConfig.Instance.HideDuringReplay = value;
-            }
+            get => Config.HideDuringReplay;
+            set => Config.HideDuringReplay = value;
         }
         
         [UIValue("source-list-options")]
@@ -69,10 +60,10 @@ namespace HRCounter.UI
         [UIValue("source-list-choice")]
         public string listChoice
         {
-            get => PluginConfig.Instance.DataSource;
+            get => Config.DataSource;
             set
             {
-                PluginConfig.Instance.DataSource = value;
+                Config.DataSource = value;
                 UpdateText();
             }
         }
@@ -80,31 +71,22 @@ namespace HRCounter.UI
         [UIValue("PauseHR")]
         public int PauseHR
         {
-            get => PluginConfig.Instance.PauseHR;
-            set
-            {
-                PluginConfig.Instance.PauseHR = value;
-            }
+            get => Config.PauseHR;
+            set => Config.PauseHR = value;
         }
 
         [UIValue("AutoPause")]
         public bool AutoPause
         {
-            get => PluginConfig.Instance.AutoPause;
-            set
-            {
-                PluginConfig.Instance.AutoPause = value;
-            }
+            get => Config.AutoPause;
+            set => Config.AutoPause = value;
         }
 
         [UIValue("IgnoreCounters+")]
         public bool UseCountersPlus
         {
-            get => PluginConfig.Instance.IgnoreCountersPlus;
-            set
-            {
-                PluginConfig.Instance.IgnoreCountersPlus = value;
-            }
+            get => Config.IgnoreCountersPlus;
+            set => Config.IgnoreCountersPlus = value;
         }
         
         [UIComponent("data-source-info-text")]

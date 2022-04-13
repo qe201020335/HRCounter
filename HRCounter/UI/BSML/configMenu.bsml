@@ -6,7 +6,7 @@
                 <dropdown-list-setting text="Data Source" value="source-list-choice" choices="source-list-options" apply-on-change="true"/>
                 <!-- Don't know why it is horizontal but it works! Thank you Aeroluna! :D-->
                 <horizontal pad-top="1" pad-bottom="1">
-                    <text id="data-source-info-text" text='~data-source-info-text' italics="true" align="Center"/>
+                    <text id="data-source-info-text" text='~data-source-info-text' italics="false" align="Center"/>
                 </horizontal>
                 <bool-setting text="Hide During Replay" value="HideDuringReplay" hover-hint="Hide this counter while in a replay" apply-on-change="true"/>
             </vertical>
@@ -16,6 +16,9 @@
                 <bool-setting text="Colorize HR Text" value="Colorize" hover-hint="Colorize the heart rate number." apply-on-change="true"/>
                 <increment-setting text="Heart Rate Lower Bound" value="HRLow" integer-only="true" min="60" max="140" increment="5" apply-on-change="true"/>
                 <increment-setting text="Heart Rate Upper Bound" value="HRHigh" integer-only="true" min="140" max="220" increment="5" apply-on-change="true"/>
+                <horizontal pad-top="1" pad-bottom="1">
+                    <text text="~color-info-text" italics="false" align="Center"/>
+                </horizontal>
             </vertical>
         </tab>
         <tab tab-name="Health &amp; Safety" tags="tabs">
