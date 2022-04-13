@@ -33,6 +33,10 @@ namespace HRCounter
 
         public void Initialize()
         {
+            if (!PluginConfig.Instance.ModEnable)
+            {
+                return;
+            }
             if (_sceneSetupData == null)
             {
                 Plugin.Log.Warn("GameplayCoreSceneSetupData is null");

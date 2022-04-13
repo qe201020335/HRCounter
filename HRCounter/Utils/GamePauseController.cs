@@ -23,6 +23,10 @@ namespace HRCounter.Utils
         
         internal static void PauseGame()
         {
+            if (!PluginConfig.Instance.ModEnable)
+            {
+                return;
+            }
             if (!PluginConfig.Instance.AutoPause)
             {
                 return;

@@ -14,6 +14,14 @@ namespace HRCounter.UI
 
         private static PluginConfig Config => PluginConfig.Instance;
 
+        [UIValue("ModEnable")]
+        private bool ModEnable
+        {
+            get => Config.ModEnable;
+            set => Config.ModEnable = value;
+        }
+        
+
         [UIValue("LogHR")]
         public bool LogHR
         {

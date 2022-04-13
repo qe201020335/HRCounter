@@ -11,6 +11,10 @@ namespace HRCounter.Installers
 
         public override void InstallBindings()
         {
+            if (!PluginConfig.Instance.ModEnable)
+            {
+                return;
+            }
             Logger.logger.Debug("Binding BPM Downloader");
             if (!Utils.Utils.IsModEnabled(Utils.Utils.WEBSOCKET_SHARP_MOD_ID) && Utils.Utils.NeedWebSocket(Config.DataSource))
             {

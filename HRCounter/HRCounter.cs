@@ -23,6 +23,10 @@ namespace HRCounter
 
         public override void CounterInit()
         {
+            if (!PluginConfig.Instance.ModEnable)
+            {
+                return;
+            }
             if (PluginConfig.Instance.HideDuringReplay && Utils.Utils.IsInReplay())
             {
                 _logger.Info("We are in a replay, Counter hides.");

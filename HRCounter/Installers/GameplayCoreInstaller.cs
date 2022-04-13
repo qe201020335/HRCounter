@@ -16,6 +16,10 @@ namespace HRCounter.Installers
 
         public override void InstallBindings()
         {
+            if (!PluginConfig.Instance.ModEnable)
+            {
+                return;
+            }
             if (!PluginConfig.Instance.IgnoreCountersPlus && Utils.Utils.IsModEnabled(COUNTERS_PLUS_MOD_ID))
             {
                 Logger.logger.Info("Counters+ mod is enabled! Not binding!");

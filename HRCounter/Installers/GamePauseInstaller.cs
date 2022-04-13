@@ -8,6 +8,10 @@ namespace HRCounter.Installers
     {
         public override void InstallBindings()
         {
+            if (!PluginConfig.Instance.ModEnable)
+            {
+                return;
+            }
             if (PluginConfig.Instance.AutoPause)
             {
                 Logger.logger.Debug("Binging game pause");
