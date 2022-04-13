@@ -3,14 +3,14 @@
     "id": "HRCounter",
     "name": "HRCounter",
     "author": "qe201020335",
-    "version": "1.4.1",
+    "version": "2.0.0",
     "icon": "HRCounter.Resources.hrcounter.png",
     "description": "A Counters+ custom counter that displays your heart rate in game.",
-    "gameVersion": "1.17.0",
+    "gameVersion": "1.21.0",
     "dependsOn": {
-        "Counters+": "^2.0.0",
         "BSIPA": "^4.1.0",
-        "BeatSaberMarkupLanguage": "^1.3.4"
+        "BeatSaberMarkupLanguage": "^1.3.4",
+        "SiraUtil": "^3.0.0"
     },
     "loadAfter": [
         "Counters+"
@@ -26,8 +26,8 @@
                 "Distance": 1
             },
             "BSML": {
-                "Resource": "HRCounter.Configuration.config.bsml",
-                "Host": "HRCounter.Configuration.SettingController",
+                "Resource": "HRCounter.UI.CountersPlus.config.bsml",
+                "Host": "HRCounter.UI.CountersPlus.SettingController",
                 "Icon": "HRCounter.Resources.hrcounter.png"
             }
         }

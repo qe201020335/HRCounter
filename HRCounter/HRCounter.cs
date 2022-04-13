@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections;
-using CountersPlus.Counters.Custom;
+﻿using CountersPlus.Counters.Custom;
 using HRCounter.Configuration;
 using HRCounter.Data;
+using HRCounter.Events;
 using TMPro;
 using IPALogger = IPA.Logging.Logger;
 using UnityEngine;
-
+using Object = UnityEngine.Object;
 
 namespace HRCounter
 {
@@ -16,16 +15,11 @@ namespace HRCounter
         private readonly IPALogger _logger = Logger.logger;
         private TMP_Text _counter;
         private bool _updating;
-        private BpmDownloader _bpmDownloader;
 
-        // color stuff
-        private bool _colorize = PluginConfig.Instance.Colorize;
-        private int _hrLow = PluginConfig.Instance.HRLow;
-        private int _hrHigh = PluginConfig.Instance.HRHigh;
-        private string _colorLow = PluginConfig.Instance.LowColor;
-        private string _colorHigh = PluginConfig.Instance.HighColor;
-        private string _colorMid = PluginConfig.Instance.MidColor;
-        
+        private static bool Colorize => PluginConfig.Instance.Colorize;
+
+        private GameObject _customCounter;
+        private TMP_Text _customCounterText;
 
         public override void CounterInit()
         {
@@ -35,143 +29,73 @@ namespace HRCounter
                 return;
             }
             
-            if (!Refresh())
+            if (!CreateCounter())
             {
-                _logger.Info("Can't Refresh");
-                _logger.Info("Please check your settings about data source and the link or id.");
+                _logger.Warn("Cannot create counter");
                 return;
             }
-            
-            CreateCounter();
-            Utils.GamePause.GameStart();
 
-            try
-            {
-                _bpmDownloader.Start();
-                _logger.Info("Start updating heart rate");
-            }
-            catch (Exception e)
-            {
-                _logger.Critical("Could not start bpm downloader.");
-                _logger.Error(e.Message);
-                _logger.Debug(e);
-                _bpmDownloader.Stop();
-                return;
-            }
-            Start();
             _logger.Info("Start updating counter text");
         }
 
-        private bool Refresh()
-        {
-            _logger.Info("Refreshing Settings");
-            switch (PluginConfig.Instance.DataSource)
-            {
-                case "WebRequest":
-                    if (PluginConfig.Instance.FeedLink == "NotSet")
-                    {
-                        _logger.Warn("Feed link not set.");
-                        return false;
-                    }
-                    _bpmDownloader = new WebRequest();
-                    break;
-                
-                case "HypeRate":
-                    if (PluginConfig.Instance.HypeRateSessionID == "-1")
-                    {
-                        _logger.Warn("Hype Rate Session ID not set.");
-                        return false;
-                    }
-
-                    _bpmDownloader = new HypeRate();
-                    break;
-
-                case "FitbitHRtoWS":
-                    if(PluginConfig.Instance.FitbitWebSocket == string.Empty)
-                    {
-                        _logger.Warn("FitbitWebSocket is empty.");
-                        return false;
-                    }
-                    _bpmDownloader = new FitbitHRtoWS();
-                    break;
-
-                default:
-                    _bpmDownloader = null;
-                    _logger.Warn("Unknown Data Sources");
-                    return false;
-            }
-            _colorize = PluginConfig.Instance.Colorize;
-            _hrLow = PluginConfig.Instance.HRLow;
-            _hrHigh = PluginConfig.Instance.HRHigh;
-            _colorLow = PluginConfig.Instance.LowColor;
-            _colorHigh = PluginConfig.Instance.HighColor;
-            _colorMid = PluginConfig.Instance.MidColor;
-            return true;
-        }
-
-        private void CreateCounter()
+        private bool CreateCounter()
         {
             _logger.Info("Creating counter");
             _counter = CanvasUtility.CreateTextFromSettings(Settings);
             _counter.fontSize = 3;
-        }
-
-        private void Start()
-        {
-            _updating = true;
-            SharedCoroutineStarter.instance.StartCoroutine(Ticking());
-        }
-
-        private void Stop()
-        {
-            _updating = false;
-        }
-
-        private IEnumerator Ticking()
-        {
-            while(_updating)
+            _counter.text = "";
+            
+            var canvas = CanvasUtility.GetCanvasFromID(Settings.CanvasID);
+            if (canvas == null)
             {
-                var bpm = BPM.Instance.Bpm;
-                _counter.text = _colorize ? $"<color=#FFFFFF>HR </color><color=#{DetermineColor(bpm)}>{bpm}</color>" : $"HR {bpm}";
-                yield return new WaitForSecondsRealtime(0.25f);
+                Logger.logger.Warn("Cannot find counters+ canvas");
+                return false;
             }
+
+            var counter = AssetBundleManager.SetupCustomCounter();
+            _customCounter = counter.Icon;
+            _customCounterText = counter.Numbers;
+            
+            if (_customCounter == null || _customCounterText == null)
+            {
+                _logger.Error("Cannot create custom counter");
+                return false;
+            }
+            
+            // position the counter as the counters+ one
+            _customCounter.transform.localScale = Vector3.one / 30;
+            _customCounter.transform.SetParent(canvas.transform, false);
+            _customCounter.GetComponent<RectTransform>().anchoredPosition =
+                _counter.rectTransform.anchoredPosition;
+            _customCounter.transform.localPosition -= new Vector3(2, 0, 0); // recenter
+
+            OnHRUpdate(null, new HRUpdateEventArgs(BPM.Instance.Bpm));  // give it an initial value
+
+            if (counter.CurrentCanvas != null)
+            {
+                // destroy the unused game obj
+                Object.Destroy(counter.CurrentCanvas);
+            }
+            HRController.OnHRUpdate += OnHRUpdate;
+            return true;
         }
 
-        private string DetermineColor(int hr)
+        private void OnHRUpdate(object sender, HRUpdateEventArgs args)
         {
-            if (_hrHigh >= _hrLow && _hrLow > 0)
-            {
-                if (ColorUtility.TryParseHtmlString(_colorHigh, out Color colorHigh) &&
-                    ColorUtility.TryParseHtmlString(_colorLow, out Color colorLow) && 
-                    ColorUtility.TryParseHtmlString(_colorMid, out Color colorMid))
-                {
-                    if (hr <= _hrLow)
-                    {
-                        return _colorLow.Substring(1); //the rgb color in setting are #RRGGBB, need to omit the #
-                    }
-
-                    if (hr >= _hrHigh)
-                    {
-                        return _colorHigh.Substring(1);
-                    }
-
-                    var ratio = (hr - _hrLow) / (float) (_hrHigh - _hrLow) * 2;
-                    var color = ratio < 1 ? Color.Lerp(colorLow, colorMid, ratio) : Color.Lerp(colorMid, colorHigh, ratio - 1);
-
-                    return ColorUtility.ToHtmlStringRGB(color);
-                }
-            }
-            _logger.Warn("Cannot determine color, please check hr boundaries and color codes.");
-            _colorize = false;
-            return ColorUtility.ToHtmlStringRGB(Color.white);
+            var bpm = args.HeartRate;
+            _customCounter.SetActive(true);
+            _customCounterText.text = Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
         }
 
         public override void CounterDestroy()
         {
-            Stop();
-            _bpmDownloader.Stop();
             _counter = null;
-            Utils.GamePause.GameEnd();
+            HRController.OnHRUpdate -= OnHRUpdate;
+            if (_customCounter != null)
+            {
+                Object.Destroy(_customCounter);
+            }
+            
             _logger.Info("Counter destroyed");
         }
     }

@@ -1,49 +1,60 @@
 ﻿using System;
-using System.Collections;
+using System.Threading.Tasks;
 using HRCounter.Configuration;
-using IPALogger = IPA.Logging.Logger;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
-using UnityEngine;
+using Random = UnityEngine.Random;
 
-namespace HRCounter.Data
+namespace HRCounter.Data.BpmDownloaders
 {
-    internal sealed class HypeRate : BpmDownloader
+    internal sealed class HRProxy : BpmDownloader
     {
-        // Register: {"topic": "hr:1234","event": "phx_join","payload": {},"ref": 0}
+         // Register: {"topic": "hr:1234","event": "phx_join","payload": {},"ref": 0}
         // HeartBeat: "{"topic": "phoenix","event": "heartbeat","payload": {},"ref": 123456}"
         
-        private const string URL = "wss://app.hyperate.io/socket/websocket";
+        private const string URL = "wss://hrproxy.fortnite.lol:2096/hrproxy";
 
-        private const string HeartBeatJson =
-            "{\"topic\": \"phoenix\",\"event\": \"heartbeat\",\"payload\": {},\"ref\": 123456}";
+        // private const string PONG = "{\"method\": \"pong\"}";
+        
         private string _sessionJson;
 
-        private bool _logHr = PluginConfig.Instance.LogHR;
-        private string _sessionID = PluginConfig.Instance.HypeRateSessionID;
+        private string _reader = Config.DataSource;
+
+        private string _id;
         private bool _updating;
 
         private WebSocket _webSocket;
 
-        internal HypeRate()
+        internal HRProxy()
         {
             RefreshSettings();
         }
 
-        protected override void RefreshSettings()
+        private void RefreshSettings()
         {
-            _logHr = PluginConfig.Instance.LogHR;
-            _sessionID = PluginConfig.Instance.HypeRateSessionID;
+            _reader = Config.DataSource;
 
-            _sessionJson = "{\"topic\": \"hr:" + _sessionID + "\",\"event\": \"phx_join\",\"payload\": {},\"ref\": 0}";
+            if (_reader == "HypeRate")
+            {
+                _id = Config.HypeRateSessionID;
+            }
+            else
+            {
+                _id = Config.PulsoidWidgetID;
+            }
+
+            JObject _subscribe = new JObject();
+            _subscribe["reader"] = _reader;
+            _subscribe["identifier"] = _id;
+            
+            _sessionJson = _subscribe.ToString();
         }
 
         internal override void Start()
         {
             _updating = true;
             CreateAndConnectSocket();
-            SharedCoroutineStarter.instance.StartCoroutine(HeartBeating());
         }
 
         internal override void Stop()
@@ -51,6 +62,23 @@ namespace HRCounter.Data
             _updating = false;
             _webSocket?.CloseAsync();
             _webSocket = null;
+        }
+
+        private void OnSocketClose(object sender, CloseEventArgs e)
+        {
+            if (sender != _webSocket)
+            {
+                return;
+            }
+
+            if (!_updating)
+            {
+                // we are not updating anyways.
+                return;
+            }
+            
+            logger.Warn("WebSocket is closed. Stopping HR updates");
+            Stop();
         }
 
         private void CreateAndConnectSocket()
@@ -66,27 +94,35 @@ namespace HRCounter.Data
             _webSocket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
             _webSocket.OnMessage += OnMessageReceive;
             _webSocket.OnError += OnSocketError;
+            _webSocket.OnClose += OnSocketClose;
             _webSocket.Connect();
             SendMessage(_sessionJson);
         }
 
-        private IEnumerator HeartBeating()
+        private async Task Pong(JObject data)
         {
-            logger.Info("WebSocket HeartBeating!");
-            while (_updating)
+            var delay = Random.Range(30, 15000);
+            logger.Debug($"Random delay {delay} ms for pong.");
+            await Task.Delay(delay); // random delay between 30 ms and 15 sec
+            if (_updating)
             {
-                SendMessage(HeartBeatJson);
-                yield return new WaitForSecondsRealtime(15);
+                logger.Debug("Pong!");
+                SendMessage(data.ToString());
             }
         }
 
         private void SendMessage(string s)
         {
             logger.Debug($"Trying to send message {s}");
+            if (!_updating)
+            {
+                logger.Debug($"Not updating, no message sent.");
+                return;
+            }
             if (_webSocket == null || _webSocket.ReadyState == WebSocketState.Closed)
             {
                 logger.Critical("WebSocket is null or Closed. Terminating HR Update.");
-                logger.Notice("Does your internet got disconnected?");
+                logger.Notice("Server unreachable! Does your internet get disconnected?");
                 Stop();
             }
             try
@@ -131,40 +167,46 @@ namespace HRCounter.Data
             {
                 return;
             }
-
-#if DEBUG
-         
-            logger.Debug(e.Data);
-#endif        
+            
+            Logger.DebugSpam(e.Data);
 
             try
             {
                 var json = JObject.Parse(e.Data);
-                
-                if (json["event"] != null && json["event"].ToObject<string>() == "hr_update")
+
+                if (json["method"]?.ToString() == "ping")
                 {
-                    // {"event":"hr_update","payload":{"hr":89,"id":"2340"},"ref":null,"topic":"hr:2340"}
+                    logger.Debug("Ping!");
+                    json["method"] = "pong";
+                    Pong(json);
+                }
+                else
+                {
+                    // {"reader": "","identifier": "","hr": "0","timestamp": "0"}
                     UpdateHR(json);
                 } 
             }
             catch (JsonReaderException)
             {
-                logger.Critical("Invalid json received.");
-                logger.Critical(e.Data);
+                logger.Warn("Invalid json received.");
+                logger.Warn(e.Data);
             }
         }
 
         private void UpdateHR(JObject json)
         {
-            if (json["payload"] != null && json["payload"]["hr"] != null)
+            if (json["hr"] != null)
             {
-                Bpm.Bpm = json["payload"]["hr"].ToObject<int>();
-                Bpm.ReceivedAt = DateTime.Now.ToString("HH:mm:ss");
-            }
-            
-            if (_logHr)
-            {
-                logger.Info(Bpm.ToString());
+                var hr = json["hr"].ToObject<int>();
+                var timestamp = json["timestamp"]?.ToObject<string>();
+                if (timestamp == null)
+                {
+                    OnHearRateDataReceived(hr);
+                }
+                else
+                {
+                    OnHearRateDataReceived(hr, timestamp);
+                }
             }
         }
     }

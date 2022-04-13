@@ -1,12 +1,17 @@
-﻿using System;
+using System.Linq;
+using BeatSaberMarkupLanguage.MenuButtons;
+using BeatSaberMarkupLanguage;
+using HRCounter.Data;
+using System;
 using System.Reflection;
 using HarmonyLib;
 using HRCounter.Data;
 using IPA;
-using IPA.Config;
 using IPA.Config.Stores;
+using SiraUtil.Zenject;
 using IPALogger = IPA.Logging.Logger;
-// using UnityEngine.SceneManagement;
+using HRCounter.Installers;
+using IPA.Loader;
 
 namespace HRCounter
 {
@@ -19,44 +24,33 @@ namespace HRCounter
 
         internal static string Name => "HR Counter";
 
+        internal MenuButton MenuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick, true);
+
+        private UI.ConfigViewFlowCoordinator _configViewFlowCoordinator;
 
         [Init]
-        /// <summary>
-        /// Called when the plugin is first loaded by IPA (either when the game starts or when the plugin is enabled if it starts disabled).
-        /// [Init] methods that use a Constructor or called before regular methods like InitWithConfig.
-        /// Only use [Init] with one Constructor.
-        /// </summary>
-        public void Init(IPALogger logger)
+        public void InitWithConfig(IPALogger logger, IPA.Config.Config conf, Zenjector zenject)
         {
             Instance = this;
             Logger.logger = logger;
             Log = logger;
             Log.Info("HRCounter initialized.");
-
-            /*
-            HRCounter.ScoreSaberInstalled = Utils.Utils.IsModInstalled("ScoreSaber");
-            if (HRCounter.ScoreSaberInstalled)
-            {
-                logger.Info("ScoreSaber Detected.");
-            }
-            */
-        }
-
-        #region BSIPA Config
-
-        [Init]
-        public void InitWithConfig(Config conf)
-        {
             Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
-            Logger.logger = Log;
             Log.Debug("Config loaded");
+            AssetBundleManager.LoadAssetBundle();
+            zenject.Install<GameplayHearRateInstaller>(Location.Player);
+            zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);
+            zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer); 
+            // we don't want to popup the menu during mp, that's not gonna help
+
+            Log.Debug("Installers!");
         }
 
-        #endregion
         [OnStart]
-        public void OnApplicationStart() 
-        {
-            //SceneManager.activeSceneChanged += Utils.Utils.OnActiveSceneChanged;
+        public void OnStart() {
+            MenuButtons.instance.RegisterButton(MenuButton);
+            HRController.ClearThings();
+            
             if (Configuration.PluginConfig.Instance.YURModIntegration)
             {
                 if (Utils.Utils.IsModInstalled("YUR.fit-BeatSaber-Mod"))
@@ -87,6 +81,15 @@ namespace HRCounter
                 else
                     Logger.logger.Warn("YURModIntegration is enabled, but failed to find the YUR Mod!");
             }
+        }
+        
+        private static void OnMenuButtonClick()
+        {
+            if (Instance._configViewFlowCoordinator == null)
+            {
+                Instance._configViewFlowCoordinator = BeatSaberUI.CreateFlowCoordinator<UI.ConfigViewFlowCoordinator>();
+            }
+            BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(Instance._configViewFlowCoordinator);
         }
     }
 }
