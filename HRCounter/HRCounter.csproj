@@ -45,7 +45,7 @@
     <Reference Include="0Harmony, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="BSML, Version=1.5.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="BSML, Culture=neutral, processorArchitecture=MSIL">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
@@ -121,9 +121,6 @@
     <Reference Include="websocket-sharp, Version=1.0.2.1803, Culture=neutral, PublicKeyToken=5660b08a1845a91e">
       <HintPath>$(BeatSaberDir)\Libs\websocket-sharp.dll</HintPath>
     </Reference>
-    <Reference Include="YUR.Fit.Unity, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>$(BeatSaberDir)\Libs\YUR.Fit.Unity.dll</HintPath>
-    </Reference>
     <Reference Include="Zenject, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
@@ -138,6 +135,10 @@
           <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
           <Private>false</Private>
       </Reference>
+    <Reference Include="YUR.fit-BeatSaber-Mod">
+      <HintPath>$(BeatSaberDir)\Plugins\YUR.fit-BeatSaber-Mod.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssetBundleManager.cs" />
@@ -148,7 +149,7 @@
     <Compile Include="Data\BpmDownloaders\RandomHR.cs" />
     <Compile Include="Data\BpmDownloaders\WebRequest.cs" />
     <Compile Include="Data\BpmDownloaders\YURApp.cs" />
-    <Compile Include="Data\YURHR.cs" />
+    <Compile Include="Data\BpmDownloaders\YURHR.cs" />
     <Compile Include="Data\HRController.cs" />
     <Compile Include="Events\HRUpdateEventArgs.cs" />
     <Compile Include="HRCounter.cs" />

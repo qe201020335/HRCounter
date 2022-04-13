@@ -5,7 +5,7 @@ using HRCounter.Data;
 using System;
 using System.Reflection;
 using HarmonyLib;
-using HRCounter.Data;
+using HRCounter.Data.BpmDownloaders;
 using IPA;
 using IPA.Config.Stores;
 using SiraUtil.Zenject;
@@ -53,7 +53,7 @@ namespace HRCounter
             
             if (Configuration.PluginConfig.Instance.YURModIntegration)
             {
-                if (Utils.Utils.IsModInstalled("YUR.fit-BeatSaber-Mod"))
+                if (Utils.Utils.IsModEnabled("YUR.fit-BeatSaber-Mod"))
                 {
                     // YUR Exists! Lets get some data!
                     Logger.logger.Log(IPALogger.Level.Info, "Found Yur Mod!");
