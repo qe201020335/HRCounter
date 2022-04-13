@@ -1,9 +1,9 @@
 # HRCounter
 A Beat Saber custom counter that displays your heart rate in game.
 
-**Supports BLE HR Monitor, Apple Watch, Fitbit, Galaxy Watch, WearOS and more!**
+**Supports BLE HR Monitor, Apple Watch, Fitbit, Galaxy Watch, WearOS and more!** Check out instructions on [HR monitors](#hr-monitors).
 
-It also supports **anything** that **Pulsoid**, **HypeRate**, **YUR Desktop App / MOD** support!
+It also supports **anything** that **Pulsoid**, **HypeRate**, **YUR Desktop App / MOD** support! Check out instructions on [data sources](#data-sources).
 
 It can even **pause** the game for you if your heart is beating **too fast**!
 
@@ -73,9 +73,9 @@ For example, `"FitbitWebSocket": "ws://localhost:8080/",` or `"FitbitWebSocket":
 ## HR MONITORS
 
 ### BLE Compatible HR Monitor
-1. Download [Pulsoid](https://pulsoid.net/) on your phone and set up heart rate broadcast.
-2. Follow instruction for Pulsoid [above](#Pulsoid).
-
+There are 2 options
+1. Download [Pulsoid](https://pulsoid.net/) on your phone and set up heart rate broadcast. Then follow instruction for Pulsoid [above](#Pulsoid).
+2. Download [HypeRate](https://www.hyperate.io/#download) on your phone and connect to your BLE device. Then follow instructions for HypeRate [above](#HypeRate)
 
 ### Galaxy Watch
 1. Use [HeartRateToWeb](https://github.com/loic2665/HeartRateToWeb) and [this](https://galaxystore.samsung.com/geardetail/tUhSWQRbmv) app on your watch.
@@ -100,7 +100,7 @@ Special thanks to iPixelGalaxy for testing!
 
 ### WearOS Smart Watch
 There are 2 options.
-1. Use [Heart for Bluetooth](https://play.google.com/store/apps/details?id=lukas.the.coder.heartforbluetooth) on your watch and use it as a BLE heart rate monitor. Then download [Pulsoid](https://pulsoid.net/) on your phone and follow instructions for Pulsoid [above](#Pulsoid)
+1. Use [Heart for Bluetooth](https://play.google.com/store/apps/details?id=lukas.the.coder.heartforbluetooth) on your watch and use it as a BLE heart rate monitor. Then follow the instructions for BLE Compatible HR Monitor [above](#ble-compatible-hr-monitor)
 2. Use [HypeRate](https://hyperate.io/) which you can download it on the [play store](https://play.google.com/store/apps/details?id=de.locxserv.hyperatewearos) and follow instructions for HypeRate [above](#HypeRate)
 
 Depending on your watch, monitoring quality may not be as good as a dedicated heart rate monitor. 
