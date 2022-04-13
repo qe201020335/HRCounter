@@ -3,6 +3,7 @@ using IPALogger = IPA.Logging.Logger;
 using System.Reflection;
 using HarmonyLib;
 using System.Collections.Generic;
+using System.Diagnostics;
 using HRCounter.Configuration;
 using UnityEngine;
 
@@ -44,19 +45,35 @@ namespace HRCounter.Utils
             switch (PluginConfig.Instance.DataSource)
             {
                 case "WebRequest":
-                    return PluginConfig.Instance.FeedLink;
+                    return $"Current URL: {ConditionalTruncate(PluginConfig.Instance.FeedLink, 30)}";
 
                 case "HypeRate":
-                    return PluginConfig.Instance.HypeRateSessionID;
+                    if (!IsModEnabled(WEBSOCKET_SHARP_MOD_ID))
+                    {
+                        return $"<color=#FF0000>{WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
+                    }
+                    return $"Current Session ID: {ConditionalTruncate(PluginConfig.Instance.HypeRateSessionID, 30)}";
 
                 case "FitbitHRtoWS":
-                    return PluginConfig.Instance.FitbitWebSocket;
+                    if (!IsModEnabled(WEBSOCKET_SHARP_MOD_ID))
+                    {
+                        return $"<color=#FF0000>{WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
+                    }
+                    return $"Current WebSocket Link: {ConditionalTruncate(PluginConfig.Instance.FitbitWebSocket, 30)}";
                 
                 case "Pulsoid":
-                    return PluginConfig.Instance.PulsoidWidgetID;
+                    if (!IsModEnabled(WEBSOCKET_SHARP_MOD_ID))
+                    {
+                        return $"<color=#FF0000>{WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
+                    }
+                    return $"Current Widget ID: {ConditionalTruncate(PluginConfig.Instance.PulsoidWidgetID, 30)}";
 
-                case "YUR APP":  // TODO: Check YUR Process
-                    return "Make sure to have your desktop YUR app running";
+                case "YUR APP":
+                    if (!CheckYURProcess())
+                    {
+                        return "<color=#FFFF00>YUR App does not seem to be running.</color>";
+                    }
+                    return "YUR App seems to be running.";
                 
                 case "YUR MOD":
                     if (!IsModEnabled(YUR_MOD_ID))
@@ -65,11 +82,20 @@ namespace HRCounter.Utils
                     }
                     return "YUR MOD Detected!";
 
-                // TODO: Check mod installation!
-                
                 default:
                     return "Unknown Data Source";
             }
+        }
+
+        internal static string ConditionalTruncate(string s, int length)
+        {
+            return s.Length <= length ? s : s.Substring(0, length) + "...";
+        }
+
+        internal static bool CheckYURProcess()
+        {
+            var processes = Process.GetProcessesByName("YUR.Fit.Windows.Service");
+            return processes.Length > 0;
         }
         
         internal static string DetermineColor(int hr)
