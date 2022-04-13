@@ -79,7 +79,5 @@ namespace HRCounter.Configuration
             public float z;
         }
 
-        public virtual bool YURModIntegration { get; set; } = true;
-
     }
 }

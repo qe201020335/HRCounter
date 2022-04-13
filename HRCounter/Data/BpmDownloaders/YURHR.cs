@@ -15,19 +15,7 @@ namespace HRCounter.Data.BpmDownloaders
             HR = (int)_hr;
         }
     }
-    
-    public class ActivityViewControllerPatch
-    {
-        public static void OverlayUpdateAction(OverlayStatusUpdate status)
-        {
-            try
-            {
-                YURData.SetHR(status.HeartRate ?? 0);
-            }
-            catch(Exception e){}
-        }
-    }
-    
+
     internal sealed class YURHR : BpmDownloader
     {
         private bool _logHr = PluginConfig.Instance.LogHR;

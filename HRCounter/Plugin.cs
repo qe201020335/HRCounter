@@ -1,17 +1,16 @@
 using System.Linq;
+using System.Reflection;
 using BeatSaberMarkupLanguage.MenuButtons;
 using BeatSaberMarkupLanguage;
 using HRCounter.Data;
-using System;
-using System.Reflection;
-using HarmonyLib;
-using HRCounter.Data.BpmDownloaders;
 using IPA;
 using IPA.Config.Stores;
 using SiraUtil.Zenject;
 using IPALogger = IPA.Logging.Logger;
 using HRCounter.Installers;
-using IPA.Loader;
+using HarmonyLib;
+using HRCounter.Harmony;
+using YUR.ViewControllers;
 
 namespace HRCounter
 {
@@ -19,6 +18,7 @@ namespace HRCounter
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
+        private const string YUR_MOD_ID = "YUR Fit Calorie Tracker";
         internal static Plugin Instance { get; private set; }
         internal static IPALogger Log { get; private set; }
 
@@ -27,6 +27,9 @@ namespace HRCounter
         internal MenuButton MenuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick, true);
 
         private UI.ConfigViewFlowCoordinator _configViewFlowCoordinator;
+        
+        private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
+
 
         [Init]
         public void InitWithConfig(IPALogger logger, IPA.Config.Config conf, Zenjector zenject)
@@ -50,37 +53,14 @@ namespace HRCounter
         public void OnStart() {
             MenuButtons.instance.RegisterButton(MenuButton);
             HRController.ClearThings();
-            
-            if (Configuration.PluginConfig.Instance.YURModIntegration)
-            {
-                if (Utils.Utils.IsModEnabled("YUR.fit-BeatSaber-Mod"))
-                {
-                    // YUR Exists! Lets get some data!
-                    Logger.logger.Log(IPALogger.Level.Info, "Found Yur Mod!");
-                    Assembly YurModAssembly = Utils.Utils.GetModAssembly("YUR.fit-BeatSaber-Mod");
-                    if (YurModAssembly != null)
-                    {
-                        // Found the YUR Mod; use Harmony to postfix ActivityViewController.OverlayUpdateAction
-                        Type avcType = YurModAssembly.GetType("YUR.ViewControllers.ActivityViewController");
-                        if (avcType != null)
-                        {
-                            Harmony harmony = new Harmony("HRCounter.YURPatch");
+            PatchYURMod();
+        }
 
-                            MethodInfo mOriginal = AccessTools.Method(avcType, "OverlayUpdateAction");
-                            MethodInfo mPostfix = typeof(ActivityViewControllerPatch).GetMethod("OverlayUpdateAction");
-
-                            harmony.Patch(mOriginal, postfix: new HarmonyMethod(mPostfix));
-                            Logger.logger.Log(IPALogger.Level.Info, "Patched OverlayUpdateAction()!");
-                        }
-                        else
-                            Logger.logger.Error("Failed to find the YUR Mod's ActivityViewController!");
-                    }
-                    else
-                        Logger.logger.Error("Found the YUR Mod, but can't get it's assembly!");
-                }
-                else
-                    Logger.logger.Warn("YURModIntegration is enabled, but failed to find the YUR Mod!");
-            }
+        [OnExit]
+        public void OnExit()
+        {
+            MenuButtons.instance.UnregisterButton(MenuButton);
+            UnPatchYURMod();
         }
         
         private static void OnMenuButtonClick()
@@ -90,6 +70,36 @@ namespace HRCounter
                 Instance._configViewFlowCoordinator = BeatSaberUI.CreateFlowCoordinator<UI.ConfigViewFlowCoordinator>();
             }
             BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(Instance._configViewFlowCoordinator);
+        }
+
+        private void PatchYURMod()
+        {
+            if (!Utils.Utils.IsModEnabled(YUR_MOD_ID))
+            {
+                Logger.logger.Info("YUR Mod is not enabled");
+                return;
+            }
+
+            var mOriginal =
+                typeof(ActivityViewController).GetMethod(nameof(ActivityViewController.OverlayUpdateAction));
+            var mPostfix =
+                typeof(YURActivityViewControllerPatch).GetMethod(nameof(YURActivityViewControllerPatch
+                    .OverlayUpdateAction));
+            _harmony.Patch(mOriginal, postfix: new HarmonyMethod(mPostfix));
+
+        }
+
+        private void UnPatchYURMod()
+        {
+            if (!Utils.Utils.IsModEnabled(YUR_MOD_ID))
+            {
+                Logger.logger.Info("YUR Mod is not enabled");
+                return;
+            }
+            var mOriginal =
+                typeof(ActivityViewController).GetMethod(nameof(ActivityViewController.OverlayUpdateAction));
+
+            _harmony.Unpatch(mOriginal, HarmonyPatchType.All);
         }
     }
 }
