@@ -55,12 +55,6 @@ namespace HRCounter
                 return;
             }
             
-            if (!HRController.InitAndStartDownloader())
-            {
-                _logger.Warn("Can't start bpm downloader");
-                _logger.Warn("Please check your settings about data source and the link or id.");
-                return;
-            }
             _logger.Info("HRCounter Initialized");
         }
 
@@ -126,7 +120,6 @@ namespace HRCounter
         public void Dispose()
         {
             HRController.OnHRUpdate -= OnHRUpdate;
-            HRController.Stop();
             PluginConfig.Instance.OnSettingsChanged -= OnSettingChange;
 
             if (CurrentCanvas != null)

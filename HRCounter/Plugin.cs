@@ -34,6 +34,7 @@ namespace HRCounter
             Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
             Log.Debug("Config loaded");
             AssetBundleManager.LoadAssetBundle();
+            zenject.Install<GameplayHearRateInstaller>(Location.Player);
             zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);
             zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer); 
             // we don't want to popup the menu during mp, that's not gonna help

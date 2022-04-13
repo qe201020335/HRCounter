@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections;
-using CountersPlus.Counters.Custom;
+﻿using CountersPlus.Counters.Custom;
 using HRCounter.Configuration;
 using HRCounter.Data;
 using HRCounter.Events;
-using JetBrains.Annotations;
 using TMPro;
 using IPALogger = IPA.Logging.Logger;
 using UnityEngine;
@@ -36,18 +33,6 @@ namespace HRCounter
             {
                 _logger.Warn("Cannot create counter");
                 return;
-            }
-
-            if (!PluginConfig.Instance.IgnoreCountersPlus)
-            {
-                // only init the downloader if the presence of Counters+ is NOT ignored.
-                // Otherwise, standalone counter will call init, then here is called again, not good
-                if (!HRController.InitAndStartDownloader())
-                {
-                    _logger.Warn("Can't start bpm downloader");
-                    _logger.Warn("Please check your settings about data source and the link or id.");
-                    return;
-                }
             }
 
             _logger.Info("Start updating counter text");

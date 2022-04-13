@@ -151,6 +151,7 @@
     <Compile Include="HRCounterController.cs" />
     <Compile Include="Installers\GamePauseInstaller.cs" />
     <Compile Include="Installers\GameplayCoreInstaller.cs" />
+    <Compile Include="Installers\GameplayHeartRateInstaller.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Configuration\PluginConfig.cs" />

@@ -1,95 +1,47 @@
 ﻿using System;
 using System.Threading.Tasks;
-using HRCounter.Configuration;
 using HRCounter.Data.BpmDownloaders;
 using HRCounter.Events;
-using JetBrains.Annotations;
+using Zenject;
 using IPALogger = IPA.Logging.Logger;
 
 namespace HRCounter.Data
 {
-    internal class HRController
+    public class HRController : IInitializable, IDisposable
     {
         private static readonly IPALogger _logger = Logger.logger;
-        [CanBeNull] private static BpmDownloader _bpmDownloader;
+        private static BpmDownloader _bpmDownloader;
+
+        internal HRController(BpmDownloader bpmDownloader)
+        {
+            _bpmDownloader = bpmDownloader;
+        }
         
         public static event EventHandler<HRUpdateEventArgs> OnHRUpdate;
         
         internal static void ClearThings()
         {
             Logger.logger.Info("Clearing bpm downloader and all related event subscribers");
-            _bpmDownloader?.Stop();
+            // _bpmDownloader?.Stop();
             _bpmDownloader = null;
 
             OnHRUpdate = null;
         }
 
-        internal static bool InitAndStartDownloader()
+        public void Initialize()
         {
-            _bpmDownloader?.Stop();
-            _bpmDownloader = null;
-            _logger.Info("Initializing BPM Downloader");
-            switch (PluginConfig.Instance.DataSource)
+            _logger.Debug("HRController Init");
+            if (_bpmDownloader == null)
             {
-                case "WebRequest":
-                    if (PluginConfig.Instance.FeedLink == "NotSet")
-                    {
-                        _logger.Warn("Feed link not set.");
-                        return false;
-                    }
-                    _bpmDownloader = new WebRequest();
-                    break;
-                
-                case "HypeRate":
-                    if (PluginConfig.Instance.HypeRateSessionID == "-1")
-                    {
-                        _logger.Warn("Hype Rate Session ID not set.");
-                        return false;
-                    }
-
-                    _bpmDownloader = new HRProxy();
-                    break;
-                    
-                case "Pulsoid":
-                    if (PluginConfig.Instance.PulsoidWidgetID == "NotSet")
-                    {
-                        _logger.Warn("Pulsoid Widget ID not set.");
-                        return false;
-                    }
-
-                    _bpmDownloader = new HRProxy();
-                    break;
-
-                case "FitbitHRtoWS":
-                    if(PluginConfig.Instance.FitbitWebSocket == string.Empty)
-                    {
-                        _logger.Warn("FitbitWebSocket is empty.");
-                        return false;
-                    }
-                    _bpmDownloader = new FitbitHRtoWS();
-                    break;
-                
-                case "YUR APP":
-                    _bpmDownloader = new YURApp();
-                    break;
-                
-                case "Random":
-                    _bpmDownloader = new RandomHR();
-                    break;
-
-                default:
-                    _bpmDownloader = null;
-                    _logger.Warn("Unknown Data Sources");
-                    return false;
+                _logger.Warn("BPM Downloader is null!");
+                return;
             }
-
             _bpmDownloader.OnHRUpdate += OnHRUpdateInternalHandler;
             
             try
             {
                 _bpmDownloader.Start();
                 _logger.Info("Start updating heart rate");
-                return true;
             }
             catch (Exception e)
             {
@@ -97,8 +49,18 @@ namespace HRCounter.Data
                 _logger.Debug(e);
                 _bpmDownloader.OnHRUpdate -= OnHRUpdateInternalHandler;
                 _bpmDownloader.Stop();
-                return false;
             }
+        }
+
+        public void Dispose()
+        {
+            _logger.Debug("HRController Dispose");
+            if (_bpmDownloader != null)
+            {
+                _bpmDownloader.OnHRUpdate -= OnHRUpdateInternalHandler;
+            }
+            _bpmDownloader?.Stop();
+            // _bpmDownloader = null;
         }
 
         private static void OnHRUpdateInternalHandler(object sender, HRUpdateEventArgs args)
@@ -120,16 +82,6 @@ namespace HRCounter.Data
                 Logger.logger.Critical($"Exception Caught while broadcasting hr update event: {e.Message}");
                 Logger.logger.Critical(e);
             }
-        }
-
-        internal static void Stop()
-        {
-            if (_bpmDownloader != null)
-            {
-                _bpmDownloader.OnHRUpdate -= OnHRUpdateInternalHandler;
-            }
-            _bpmDownloader?.Stop();
-            _bpmDownloader = null;
         }
     }
 }
