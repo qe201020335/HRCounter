@@ -11,6 +11,13 @@ namespace HRCounter.Installers
 
         public override void InstallBindings()
         {
+            Logger.logger.Debug("Binding BPM Downloader");
+            if (!Utils.Utils.IsModEnabled("websocket-sharp") && Utils.Utils.NeedWebSocket(Config.DataSource))
+            {
+                Logger.logger.Error($"websocket-sharp is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
+                return;
+            }
+            
             switch (Config.DataSource)
             {
                 case "WebRequest":

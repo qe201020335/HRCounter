@@ -13,6 +13,7 @@ namespace HRCounter.Utils
     {
 
         internal static readonly List<object> DataSources = new object[] {"HypeRate", "WebRequest", "FitbitHRtoWS", "Pulsoid", "YUR APP"}.ToList();
+        private static readonly List<string> DataSourcesRequireWebSocket = new [] {"HypeRate", "FitbitHRtoWS", "Pulsoid"}.ToList();
         
         private static readonly MethodBase ScoreSaber_playbackEnabled =
             AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
@@ -26,6 +27,11 @@ namespace HRCounter.Utils
         internal static bool IsModEnabled(string id)
         {
             return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == id);
+        }
+
+        internal static bool NeedWebSocket(string dc)
+        {
+            return DataSourcesRequireWebSocket.Contains(dc);
         }
 
         internal static string GetCurrentSourceLinkText()
