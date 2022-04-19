@@ -17,9 +17,9 @@ namespace HRCounter.Data.BpmDownloaders
         private bool _running = false;
         
         private Thread _worker;
-        
-        private static CancellationTokenSource _cancellationSource = new CancellationTokenSource();
-        private static CancellationToken _token = _cancellationSource.Token;
+
+        private CancellationTokenSource _cancellationSource = null;
+        private CancellationToken _token => _cancellationSource.Token;
 
         internal override void Start()
         {
@@ -31,6 +31,8 @@ namespace HRCounter.Data.BpmDownloaders
             }
             logger.Info("Creating new tcp connection");
             _client = new TcpClient();
+            _cancellationSource?.Cancel();
+            _cancellationSource = new CancellationTokenSource();
             _worker = new Thread(StartClient);
             _worker.Start();
 
@@ -45,7 +47,6 @@ namespace HRCounter.Data.BpmDownloaders
             catch (OperationCanceledException)
             {
                 logger.Warn("Connect Canceled.");
-                Stop();
             }
             catch (Exception e)
             {
@@ -63,7 +64,6 @@ namespace HRCounter.Data.BpmDownloaders
             catch (OperationCanceledException)
             {
                 logger.Warn("Read Canceled.");
-                Stop();
             }
             catch (Exception e)
             {
@@ -232,7 +232,8 @@ namespace HRCounter.Data.BpmDownloaders
         internal override void Stop()
         {
             _running = false;
-            _cancellationSource.Cancel();
+            _cancellationSource?.Cancel();
+            _cancellationSource = null;
             CloseClientMakeNull();
             _worker = null;
             logger.Info("Stopped");
