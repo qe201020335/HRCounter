@@ -33,6 +33,15 @@ namespace HRCounter.Installers
                     Container.Bind<BpmDownloader>().To<WebRequest>().AsSingle();
                     break;
                 
+                case "Pulsoid Token":
+                    if (Config.PulsoidToken == "NotSet")
+                    {
+                        Logger.logger.Warn("Pulsoid Token not set.");
+                        return;
+                    }
+                    Container.Bind<BpmDownloader>().To<Pulsoid>().AsSingle();
+                    break;
+                
                 case "HypeRate":
                     if (Config.HypeRateSessionID == "-1")
                     {

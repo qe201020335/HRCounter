@@ -1,10 +1,15 @@
+using System;
 using System.Linq;
 using IPALogger = IPA.Logging.Logger;
 using System.Reflection;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using HRCounter.Configuration;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace HRCounter.Utils
@@ -13,10 +18,11 @@ namespace HRCounter.Utils
     public static class Utils
     {
 
-        internal static readonly List<object> DataSources = new object[] {"HypeRate", "WebRequest", "FitbitHRtoWS", "Pulsoid", "YUR APP", "YUR MOD"}.ToList();
+        internal static readonly List<object> DataSources = new object[] {"HypeRate", "Pulsoid Token", "WebRequest", "FitbitHRtoWS", "Pulsoid", "YUR APP", "YUR MOD"}.ToList();
         private static readonly List<string> DataSourcesRequireWebSocket = new [] {"HypeRate", "FitbitHRtoWS", "Pulsoid"}.ToList();
         internal const string YUR_MOD_ID = "YUR Fit Calorie Tracker";
         internal const string WEBSOCKET_SHARP_MOD_ID = "websocket-sharp";
+        internal const string PULSOID_API = "https://dev.pulsoid.net/api/v1/data/heart_rate/latest";
         
         private static readonly MethodBase ScoreSaber_playbackEnabled =
             AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
@@ -46,6 +52,17 @@ namespace HRCounter.Utils
             {
                 case "WebRequest":
                     return $"Current URL: {ConditionalTruncate(PluginConfig.Instance.FeedLink, 30)}";
+                
+                case "Pulsoid Token":
+                    if (PluginConfig.Instance.PulsoidToken == "NotSet")
+                    {
+                        return "Token Not Set";
+                    }
+
+                    var task = CheckPulsoidToken();
+                    task.Wait();
+                    var status = task.Result;
+                    return $"Token Status: {(status == "" ? "<color=#00FF00>OK</color>" : $"<color=#FF0000>{status}</color>)")}";
 
                 case "HypeRate":
                     if (!IsModEnabled(WEBSOCKET_SHARP_MOD_ID))
@@ -84,6 +101,29 @@ namespace HRCounter.Utils
 
                 default:
                     return "Unknown Data Source";
+            }
+        }
+
+        internal static async Task<string> CheckPulsoidToken()
+        {
+            HttpClient HttpClient = new HttpClient();
+            HttpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {PluginConfig.Instance.PulsoidToken}");
+            
+            try
+            {
+                var res = await HttpClient.GetAsync(PULSOID_API);
+            
+                if (res.IsSuccessStatusCode)
+                {
+                    return "";
+                }
+                var json = JObject.Parse(await res.Content.ReadAsStringAsync());
+                return $"{Convert.ToInt32(res.StatusCode)} {res.StatusCode}, {json["error_code"]}, {json["error_message"]}";
+            }
+            catch (Exception e)
+            {
+                Logger.logger.Error(e);
+                return "Error validating token";
             }
         }
 
