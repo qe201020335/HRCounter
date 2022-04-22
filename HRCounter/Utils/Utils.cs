@@ -46,7 +46,7 @@ namespace HRCounter.Utils
         internal static Assembly GetModAssembly(string modName) => IPA.Loader.PluginManager.EnabledPlugins.ToList()
             .Find(metadata => metadata.Name == modName).Assembly;
 
-        internal static string GetCurrentSourceLinkText()
+        internal static async Task<string> GetCurrentSourceLinkText()
         {
             switch (PluginConfig.Instance.DataSource)
             {
@@ -58,11 +58,9 @@ namespace HRCounter.Utils
                     {
                         return "Token Not Set";
                     }
-
-                    var task = CheckPulsoidToken();
-                    task.Wait();
-                    var status = task.Result;
-                    return $"Token Status: {(status == "" ? "<color=#00FF00>OK</color>" : $"<color=#FF0000>{status}</color>)")}";
+                    
+                    var status = await CheckPulsoidToken();
+                    return $"Token Status: {(status == "" ? "<color=#00FF00>OK</color>" : $"<color=#FF0000>{status}</color>")}";
 
                 case "HypeRate":
                     if (!IsModEnabled(WEBSOCKET_SHARP_MOD_ID))

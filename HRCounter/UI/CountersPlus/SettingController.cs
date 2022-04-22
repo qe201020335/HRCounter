@@ -1,5 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using HRCounter.Configuration;
 
@@ -102,9 +103,23 @@ namespace HRCounter.UI.CountersPlus
             modifiedText.text = Utils.Utils.GetCurrentSourceLinkText();
         }
         */
-        
+
         [UIValue("data-source-info-text")]
-        private string dataSourceInfo => Utils.Utils.GetCurrentSourceLinkText();
+        private string dataSourceInfo
+        {
+            get
+            {
+                Task.Factory.StartNew(async () =>
+                {
+                    await Task.Delay(100);
+                    _tmpText.text = await Utils.Utils.GetCurrentSourceLinkText();
+                });
+
+                return "Loading Current Data Source Info...";
+            }
+        }
+
+        [UIComponent("data-source-info-text")] private TextMeshProUGUI _tmpText;
 
         [UIValue("data-source-text")]
         private string dataSource => $"Current DataSource: {PluginConfig.Instance.DataSource}";
