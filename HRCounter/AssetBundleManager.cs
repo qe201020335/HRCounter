@@ -20,7 +20,26 @@ namespace HRCounter
         private static AssetBundle loadedAssetBundle;
         private static GameObject CanvasOverlay;
 
-        private static Material _noGlow = null;
+        private static Material _uiNoGlow;
+        private static Shader _textNoGlow;
+
+        internal static Material UINoGlow
+        {
+            get
+            {
+                _uiNoGlow ??= Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(x => x.name == "UINoGlow");
+                return _uiNoGlow;
+            }
+        }
+
+        internal static Shader TextNoGlow
+        {
+            get
+            {
+                _textNoGlow ??= Shader.Find("TextMeshPro/Mobile/Distance Field Zero Alpha Write");
+                return _textNoGlow;
+            }
+        }
 
         internal static void LoadAssetBundle()
         {
@@ -50,32 +69,12 @@ namespace HRCounter
             var numbers = icon.transform.GetChild(0).GetComponent<TMP_Text>();
             numbers.alignment = TextAlignmentOptions.MidlineLeft;
             
-            _noGlow ??= Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(x => x.name == "UINoGlow");
-            
-            if (ReferenceEquals(_noGlow, null))
+            icon.GetComponent<Image>().material = UINoGlow;
+            if (PluginConfig.Instance.NoBloom)
             {
-                Logger.logger.Warn("Cannot find material UINoGlow!");
+                numbers.fontMaterial.shader = TextNoGlow;
             }
-            else
-            {
-                icon.GetComponent<Image>().material = _noGlow;
-                if (PluginConfig.Instance.NoBloom)
-                {
-                    numbers.text = "";
-                    var newNumbers = BeatSaberUI.CreateText(icon.transform as RectTransform, "",
-                        numbers.rectTransform.anchoredPosition);
-                    newNumbers.name = "Numbers no glow";
-                    newNumbers.gameObject.layer = numbers.gameObject.layer;
-                    newNumbers.alignment = numbers.alignment;
-                    newNumbers.fontSize = numbers.fontSize;
-                    newNumbers.enableWordWrapping = numbers.enableWordWrapping;
-                    newNumbers.rectTransform.offsetMin = numbers.rectTransform.offsetMin;
-                    newNumbers.rectTransform.offsetMax = numbers.rectTransform.offsetMax;
-                    numbers = newNumbers;
-                }
-                
-            }
-            
+
             return new CustomCounter {
                 CurrentCanvas = currentCanvas,
                 Icon = icon,
