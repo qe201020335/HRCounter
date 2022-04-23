@@ -27,6 +27,9 @@ namespace HRCounter.Configuration
         
         public virtual string FeedLink { get; set; } = "NotSet";
 
+        
+        public virtual bool NoBloom { get; set; } = false;
+
         public virtual bool Colorize { get; set; } = true;
         
         public virtual bool HideDuringReplay { get; set; } = true;

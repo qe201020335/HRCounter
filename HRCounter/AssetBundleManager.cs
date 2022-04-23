@@ -20,6 +20,8 @@ namespace HRCounter
         private static AssetBundle loadedAssetBundle;
         private static GameObject CanvasOverlay;
 
+        private static Material _noGlow = null;
+
         internal static void LoadAssetBundle()
         {
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("HRCounter.hrcounter"))
@@ -38,6 +40,7 @@ namespace HRCounter
                 else
                     Logger.logger.Error("Failed to find hrcounter AssetBundle from ManifestResourceStream!");
             }
+            
         }
 
         internal static CustomCounter SetupCustomCounter()
@@ -46,8 +49,32 @@ namespace HRCounter
             var icon = currentCanvas.transform.GetChild(0).gameObject;
             var numbers = icon.transform.GetChild(0).GetComponent<TMP_Text>();
             numbers.alignment = TextAlignmentOptions.MidlineLeft;
-            icon.GetComponent<Image>().material = Resources.FindObjectsOfTypeAll<Material>()
-                .FirstOrDefault(x => x.name == "UINoGlow");
+            
+            _noGlow ??= Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(x => x.name == "UINoGlow");
+            
+            if (ReferenceEquals(_noGlow, null))
+            {
+                Logger.logger.Warn("Cannot find material UINoGlow!");
+            }
+            else
+            {
+                icon.GetComponent<Image>().material = _noGlow;
+                if (PluginConfig.Instance.NoBloom)
+                {
+                    numbers.text = "";
+                    var newNumbers = BeatSaberUI.CreateText(icon.transform as RectTransform, "",
+                        numbers.rectTransform.anchoredPosition);
+                    newNumbers.name = "Numbers no glow";
+                    newNumbers.gameObject.layer = numbers.gameObject.layer;
+                    newNumbers.alignment = numbers.alignment;
+                    newNumbers.fontSize = numbers.fontSize;
+                    newNumbers.enableWordWrapping = numbers.enableWordWrapping;
+                    newNumbers.rectTransform.offsetMin = numbers.rectTransform.offsetMin;
+                    newNumbers.rectTransform.offsetMax = numbers.rectTransform.offsetMax;
+                    numbers = newNumbers;
+                }
+                
+            }
             
             return new CustomCounter {
                 CurrentCanvas = currentCanvas,

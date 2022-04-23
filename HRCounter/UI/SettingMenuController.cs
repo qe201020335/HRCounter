@@ -120,5 +120,12 @@ namespace HRCounter.UI
             modifiedText.text = await Utils.Utils.GetCurrentSourceLinkText();
         }
         
+        [UIValue("NoBloom")]
+        private bool NoBloom
+        {
+            get => Config.NoBloom;
+            set => Config.NoBloom = value;
+        }
+        
     }
 }
