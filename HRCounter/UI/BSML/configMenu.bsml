@@ -5,6 +5,7 @@
             <vertical child-control-height='false' spacing="2">
                 <bool-setting text="Mod Enable" value="ModEnable" apply-on-change="true"/>
                 <bool-setting text="Hide During Replay" value="HideDuringReplay" hover-hint="Hide this counter while in a replay" apply-on-change="true"/>
+                <bool-setting text="Counter No Bloom" value="NoBloom" hover-hint="Do you want no bloom on the text?" apply-on-change="true"/>
                 <bool-setting text="Ignore Counters+" value="IgnoreCounters+" hover-hint="Ignore whether Counters+ is installed, ignore it to allow 2 hr counters to present at the same time" apply-on-change="true"/>
                 <dropdown-list-setting text="Data Source" value="source-list-choice" choices="source-list-options" apply-on-change="true"/>
                 <!-- Don't know why it is horizontal but it works! Thank you Aeroluna! :D-->

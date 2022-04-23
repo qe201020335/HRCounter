@@ -18,6 +18,9 @@ namespace HRCounter.Data.BpmDownloaders
         
         private Thread _worker;
 
+        private CancellationTokenSource _cancellationSource = null;
+        private CancellationToken _token => _cancellationSource.Token;
+
         internal override void Start()
         {
             _running = true;
@@ -28,6 +31,8 @@ namespace HRCounter.Data.BpmDownloaders
             }
             logger.Info("Creating new tcp connection");
             _client = new TcpClient();
+            _cancellationSource?.Cancel();
+            _cancellationSource = new CancellationTokenSource();
             _worker = new Thread(StartClient);
             _worker.Start();
 
@@ -37,7 +42,11 @@ namespace HRCounter.Data.BpmDownloaders
         {
             try
             {
-                _client.ConnectAsync(HOST, PORT).Wait();
+                _client.ConnectAsync(HOST, PORT).Wait(_token);
+            }
+            catch (OperationCanceledException)
+            {
+                logger.Warn("Connect Canceled.");
             }
             catch (Exception e)
             {
@@ -50,7 +59,11 @@ namespace HRCounter.Data.BpmDownloaders
 
             try
             {
-                ReadMessage().Wait();
+                ReadMessage().Wait(_token);
+            }
+            catch (OperationCanceledException)
+            {
+                logger.Warn("Read Canceled.");
             }
             catch (Exception e)
             {
@@ -102,7 +115,10 @@ namespace HRCounter.Data.BpmDownloaders
                 }
                 catch (ObjectDisposedException e)
                 {
-                    logger.Warn("tcp client is not connected anymore");
+                    if (_running)
+                    {
+                        logger.Warn("tcp client is not connected anymore");
+                    }
                     return;
                 }
                 catch (Exception e)
@@ -216,6 +232,8 @@ namespace HRCounter.Data.BpmDownloaders
         internal override void Stop()
         {
             _running = false;
+            _cancellationSource?.Cancel();
+            _cancellationSource = null;
             CloseClientMakeNull();
             _worker = null;
             logger.Info("Stopped");

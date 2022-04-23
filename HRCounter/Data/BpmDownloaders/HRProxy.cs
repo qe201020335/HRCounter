@@ -14,6 +14,7 @@ namespace HRCounter.Data.BpmDownloaders
         // HeartBeat: "{"topic": "phoenix","event": "heartbeat","payload": {},"ref": 123456}"
         
         private const string URL = "wss://hrproxy.fortnite.lol:2096/hrproxy";
+        // private const string URL = "wss://hrproxybeta.fortnite.lol:2096/hrproxy";
 
         // private const string PONG = "{\"method\": \"pong\"}";
         

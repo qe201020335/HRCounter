@@ -36,7 +36,13 @@ The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad 
 ## DATA SOURCES
 ### Pulsoid
 ⚠️ Pulsoid Feed Link is **DEPRECATED** and will stop working at the end of 2022.
-#### Pulsoid Widget (Experimental, A proper authentication method will be implemented in the future)
+#### Pulsoid Token (Recommended, WIP)
+1. Get you self a token [**HERE**](https://pulsoid.net/oauth2/authorize?response_type=token&client_id=0025a50e-9449-4aa5-9c68-36d2903cb6a5&redirect_uri=&scope=data:heart_rate:read&state=&response_mode=web_page) or [**HERE if you are a BRO**](https://pulsoid.net/ui/keys).
+2. Keep that token in a safe place because it will not expire in a short time. You can always reuse the token in the future.
+3. Paste the token in the config file as below and Set the value of `DataSource` to `Pulsoid Token`
+![pulsoid token config screenshot](https://i.imgur.com/lEUzf8D.png)
+
+#### Pulsoid Widget (Experimental, may not work in the future)
 1. Open your pulsoid [widgets configuration page](https://pulsoid.net/ui/configuration) and configure your default widget.
 2. Copy the last part of the widget link as shown in this here.
 ![pulsoid widget config screenshot](https://i.imgur.com/KWtfIH2.png)
@@ -132,6 +138,7 @@ Here is a table for all the setting options if you want to edit config file inst
 | `PulsoidWidgetID`| string   | `"NotSet"`          | Widget ID for HypeRate, it is also the last part of your widget link. |
 | `FitbitWebSocket` | string  | `"ws://localhost:8080/"`| WebSocket Link for FitbitHRtoWS |
 | `FeedLink`      | string    | `"NotSet"`   	   	| Your pulsoid feed link |
+| `NoBloom`       | bool      | `false`             | Do you want no bloom on the text? |
 | `Colorize`      | bool      | `true`   	       	| Whether the hr value will be colorized by the following 4 detail settings |
 | `HideDuringReplay`| bool    | `true`   	       	| Hide this counter while in a replay |
 | `HRLow`         | int       | `120`           		| The lower bound heart rate for when the color gredient will start |

@@ -37,9 +37,9 @@ namespace HRCounter
             AssetBundleManager.LoadAssetBundle();
             zenject.Install<GameplayHearRateInstaller>(Location.Player);
             zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);
-            zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer); 
             // we don't want to popup the pause menu during multiplayer, that's not gonna help anything!
-            // TODO: Add Plugin Disable Option
+            zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer); 
+            
             Log.Debug("Installers!");
         }
         

@@ -146,6 +146,7 @@
     <Compile Include="Data\BpmDownloaders\BpmDownloader.cs" />
     <Compile Include="Data\BpmDownloaders\FitbitHRtoWS.cs" />
     <Compile Include="Data\BpmDownloaders\HRProxy.cs" />
+    <Compile Include="Data\BpmDownloaders\Pulsoid.cs" />
     <Compile Include="Data\BpmDownloaders\RandomHR.cs" />
     <Compile Include="Data\BpmDownloaders\WebRequest.cs" />
     <Compile Include="Data\BpmDownloaders\YURApp.cs" />

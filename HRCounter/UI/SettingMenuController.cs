@@ -1,5 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
 using TMPro;
@@ -101,12 +102,29 @@ namespace HRCounter.UI
         private TextMeshProUGUI modifiedText;
 
         [UIValue("data-source-info-text")]
-        private string dataSourceInfo = Utils.Utils.GetCurrentSourceLinkText();
-
-        private void UpdateText()
+        private string dataSourceInfo
         {
-            modifiedText.text = Utils.Utils.GetCurrentSourceLinkText();
-            dataSourceInfo = Utils.Utils.GetCurrentSourceLinkText();
+            get
+            {
+                Task.Factory.StartNew(async () =>
+                {
+                    await Task.Delay(100);
+                    modifiedText.text = await Utils.Utils.GetCurrentSourceLinkText();
+                });
+                return "Loading Data Source Info...";
+            }
+        }
+
+        private async void UpdateText()
+        {
+            modifiedText.text = await Utils.Utils.GetCurrentSourceLinkText();
+        }
+        
+        [UIValue("NoBloom")]
+        private bool NoBloom
+        {
+            get => Config.NoBloom;
+            set => Config.NoBloom = value;
         }
         
     }
