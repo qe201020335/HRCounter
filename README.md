@@ -85,6 +85,21 @@ There are 2 options
 1. Download [Pulsoid](https://pulsoid.net/) on your phone and set up heart rate broadcast. Then follow instruction for Pulsoid [above](#Pulsoid).
 2. Download [HypeRate](https://www.hyperate.io/#download) on your phone and connect to your BLE device. Then follow instructions for HypeRate [above](#HypeRate)
 
+
+### Apple Watch
+1. Download [HypeRate](https://www.hyperate.io/#download) on your iPhone and Apple Watch.
+2. Follow instructions for HypeRate [above](#HypeRate)
+
+Note: You need to have testflight since HypeRate is still in beta.
+
+
+### WearOS Smart Watch
+There are 2 options.
+1. Use [Heart for Bluetooth](https://play.google.com/store/apps/details?id=lukas.the.coder.heartforbluetooth) on your watch and use it as a BLE heart rate monitor. Then follow the instructions for BLE Compatible HR Monitor [above](#ble-compatible-hr-monitor)
+2. Use [HypeRate](https://hyperate.io/) which you can download it on the [play store](https://play.google.com/store/apps/details?id=de.locxserv.hyperatewearos) and follow instructions for HypeRate [above](#HypeRate)
+
+Depending on your watch, monitoring quality may not be as good as a dedicated heart rate monitor. 
+
 ### Galaxy Watch
 1. Use [HeartRateToWeb](https://github.com/loic2665/HeartRateToWeb) and [this](https://galaxystore.samsung.com/geardetail/tUhSWQRbmv) app on your watch.
 2. Follow the instrucrion on [their github page](https://github.com/loic2665/HeartRateToWeb) to set up heart rate broadcast. Make sure you download the [**first**](https://github.com/loic2665/HeartRateToWeb/releases/tag/v1.0.0) realease, the csharp one is bugged (filelock issue, and requires admin for no reason).
@@ -96,22 +111,6 @@ There are 2 options
 For example
   - **from file**: `"FeedLink": "file:///D:/example/folder/hr.txt",`
   - **from /hr**: `"FeedLink": "http://192.168.1.100:6547/hr",`
-
-
-### Apple Watch
-1. Download [HypeRate](https://www.hyperate.io/#download) on your iPhone and Apple Watch.
-2. Follow instructions for HypeRate [above](#HypeRate)
-
-Note: You need to have testflight since HypeRate is still in beta.
-
-Special thanks to iPixelGalaxy for testing!
-
-### WearOS Smart Watch
-There are 2 options.
-1. Use [Heart for Bluetooth](https://play.google.com/store/apps/details?id=lukas.the.coder.heartforbluetooth) on your watch and use it as a BLE heart rate monitor. Then follow the instructions for BLE Compatible HR Monitor [above](#ble-compatible-hr-monitor)
-2. Use [HypeRate](https://hyperate.io/) which you can download it on the [play store](https://play.google.com/store/apps/details?id=de.locxserv.hyperatewearos) and follow instructions for HypeRate [above](#HypeRate)
-
-Depending on your watch, monitoring quality may not be as good as a dedicated heart rate monitor. 
 
 
 ### Others
