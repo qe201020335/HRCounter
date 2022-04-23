@@ -138,6 +138,7 @@ Here is a table for all the setting options if you want to edit config file inst
 | `PulsoidWidgetID`| string   | `"NotSet"`          | Widget ID for HypeRate, it is also the last part of your widget link. |
 | `FitbitWebSocket` | string  | `"ws://localhost:8080/"`| WebSocket Link for FitbitHRtoWS |
 | `FeedLink`      | string    | `"NotSet"`   	   	| Your pulsoid feed link |
+| `NoBloom`       | bool      | `false`             | Do you want no bloom on the text? |
 | `Colorize`      | bool      | `true`   	       	| Whether the hr value will be colorized by the following 4 detail settings |
 | `HideDuringReplay`| bool    | `true`   	       	| Hide this counter while in a replay |
 | `HRLow`         | int       | `120`           		| The lower bound heart rate for when the color gredient will start |
