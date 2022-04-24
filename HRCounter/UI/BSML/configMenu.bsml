@@ -17,8 +17,8 @@
         <tab tab-name="Colorize" tags="tabs">
             <vertical child-control-height='false' spacing="2">
                 <bool-setting text="Colorize HR Text" value="Colorize" hover-hint="Colorize the heart rate number." apply-on-change="true"/>
-                <slider-setting text="Heart Rate Lower Bound" show-buttons="true" value="HRLow" integer-only="true" min="60" max="140" increment="5" apply-on-change="true"/>
-                <slider-setting text="Heart Rate Upper Bound" show-buttons="true" value="HRHigh" integer-only="true" min="140" max="220" increment="5" apply-on-change="true"/>
+                <slider-setting text="Heart Rate Lower Bound" show-buttons="true" value="HRLow" integer-only="true" min="50" max="150" increment="5" apply-on-change="true"/>
+                <slider-setting text="Heart Rate Upper Bound" show-buttons="true" value="HRHigh" integer-only="true" min="90" max="220" increment="5" apply-on-change="true"/>
                 <horizontal pad-top="1" pad-bottom="1">
                     <text text="~color-info-text" italics="false" align="Center"/>
                 </horizontal>
@@ -27,7 +27,7 @@
         <tab tab-name="Health &amp; Safety" tags="tabs">
             <vertical child-control-height='false' spacing="2">
                 <bool-setting text="Auto Pause" value="AutoPause" hover-hint="Automatically pause the game if your heart rate is too high, set threshold below" apply-on-change="true"/>
-                <slider-setting text="Pause Heart Rate" show-buttons="true" value="PauseHR" integer-only="true" min="150" max="250" increment="5" apply-on-change="true"/>
+                <slider-setting text="Pause Heart Rate" show-buttons="true" value="PauseHR" integer-only="true" min="60" max="230" increment="5" apply-on-change="true"/>
             </vertical>
         </tab>
         <tab tab-name="Misc" tags="tabs">
