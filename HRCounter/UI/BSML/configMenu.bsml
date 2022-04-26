@@ -27,7 +27,7 @@
         <tab tab-name="Health &amp; Safety" tags="tabs">
             <vertical child-control-height='false' spacing="2">
                 <bool-setting text="Auto Pause" value="AutoPause" hover-hint="Automatically pause the game if your heart rate is too high, set threshold below" apply-on-change="true"/>
-                <slider-setting text="Pause Heart Rate" show-buttons="true" value="PauseHR" integer-only="true" min="60" max="230" increment="5" apply-on-change="true"/>
+                <slider-setting text="Pause Heart Rate" show-buttons="true" value="PauseHR" integer-only="true" min="90" max="230" increment="5" apply-on-change="true"/>
             </vertical>
         </tab>
         <tab tab-name="Misc" tags="tabs">
