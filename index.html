@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>HRCounter Easy Config</title>
+    <link rel="stylesheet" href="./pages/style/style.css">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jszip/3.9.1/jszip.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+
+<h1>HRCounter Easy Config Generator</h1>
+<h3>DO NOT USE THIS IF YOU ALREADY HAVE DATA SOURCE CONFIGURED</h3>
+<div>
+    <label>
+        <span>Data Source</span>
+        <select name="Data Source" id="source-select">
+            <option value="Pulsoid">Pulsoid Token</option>
+            <option value="HypeRate">HypeRate</option>
+        </select>
+    </label>
+    <br/>
+    <label>
+        <span id="source-info-span">Data Source Info: </span>
+        <input id="source-info-input"/>
+    </label>
+    <br/>
+    <br/>
+    <button id="submit">Generate!</button>
+    <script type="text/javascript" src="./pages/script/generator.js"></script>
+</div>
+</body>
+</html>
