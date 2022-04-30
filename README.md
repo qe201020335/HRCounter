@@ -167,5 +167,4 @@ Open an [issue](https://github.com/qe201020335/HRCounter/issues) if there is a d
 ## Notes
 * Remember to exit the game first before editing config files.
 * Please open an [issue](https://github.com/qe201020335/HRCounter/issues) if you have problem using this or found a bug.
-* The beautiful lightshow map in the screenshot is [!bsr 17726](https://beatsaver.com/maps/17726)
 
