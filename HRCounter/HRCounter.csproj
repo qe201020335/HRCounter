@@ -153,6 +153,7 @@
     <Compile Include="Data\BpmDownloaders\YURMod.cs" />
     <Compile Include="Data\HRController.cs" />
     <Compile Include="Events\HRUpdateEventArgs.cs" />
+    <Compile Include="GamePauseController.cs" />
     <Compile Include="HRCounter.cs" />
     <Compile Include="HRCounterController.cs" />
     <Compile Include="Installers\GamePauseInstaller.cs" />
@@ -165,7 +166,7 @@
     <Compile Include="UI\ConfigViewFlowCoordinator.cs" />
     <Compile Include="UI\CountersPlus\SettingController.cs" />
     <Compile Include="UI\SettingMenuController.cs" />
-    <Compile Include="Utils\GamePauseController.cs" />
+    <Compile Include="Utils\DataSourceUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -4,7 +4,7 @@ using HRCounter.Configuration;
 using SiraUtil.Tools.SongControl;
 using Zenject;
 
-namespace HRCounter.Utils
+namespace HRCounter
 {
     internal class GamePauseController : IDisposable
     {

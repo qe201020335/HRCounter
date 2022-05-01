@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using HRCounter.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -11,7 +11,7 @@ namespace HRCounter.Data.BpmDownloaders
     internal class Pulsoid : BpmDownloader
     {
         private static string Token => Config.PulsoidToken;
-        private static string URL => Utils.Utils.PULSOID_API;
+        private static string URL => DataSourceUtils.PULSOID_API;
         private bool _updating;
 
         private static readonly HttpClient HttpClient = new HttpClient();

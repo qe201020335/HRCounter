@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
+using HRCounter.Utils;
 using TMPro;
 
 namespace HRCounter.UI
@@ -64,7 +65,7 @@ namespace HRCounter.UI
         }
         
         [UIValue("source-list-options")]
-        public List<object> options = Utils.Utils.DataSources;
+        public List<object> options = DataSourceUtils.DataSources;
 
         [UIValue("source-list-choice")]
         public string listChoice
@@ -109,7 +110,7 @@ namespace HRCounter.UI
                 Task.Factory.StartNew(async () =>
                 {
                     await Task.Delay(100);
-                    modifiedText.text = await Utils.Utils.GetCurrentSourceLinkText();
+                    modifiedText.text = await DataSourceUtils.GetCurrentSourceLinkText();
                 });
                 return "Loading Data Source Info...";
             }
@@ -117,7 +118,7 @@ namespace HRCounter.UI
 
         private async void UpdateText()
         {
-            modifiedText.text = await Utils.Utils.GetCurrentSourceLinkText();
+            modifiedText.text = await DataSourceUtils.GetCurrentSourceLinkText();
         }
         
         [UIValue("NoBloom")]

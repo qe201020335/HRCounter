@@ -1,6 +1,7 @@
 ﻿using HRCounter.Configuration;
 using HRCounter.Data;
 using HRCounter.Data.BpmDownloaders;
+using HRCounter.Utils;
 using Zenject;
 
 namespace HRCounter.Installers
@@ -16,9 +17,9 @@ namespace HRCounter.Installers
                 return;
             }
             Logger.logger.Debug("Binding BPM Downloader");
-            if (!Utils.Utils.IsModEnabled(Utils.Utils.WEBSOCKET_SHARP_MOD_ID) && Utils.Utils.NeedWebSocket(Config.DataSource))
+            if (!Utils.Utils.IsModEnabled(DataSourceUtils.WEBSOCKET_SHARP_MOD_ID) && DataSourceUtils.NeedWebSocket(Config.DataSource))
             {
-                Logger.logger.Error($"{Utils.Utils.WEBSOCKET_SHARP_MOD_ID} is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
+                Logger.logger.Error($"{DataSourceUtils.WEBSOCKET_SHARP_MOD_ID} is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
                 return;
             }
             
@@ -74,9 +75,9 @@ namespace HRCounter.Installers
                     break;
                 
                 case "YUR MOD":
-                    if (!Utils.Utils.IsModEnabled(Utils.Utils.YUR_MOD_ID))
+                    if (!Utils.Utils.IsModEnabled(DataSourceUtils.YUR_MOD_ID))
                     {
-                        Logger.logger.Error($"{Utils.Utils.YUR_MOD_ID} is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
+                        Logger.logger.Error($"{DataSourceUtils.YUR_MOD_ID} is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
                         return;
                     }
                     Container.Bind<BpmDownloader>().To<YURMod>().AsSingle();
