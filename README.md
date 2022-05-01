@@ -53,13 +53,9 @@ The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad 
 If first time configure, checkout [**Config Generator**](https://hrcounter.skyqe.net/) to download mod with config included.
 #### Pulsoid Token (Recommended)
 1. Get you self a token [**HERE**](https://pulsoid.net/oauth2/authorize?response_type=token&client_id=0025a50e-9449-4aa5-9c68-36d2903cb6a5&redirect_uri=&scope=data:heart_rate:read&state=&response_mode=web_page) for free or [**HERE if you are a BRO**](https://pulsoid.net/ui/keys).
-2. Keep that token in a safe place because it will not expire in a short time. You can always reuse the token in the future.
-3. Paste the token in the config file as below and Set the value of `DataSource` to `Pulsoid Token`
-
-#### Pulsoid Widget (Experimental, may not work in the future)
-Instruction Removed, use [**Pulsoid Token**](#pulsoid-token-recommended-wip) instead.
-#### Pulsoid JSON Feed Link (DEPRECATED, will stop working at the end of 2022)
-Instruction Removed, use [**Pulsoid Token**](#pulsoid-token-recommended-wip) instead.
+2. Keep that token in a safe place because it will not expire in a short time. You can always reuse the token in the future.+
+3. Paste the token in the config file as below and set the value of `DataSource` to `Pulsoid Token`
+![pulsoid token config screenshot](https://i.imgur.com/lEUzf8D.png)
 
 ### HypeRate
 If first time configure, checkout [**Config Generator**](https://hrcounter.skyqe.net/) to download mod with config included.
