@@ -58,11 +58,13 @@ namespace HRCounter.Utils
                     return $"Current WebSocket Link: {ConditionalTruncate(PluginConfig.Instance.FitbitWebSocket, 30)}";
                 
                 case "Pulsoid":
+                    var s =
+                        "<color=#FFFF00>EXPERIMENTAL, MAY NOT WORK IN THE FUTURE. PLEASE USE TOKEN INSTEAD.</color>\n";
                     if (!Utils.IsModEnabled(WEBSOCKET_SHARP_MOD_ID))
                     {
-                        return $"<color=#FF0000>{WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
+                        return s + $"<color=#FF0000>{WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
                     }
-                    return $"Current Widget ID: {ConditionalTruncate(PluginConfig.Instance.PulsoidWidgetID, 30)}";
+                    return s + $"Current Widget ID: {ConditionalTruncate(PluginConfig.Instance.PulsoidWidgetID, 30)}";
 
                 case "YUR APP":
                     if (!CheckYURProcess())
