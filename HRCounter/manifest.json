@@ -3,7 +3,7 @@
     "id": "HRCounter",
     "name": "HRCounter",
     "author": "qe201020335",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "icon": "HRCounter.Resources.hrcounter.png",
     "description": "A custom counter mod that displays your heart rate in game.",
     "gameVersion": "1.21.0",
