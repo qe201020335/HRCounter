@@ -27,13 +27,13 @@ Alternatively, you can also download them from their own site.
 ### Auto Config Generator for Pulsoid and HypeRate
 1. Head over to the [**Config Generator**](https://hrcounter.skyqe.net/) and download the mod with config included.
 2. Extract the files into your `Beat Saber` game directory.
-3. Run the game and read instruction below if don't now how to use it.
+3. Run the game and read instruction below if don't know how to use it.
 
 ### Manual Config Editing
 1. Download the [latest release](https://github.com/qe201020335/HRCounter/releases/latest) and extract the files into your `Beat Saber` game directory.
 2. Run the game once
 3. Depend on your devices, follow the instructions below to configure the auto generated config file.
-4. Run the game and read instruction below if don't now how to use it.
+4. Run the game and read instruction below if don't know how to use it.
 
 The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad to open and edit it.
 
