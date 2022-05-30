@@ -3,10 +3,10 @@
     "id": "HRCounter",
     "name": "HRCounter",
     "author": "qe201020335",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "icon": "HRCounter.Resources.hrcounter.png",
     "description": "A custom counter mod that displays your heart rate in game.",
-    "gameVersion": "1.21.0",
+    "gameVersion": "1.22.1",
     "dependsOn": {
         "BSIPA": "^4.2.0",
         "BeatSaberMarkupLanguage": "^1.6.0",
@@ -19,6 +19,7 @@
         "CountersPlus.CustomCounter": {
             "Name": "Heart Rate Counter",
             "Description": "A Counter that displays your heart rate in game.",
+            "MultiplayerReady": true,
             "CounterLocation": "HRCounter.HRCounter",
             "ConfigDefaults": {
                 "Enabled": false,

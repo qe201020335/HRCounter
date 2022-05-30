@@ -10,11 +10,7 @@ namespace HRCounter.Data.BpmDownloaders
 {
     internal sealed class HRProxy : BpmDownloader
     {
-         // Register: {"topic": "hr:1234","event": "phx_join","payload": {},"ref": 0}
-        // HeartBeat: "{"topic": "phoenix","event": "heartbeat","payload": {},"ref": 123456}"
-        
         private const string URL = "wss://hrproxy.fortnite.lol:2096/hrproxy";
-        // private const string URL = "wss://hrproxybeta.fortnite.lol:2096/hrproxy";
 
         // private const string PONG = "{\"method\": \"pong\"}";
         
@@ -48,6 +44,7 @@ namespace HRCounter.Data.BpmDownloaders
             JObject _subscribe = new JObject();
             _subscribe["reader"] = _reader;
             _subscribe["identifier"] = _id;
+            _subscribe["service"] = "beatsaber";
             
             _sessionJson = _subscribe.ToString();
         }
@@ -151,7 +148,7 @@ namespace HRCounter.Data.BpmDownloaders
             
         }
 
-        private void OnSocketError(System.Object sender, ErrorEventArgs e)
+        private void OnSocketError(object sender, ErrorEventArgs e)
         {
             if (sender != _webSocket)
             {
@@ -162,7 +159,7 @@ namespace HRCounter.Data.BpmDownloaders
             logger.Debug(e.Exception);
         }
         
-        private void OnMessageReceive(System.Object sender, MessageEventArgs e)
+        private void OnMessageReceive(object sender, MessageEventArgs e)
         {
             if (sender != _webSocket)
             {
