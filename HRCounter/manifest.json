@@ -22,7 +22,7 @@
             "MultiplayerReady": true,
             "CounterLocation": "HRCounter.HRCounter",
             "ConfigDefaults": {
-                "Enabled": false,
+                "Enabled": true,
                 "Position": "BelowCombo",
                 "Distance": 1
             },
