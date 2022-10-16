@@ -50,7 +50,11 @@
       <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Counters+, Culture=neutral, processorArchitecture=MSIL">
+      <Reference Include="BeatLeader">
+          <HintPath>$(BeatSaberDir)\Plugins\BeatLeader.dll</HintPath>
+          <Private>false</Private>
+      </Reference>
+      <Reference Include="Counters+, Culture=neutral, processorArchitecture=MSIL">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Plugins\Counters+.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>

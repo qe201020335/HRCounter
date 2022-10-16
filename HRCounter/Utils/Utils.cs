@@ -4,18 +4,27 @@ using System.Reflection;
 using HarmonyLib;
 using HRCounter.Configuration;
 using UnityEngine;
+using BeatLeader.Replayer;
 
 namespace HRCounter.Utils
 {
     public static class Utils
     {
+
+        private const string BEATLEADER_MOD_ID = "BeatLeader";
+        
+        // copied from Camera2
         private static readonly MethodBase ScoreSaber_playbackEnabled =
             AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
-        // code copied from Camera2
+        
         internal static bool IsInReplay()
         {
-            // detect whether we are in a replay
-            return ScoreSaber_playbackEnabled != null && (bool) ScoreSaber_playbackEnabled.Invoke(null, null) == false;
+            // copied from Camera2
+            var ssReplay = ScoreSaber_playbackEnabled != null && (bool) ScoreSaber_playbackEnabled.Invoke(null, null) == false;
+
+            var blReplay = IsModEnabled(BEATLEADER_MOD_ID) && ReplayerLauncher.IsStartedAsReplay;
+            
+            return ssReplay || blReplay;
         }
         
         internal static bool IsModEnabled(string id)
