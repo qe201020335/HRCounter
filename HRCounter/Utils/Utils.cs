@@ -5,6 +5,9 @@ using HarmonyLib;
 using HRCounter.Configuration;
 using UnityEngine;
 using BeatLeader.Replayer;
+using Hive.Versioning;
+using IPA.Loader;
+using JetBrains.Annotations;
 
 namespace HRCounter.Utils
 {
@@ -12,7 +15,18 @@ namespace HRCounter.Utils
     {
 
         private const string BEATLEADER_MOD_ID = "BeatLeader";
-        
+
+        private static bool? _beatleaderHasReplay = null;
+
+        internal static bool BeatLeaderHasReplay
+        {
+            get
+            {
+                _beatleaderHasReplay ??= FindEnabledPluginMetadata(BEATLEADER_MOD_ID)?.HVersion >= new Version(0, 5, 0);
+                return _beatleaderHasReplay.Value;
+            }
+        }
+
         // copied from Camera2
         private static readonly MethodBase ScoreSaber_playbackEnabled =
             AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
@@ -22,14 +36,20 @@ namespace HRCounter.Utils
             // copied from Camera2
             var ssReplay = ScoreSaber_playbackEnabled != null && (bool) ScoreSaber_playbackEnabled.Invoke(null, null) == false;
 
-            var blReplay = IsModEnabled(BEATLEADER_MOD_ID) && ReplayerLauncher.IsStartedAsReplay;
+            var blReplay = BeatLeaderHasReplay && ReplayerLauncher.IsStartedAsReplay;
             
             return ssReplay || blReplay;
         }
         
         internal static bool IsModEnabled(string id)
         {
-            return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == id);
+            return FindEnabledPluginMetadata(id) != null;
+        }
+
+        [CanBeNull]
+        internal static PluginMetadata FindEnabledPluginMetadata(string id)
+        {
+            return PluginManager.EnabledPlugins.FirstOrDefault(x => x.Id == id);
         }
 
         internal static string DetermineColor(int hr)
