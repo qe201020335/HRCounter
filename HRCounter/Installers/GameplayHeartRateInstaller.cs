@@ -70,6 +70,15 @@ namespace HRCounter.Installers
                     Container.Bind<BpmDownloader>().To<FitbitHRtoWS>().AsSingle();
                     break;
                 
+                case "HRProxy":
+                    if (Config.HRProxyID == "NotSet")
+                    {
+                        Logger.logger.Warn("HRProxy ID not set.");
+                        return;
+                    }
+                    Container.Bind<BpmDownloader>().To<HRProxy>().AsSingle();
+                    break;
+                
                 case "YUR APP":
                     Container.Bind<BpmDownloader>().To<YURApp>().AsSingle();
                     break;
