@@ -16,8 +16,8 @@ namespace HRCounter.Utils
         internal const string YUR_MOD_ID = "YUR Fit Calorie Tracker";
         internal const string WEBSOCKET_SHARP_MOD_ID = "websocket-sharp";
         internal const string PULSOID_API = "https://dev.pulsoid.net/api/v1/data/heart_rate/latest";
-        internal static readonly List<object> DataSources = new object[] {"HypeRate", "Pulsoid Token", "WebRequest", "FitbitHRtoWS", "Pulsoid", "YUR APP", "YUR MOD"}.ToList();
-        private static readonly List<string> DataSourcesRequireWebSocket = new [] {"HypeRate", "FitbitHRtoWS", "Pulsoid"}.ToList();
+        internal static readonly List<object> DataSources = new object[] {"HypeRate", "Pulsoid Token", "WebRequest", "FitbitHRtoWS", "HRProxy", "Pulsoid", "YUR APP", "YUR MOD"}.ToList();
+        private static readonly List<string> DataSourcesRequireWebSocket = new [] {"HypeRate", "FitbitHRtoWS", "Pulsoid", "HRProxy"}.ToList();
 
         internal static bool NeedWebSocket(string dc)
         {
@@ -56,6 +56,13 @@ namespace HRCounter.Utils
                         return $"<color=#FF0000>{WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
                     }
                     return $"Current WebSocket Link: {ConditionalTruncate(PluginConfig.Instance.FitbitWebSocket, 30)}";
+                
+                case "HRProxy":
+                    if (!Utils.IsModEnabled(WEBSOCKET_SHARP_MOD_ID))
+                    {
+                        return $"<color=#FF0000>{WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
+                    }
+                    return $"Current HRProxy ID: {ConditionalTruncate(PluginConfig.Instance.HRProxyID, 30)}";
                 
                 case "Pulsoid":
                     var s =

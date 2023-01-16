@@ -36,9 +36,13 @@ namespace HRCounter.Data.BpmDownloaders
             {
                 _id = Config.HypeRateSessionID;
             }
-            else
+            else if(_reader == "Pulsoid")
             {
                 _id = Config.PulsoidWidgetID;
+            }
+            else
+            {
+                _id = Config.HRProxyID;
             }
 
             JObject _subscribe = new JObject();
