@@ -18,7 +18,7 @@ namespace HRCounter
         public void Dispose()
         {
             _songControl = null;
-            Logger.logger.Debug("SongControl got yeeted.");
+            Log.Logger.Debug("SongControl got yeeted.");
         }
         
         internal static void PauseGame()

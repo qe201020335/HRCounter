@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections;
-using HRCounter.Configuration;
-using UnityEngine;
 using YUR.Fit.Core.Models;
 using YUR.Fit.Unity;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSourcers
 {
-    internal sealed class YURMod : BpmDownloader
+    internal sealed class YURMod : DataSourcer
     {
         internal override void Start()
         {

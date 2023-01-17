@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSourcers
 {
-    internal class RandomHR : BpmDownloader
+    internal class RandomHR : DataSourcer
     {
         private bool _updating = false;
 

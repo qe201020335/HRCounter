@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSourcers
 {
-    internal sealed class WebRequest : BpmDownloader
+    internal sealed class WebRequest : DataSourcer
     {
         private static string FeedLink => Config.FeedLink;
         private bool _updating;

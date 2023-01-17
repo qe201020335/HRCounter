@@ -1,6 +1,7 @@
-﻿using HRCounter.Configuration;
+﻿using System.Linq;
+using HRCounter.Configuration;
 using HRCounter.Data;
-using HRCounter.Data.BpmDownloaders;
+using HRCounter.Data.DataSourcers;
 using HRCounter.Utils;
 using Zenject;
 
@@ -16,10 +17,10 @@ namespace HRCounter.Installers
             {
                 return;
             }
-            Logger.logger.Debug("Binding BPM Downloader");
+            Log.Logger.Debug("Binding BPM Downloader");
             if (!Utils.Utils.IsModEnabled(DataSourceUtils.WEBSOCKET_SHARP_MOD_ID) && DataSourceUtils.NeedWebSocket(Config.DataSource))
             {
-                Logger.logger.Error($"{DataSourceUtils.WEBSOCKET_SHARP_MOD_ID} is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
+                Log.Logger.Error($"{DataSourceUtils.WEBSOCKET_SHARP_MOD_ID} is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
                 return;
             }
             
@@ -28,88 +29,88 @@ namespace HRCounter.Installers
                 case "WebRequest":
                     if (Config.FeedLink == "NotSet")
                     {
-                        Logger.logger.Warn("Feed link not set.");
+                        Log.Logger.Warn("Feed link not set.");
                         return;
                     }
-                    Container.Bind<BpmDownloader>().To<WebRequest>().AsSingle();
+                    Container.Bind<DataSourcer>().To<WebRequest>().AsSingle();
                     break;
                 
                 case "Pulsoid Token":
                     if (Config.PulsoidToken == "NotSet")
                     {
-                        Logger.logger.Warn("Pulsoid Token not set.");
+                        Log.Logger.Warn("Pulsoid Token not set.");
                         return;
                     }
-                    Container.Bind<BpmDownloader>().To<Pulsoid>().AsSingle();
+                    Container.Bind<DataSourcer>().To<Pulsoid>().AsSingle();
                     break;
                 
                 case "HypeRate":
                     if (Config.HypeRateSessionID == "-1")
                     {
-                        Logger.logger.Warn("Hype Rate Session ID not set.");
+                        Log.Logger.Warn("Hype Rate Session ID not set.");
                         return;
                     }
-                    Container.Bind<BpmDownloader>().To<HRProxy>().AsSingle();
+                    Container.Bind<DataSourcer>().To<HRProxy>().AsSingle();
                     break;
                     
                 case "Pulsoid":
                     if (Config.PulsoidWidgetID == "NotSet")
                     {
-                        Logger.logger.Warn("Pulsoid Widget ID not set.");
+                        Log.Logger.Warn("Pulsoid Widget ID not set.");
                         return;
                     }
-                    Container.Bind<BpmDownloader>().To<HRProxy>().AsSingle();
+                    Container.Bind<DataSourcer>().To<HRProxy>().AsSingle();
                     break;
 
                 case "FitbitHRtoWS":
                     if(Config.FitbitWebSocket == string.Empty)
                     {
-                        Logger.logger.Warn("FitbitWebSocket is empty.");
+                        Log.Logger.Warn("FitbitWebSocket is empty.");
                         return;
                     }
-                    Container.Bind<BpmDownloader>().To<FitbitHRtoWS>().AsSingle();
+                    Container.Bind<DataSourcer>().To<FitbitHRtoWS>().AsSingle();
                     break;
                 
                 case "HRProxy":
                     if (Config.HRProxyID == "NotSet")
                     {
-                        Logger.logger.Warn("HRProxy ID not set.");
+                        Log.Logger.Warn("HRProxy ID not set.");
                         return;
                     }
-                    Container.Bind<BpmDownloader>().To<HRProxy>().AsSingle();
+                    Container.Bind<DataSourcer>().To<HRProxy>().AsSingle();
                     break;
                 
                 case "YUR APP":
-                    Container.Bind<BpmDownloader>().To<YURApp>().AsSingle();
+                    Container.Bind<DataSourcer>().To<YURApp>().AsSingle();
                     break;
                 
                 case "YUR MOD":
                     if (!Utils.Utils.IsModEnabled(DataSourceUtils.YUR_MOD_ID))
                     {
-                        Logger.logger.Error($"{DataSourceUtils.YUR_MOD_ID} is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
+                        Log.Logger.Error($"{DataSourceUtils.YUR_MOD_ID} is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
                         return;
                     }
-                    Container.Bind<BpmDownloader>().To<YURMod>().AsSingle();
+                    Container.Bind<DataSourcer>().To<YURMod>().AsSingle();
                     break;
                 
                 case "Random":
-                    Container.Bind<BpmDownloader>().To<RandomHR>().AsSingle();
+                    Container.Bind(new[] { typeof(DataSourcer) }.Concat(typeof(DataSourcer).GetInterfaces())).To<RandomHR>().AsSingle();
+                    Container.Bind<DataSourcer>().To<RandomHR>().AsSingle();
                     break;
 
                 default:
-                    Logger.logger.Warn("Unknown Data Sources");
+                    Log.Logger.Warn("Unknown Data Sources");
                     break;
             }
 
-            if (Container.HasBinding<BpmDownloader>())
+            if (Container.HasBinding<DataSourcer>())
             {
-                Logger.logger.Debug("binding hr controller");
-                Container.BindInterfacesAndSelfTo<HRController>().AsSingle().NonLazy();
+                Log.Logger.Debug("binding hr controller");
+                Container.BindInterfacesAndSelfTo<HRDataManager>().AsSingle().NonLazy();
             }
             else
             {
-                Logger.logger.Debug("no downloader bounded");
-
+                Log.Logger.Debug("no downloader bounded");
             }
         }
     }

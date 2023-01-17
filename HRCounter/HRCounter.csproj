@@ -22,6 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkProfile />
     <LangVersion>8</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <Optimize>false</Optimize>
@@ -151,23 +152,22 @@
   <ItemGroup>
     <Compile Include="AssetBundleManager.cs" />
     <Compile Include="Data\BPM.cs" />
-    <Compile Include="Data\BpmDownloaders\BpmDownloader.cs" />
-    <Compile Include="Data\BpmDownloaders\FitbitHRtoWS.cs" />
-    <Compile Include="Data\BpmDownloaders\HRProxy.cs" />
-    <Compile Include="Data\BpmDownloaders\Pulsoid.cs" />
-    <Compile Include="Data\BpmDownloaders\RandomHR.cs" />
-    <Compile Include="Data\BpmDownloaders\WebRequest.cs" />
-    <Compile Include="Data\BpmDownloaders\YURApp.cs" />
-    <Compile Include="Data\BpmDownloaders\YURMod.cs" />
-    <Compile Include="Data\HRController.cs" />
-    <Compile Include="Events\HRUpdateEventArgs.cs" />
+    <Compile Include="Data\DataSourcers\DataSourcer.cs" />
+    <Compile Include="Data\DataSourcers\FitbitHRtoWS.cs" />
+    <Compile Include="Data\DataSourcers\HRProxy.cs" />
+    <Compile Include="Data\DataSourcers\Pulsoid.cs" />
+    <Compile Include="Data\DataSourcers\RandomHR.cs" />
+    <Compile Include="Data\DataSourcers\WebRequest.cs" />
+    <Compile Include="Data\DataSourcers\YURApp.cs" />
+    <Compile Include="Data\DataSourcers\YURMod.cs" />
+    <Compile Include="Data\HRDataManager.cs" />
     <Compile Include="GamePauseController.cs" />
-    <Compile Include="HRCounter.cs" />
+    <Compile Include="HRCounterCountersPlus.cs" />
     <Compile Include="HRCounterController.cs" />
     <Compile Include="Installers\GamePauseInstaller.cs" />
     <Compile Include="Installers\GameplayCoreInstaller.cs" />
     <Compile Include="Installers\GameplayHeartRateInstaller.cs" />
-    <Compile Include="Logger.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Configuration\PluginConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

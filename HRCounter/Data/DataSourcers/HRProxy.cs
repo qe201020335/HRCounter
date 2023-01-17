@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
-using HRCounter.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
 using Random = UnityEngine.Random;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSourcers
 {
-    internal sealed class HRProxy : BpmDownloader
+    internal sealed class HRProxy : DataSourcer
     {
         private const string URL = "wss://hrproxy.fortnite.lol:2096/hrproxy";
 
@@ -170,7 +169,7 @@ namespace HRCounter.Data.BpmDownloaders
                 return;
             }
             
-            Logger.DebugSpam(e.Data);
+            Log.DebugSpam(e.Data);
 
             try
             {

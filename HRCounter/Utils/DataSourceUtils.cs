@@ -110,7 +110,7 @@ namespace HRCounter.Utils
             }
             catch (Exception e)
             {
-                Logger.logger.Error(e);
+                Log.Logger.Error(e);
                 return "Error validating token";
             }
         }

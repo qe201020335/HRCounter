@@ -7,11 +7,12 @@ namespace HRCounter.Installers
 {
     public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
     {
-        [CanBeNull] private readonly GameplayCoreSceneSetupData _sceneSetupData;
+        private readonly GameplayCoreSceneSetupData? _sceneSetupData;
         private const string COUNTERS_PLUS_MOD_ID = "Counters+";
         public GameplayCoreInstaller([InjectOptional] GameplayCoreSceneSetupData gameplayCoreSceneSetupData)
         {
             _sceneSetupData = gameplayCoreSceneSetupData;
+            Log.Logger.Debug("Installer ctor");
         }
 
         public override void InstallBindings()
@@ -22,23 +23,23 @@ namespace HRCounter.Installers
             }
             if (!PluginConfig.Instance.IgnoreCountersPlus && Utils.Utils.IsModEnabled(COUNTERS_PLUS_MOD_ID))
             {
-                Logger.logger.Info("Counters+ mod is enabled! Not binding!");
+                Log.Logger.Info("Counters+ mod is enabled! Not binding!");
                 return;
             }
 
             if (_sceneSetupData == null)
             {
-                Logger.logger.Warn("GameplayCoreSceneSetupData is null");
+                Log.Logger.Warn("GameplayCoreSceneSetupData is null");
             }
             else if (_sceneSetupData.playerSpecificSettings.noTextsAndHuds)
             {
-                Logger.logger.Info("No Texts & HUDs");
+                Log.Logger.Info("No Texts & HUDs");
             }
             else
             {
-                Logger.logger.Debug("Binding HR Counter");
-                Container.BindInterfacesTo<HRCounterController>().AsSingle().NonLazy();
-                Logger.logger.Debug("HR Counter binded");
+                Log.Logger.Debug("Binding HR Counter");
+                Container.BindInterfacesTo<HRCounterController>().AsTransient().NonLazy();
+                Log.Logger.Debug("HR Counter binded");
             }
         }
     }

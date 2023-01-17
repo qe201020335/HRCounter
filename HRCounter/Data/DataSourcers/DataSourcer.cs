@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
-using HRCounter.Events;
 using IPALogger = IPA.Logging.Logger;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSourcers
 {
-    internal abstract class BpmDownloader
+    internal abstract class DataSourcer
     {
         private readonly BPM Bpm = BPM.Instance;
-        protected readonly IPALogger logger = Logger.logger;
+        protected readonly IPALogger logger = Log.Logger;
         protected static PluginConfig Config => PluginConfig.Instance;
 
-        internal event EventHandler<HRUpdateEventArgs> OnHRUpdate;
+        internal event Action<int>? OnHRUpdate;
 
         protected void OnHearRateDataReceived(int hr)
         {
@@ -31,16 +30,15 @@ namespace HRCounter.Data.BpmDownloaders
             
             try
             {
-                var handler = OnHRUpdate;
                 Task.Factory.StartNew(() =>
                 {
-                    handler?.Invoke(this, new HRUpdateEventArgs(hr));
+                    OnHRUpdate?.Invoke(hr);
                 });
             }
             catch (Exception e)
             {
-                Logger.logger.Critical($"Exception Caught while broadcasting hr update event: {e.Message}");
-                Logger.logger.Critical(e);
+                Log.Logger.Critical($"Exception Caught while broadcasting hr update event: {e.Message}");
+                Log.Logger.Critical(e);
             }
         }
         

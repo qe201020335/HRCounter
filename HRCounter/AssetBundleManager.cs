@@ -54,10 +54,10 @@ namespace HRCounter
                     loadedAssetBundle = AssetBundle.LoadFromMemory(assetBundleRaw);
                     CanvasOverlay = loadedAssetBundle.LoadAsset<GameObject>("Assets/HRCounter.prefab");
                     loadedAssetBundle.Unload(false);
-                    Logger.logger.Info("Loaded AssetBundle!");
+                    Log.Logger.Info("Loaded AssetBundle!");
                 }
                 else
-                    Logger.logger.Error("Failed to find hrcounter AssetBundle from ManifestResourceStream!");
+                    Log.Logger.Error("Failed to find hrcounter AssetBundle from ManifestResourceStream!");
             }
             
         }

@@ -15,7 +15,7 @@ namespace HRCounter.Data
                 _bpm = value;
                 if (PluginConfig.Instance.AutoPause && value >= PluginConfig.Instance.PauseHR)
                 {
-                    Logger.logger.Info("Heart Rate too high! Pausing!");
+                    Log.Logger.Info("Heart Rate too high! Pausing!");
                     GamePauseController.PauseGame();
                 }
             }

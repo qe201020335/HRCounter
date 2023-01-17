@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSourcers
 {
-    internal sealed class YURApp: BpmDownloader
+    internal sealed class YURApp: DataSourcer
     {
         private const string HOST = "127.0.0.1";
         private const int PORT = 11010;
@@ -97,7 +97,7 @@ namespace HRCounter.Data.BpmDownloaders
                     if (type[0] == 1)
                     {
                         // ping message
-                        Logger.DebugSpam("Ping!");
+                        Log.DebugSpam("Ping!");
                         await Pong();
                     }
                     else if (type[0] == 20)
@@ -166,7 +166,7 @@ namespace HRCounter.Data.BpmDownloaders
         private void HandleData(string data)
         {
             
-            Logger.DebugSpam(data);
+            Log.DebugSpam(data);
 
             try
             {
@@ -183,7 +183,7 @@ namespace HRCounter.Data.BpmDownloaders
 
                 var osu = JObject.Parse(json["jsonData"]?.ToString());
                 
-                Logger.DebugSpam(osu.ToString());
+                Log.DebugSpam(osu.ToString());
 
                 var hrToken = osu["status"]?["heartRate"]?.Type != JTokenType.Null
                     ? osu["status"]?["heartRate"]
@@ -208,7 +208,7 @@ namespace HRCounter.Data.BpmDownloaders
 
         private async Task Pong()
         {
-            Logger.DebugSpam("Pong!");
+            Log.DebugSpam("Pong!");
             await SendMessage(2, null);
         }
         

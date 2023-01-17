@@ -6,9 +6,9 @@ using HRCounter.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSourcers
 {
-    internal class Pulsoid : BpmDownloader
+    internal class Pulsoid : DataSourcer
     {
         private static string Token => Config.PulsoidToken;
         private static string URL => DataSourceUtils.PULSOID_API;

@@ -33,7 +33,7 @@ namespace HRCounter.UI
             }
             catch (Exception e)
             {
-                Logger.logger.Error(e);
+                Log.Logger.Error(e);
                 throw e;
             }
         }

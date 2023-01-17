@@ -81,7 +81,7 @@ namespace HRCounter.Utils
                     return ColorUtility.ToHtmlStringRGB(color);
                 }
             }
-            Logger.logger.Warn("Cannot determine color, please check hr boundaries and color codes.");
+            Log.Logger.Warn("Cannot determine color, please check hr boundaries and color codes.");
             return ColorUtility.ToHtmlStringRGB(Color.white);
         }
     }

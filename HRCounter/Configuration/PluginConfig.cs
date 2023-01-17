@@ -65,7 +65,7 @@ namespace HRCounter.Configuration
         
         public virtual void OnReload()
         {
-            Logger.logger.Notice("HRCounter Settings Changed!");
+            Log.Logger.Notice("HRCounter Settings Changed!");
             try
             {
                 EventHandler<EventArgs> handler = OnSettingsChanged;
@@ -76,8 +76,8 @@ namespace HRCounter.Configuration
             }
             catch (Exception e)
             {
-                Logger.logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
-                Logger.logger.Critical(e);
+                Log.Logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
+                Log.Logger.Critical(e);
             }
         }
         

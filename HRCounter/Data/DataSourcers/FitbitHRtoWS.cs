@@ -1,11 +1,10 @@
 using System;
 using System.Threading;
-using HRCounter.Configuration;
 using WebSocketSharp;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSourcers
 {
-    internal sealed class FitbitHRtoWS : BpmDownloader
+    internal sealed class FitbitHRtoWS : DataSourcer
     {
         private Thread _worker = null;
 
