@@ -94,12 +94,12 @@ namespace HRCounter.Utils
 
         internal static async Task<string> CheckPulsoidToken()
         {
-            HttpClient HttpClient = new HttpClient();
-            HttpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {PluginConfig.Instance.PulsoidToken}");
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {PluginConfig.Instance.PulsoidToken}");
             
             try
             {
-                var res = await HttpClient.GetAsync(PULSOID_API);
+                var res = await httpClient.GetAsync(PULSOID_API);
             
                 if (res.IsSuccessStatusCode)
                 {

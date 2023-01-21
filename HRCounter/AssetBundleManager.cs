@@ -20,8 +20,8 @@ namespace HRCounter
         private static AssetBundle loadedAssetBundle;
         private static GameObject CanvasOverlay;
 
-        private static Material _uiNoGlow;
-        private static Shader _textNoGlow;
+        private static Material? _uiNoGlow;
+        private static Shader? _textNoGlow;
 
         internal static Material UINoGlow
         {

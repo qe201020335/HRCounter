@@ -75,7 +75,7 @@ namespace HRCounter
 
             _currentCanvas.transform.localScale = Vector3.one / 150;
 
-            OnHRUpdate(BPM.Instance.Bpm); // give it an initial value
+            OnHRUpdate(BPM.Bpm); // give it an initial value
 
             if (!_needs360Move)
             {

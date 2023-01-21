@@ -12,13 +12,12 @@ namespace HRCounter
     {
         
         private readonly IPALogger _logger = Log.Logger;
-        private TMP_Text _counter;
-        private bool _updating;
+        private TMP_Text? _counter;
 
         private static bool Colorize => PluginConfig.Instance.Colorize;
 
-        private GameObject _customCounter;
-        private TMP_Text _customCounterText;
+        private GameObject _customCounter = null!;
+        private TMP_Text _customCounterText = null!;
 
         public override void CounterInit()
         {
@@ -38,6 +37,7 @@ namespace HRCounter
                 return;
             }
 
+            HRDataManager.OnHRUpdate += OnHRUpdate;
             _logger.Info("Start updating counter text");
         }
 
@@ -56,22 +56,22 @@ namespace HRCounter
             }
 
             var counter = AssetBundleManager.SetupCustomCounter();
-            _customCounter = counter.Icon;
-            _customCounterText = counter.Numbers;
-            
-            if (_customCounter == null || _customCounterText == null)
+
+            if (counter.Icon == null || counter.Numbers == null)
             {
                 _logger.Error("Cannot create custom counter");
                 return false;
             }
+
+            _customCounter = counter.Icon;
+            _customCounterText = counter.Numbers;
             
             // position the counter as the counters+ one
             _customCounter.transform.localScale = Vector3.one / 30;
             _customCounter.transform.SetParent(canvas.transform, false);
-            _customCounter.GetComponent<RectTransform>().anchoredPosition =
-                _counter.rectTransform.anchoredPosition;
+            _customCounter.GetComponent<RectTransform>().anchoredPosition = _counter.rectTransform.anchoredPosition;
             _customCounter.transform.localPosition -= new Vector3(2, 0, 0); // recenter
-            OnHRUpdate(BPM.Instance.Bpm);  // give it an initial value
+            OnHRUpdate(BPM.Bpm);  // give it an initial value
             _customCounter.SetActive(true);
 
             if (counter.CurrentCanvas != null)
@@ -79,7 +79,6 @@ namespace HRCounter
                 // destroy the unused game obj
                 Object.Destroy(counter.CurrentCanvas);
             }
-            HRDataManager.OnHRUpdate += OnHRUpdate;
             return true;
         }
 

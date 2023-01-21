@@ -8,11 +8,12 @@ namespace HRCounter
 {
     internal class GamePauseController : IDisposable
     {
-        private static ISongControl _songControl;
+        private static ISongControl? _songControl;
 
         internal GamePauseController([InjectOptional] ISongControl songControl)
         {
             _songControl = songControl;
+            Log.Logger.Debug("GamePauseController ctor");
         }
 
         public void Dispose()
@@ -43,7 +44,7 @@ namespace HRCounter
         private static IEnumerator Pause()
         {
             yield return null;
-            _songControl.Pause();
+            _songControl?.Pause();
         }
     }
 }

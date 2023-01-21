@@ -33,8 +33,8 @@ namespace HRCounter.Data.DataSourcers
             {
                 // we don't want ANY uncaught exception,
                 // YUR invokes the action on the freaking MAIN THREAD!!!
-                logger.Critical($"Exception occured while handling YUR Mod Status Update: {e.Message}");
-                logger.Critical(e);
+                Logger.Critical($"Exception occured while handling YUR Mod Status Update: {e.Message}");
+                Logger.Critical(e);
             }
         }
         

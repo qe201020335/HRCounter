@@ -7,25 +7,18 @@ namespace HRCounter.Data.DataSourcers
 {
     internal abstract class DataSourcer
     {
-        private readonly BPM Bpm = BPM.Instance;
-        protected readonly IPALogger logger = Log.Logger;
+        protected readonly IPALogger Logger = Log.Logger;
         protected static PluginConfig Config => PluginConfig.Instance;
 
         internal event Action<int>? OnHRUpdate;
 
-        protected void OnHearRateDataReceived(int hr)
+        protected void OnHearRateDataReceived(int hr, string? receivedAt = null)
         {
-            OnHearRateDataReceived(hr, DateTime.Now.ToString("HH:mm:ss"));
-        }
-        
-        protected void OnHearRateDataReceived(int hr, string receivedAt)
-        {
-            Bpm.Bpm = hr;
-            Bpm.ReceivedAt = receivedAt;
+            BPM.Set(hr, receivedAt);
 
             if (Config.LogHR)
             {
-                logger.Info(Bpm.ToString());
+                Logger.Info(BPM.Str);
             }
             
             try

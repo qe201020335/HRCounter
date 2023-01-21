@@ -61,17 +61,16 @@ namespace HRCounter.Configuration
             z = 7f
         };
 
-        internal event EventHandler<EventArgs> OnSettingsChanged;
+        internal event EventHandler<EventArgs>? OnSettingsChanged;
         
         public virtual void OnReload()
         {
             Log.Logger.Notice("HRCounter Settings Changed!");
             try
             {
-                EventHandler<EventArgs> handler = OnSettingsChanged;
                 Task.Factory.StartNew(() =>
                 {
-                    handler?.Invoke(this, EventArgs.Empty);
+                    OnSettingsChanged?.Invoke(this, EventArgs.Empty);
                 });
             }
             catch (Exception e)

@@ -1,31 +1,18 @@
-﻿using HRCounter.Configuration;
+﻿using System;
 
 namespace HRCounter.Data
 {
     class BPM
     {
-        public static BPM Instance = new BPM();
+        public static int Bpm { get; private set; }
+        public static string ReceivedAt { get; private set; } = string.Empty;
 
-        private int _bpm;
-        public int Bpm
-        { 
-            get => _bpm;
-            internal set
-            {
-                _bpm = value;
-                if (PluginConfig.Instance.AutoPause && value >= PluginConfig.Instance.PauseHR)
-                {
-                    Log.Logger.Info("Heart Rate too high! Pausing!");
-                    GamePauseController.PauseGame();
-                }
-            }
-        }
-        public string ReceivedAt { get; internal set; }
-
-        
-        public override string ToString()
+        internal static void Set(int b, string? receiveAt = null)
         {
-            return $"BPM: {Bpm}, measured at {ReceivedAt}";
+            ReceivedAt = receiveAt ?? DateTime.Now.ToString("HH:mm:ss");
+            Bpm = b;
         }
+
+        public static string Str => $"BPM: {Bpm}, measured at {ReceivedAt}";
     }
 }

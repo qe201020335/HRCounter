@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using HRCounter.Configuration;
 using HRCounter.Data.DataSourcers;
 using Zenject;
 using IPALogger = IPA.Logging.Logger;
@@ -15,9 +16,9 @@ namespace HRCounter.Data
         {
             _dataSourcer = dataSourcer;
         }
-        
+
         public static event Action<int>? OnHRUpdate;
-        
+
         internal static void ClearThings()
         {
             Log.Logger.Info("Clearing bpm downloader and all related event subscribers");
@@ -35,8 +36,9 @@ namespace HRCounter.Data
                 _logger.Warn("BPM Downloader is null!");
                 return;
             }
+
             _dataSourcer.OnHRUpdate += OnHRUpdateInternalHandler;
-            
+
             try
             {
                 _dataSourcer.Start();
@@ -58,18 +60,22 @@ namespace HRCounter.Data
             {
                 _dataSourcer.OnHRUpdate -= OnHRUpdateInternalHandler;
             }
+
             _dataSourcer?.Stop();
             // _dataSourcer = null;
         }
 
         private static void OnHRUpdateInternalHandler(int hr)
         {
+            if (PluginConfig.Instance.AutoPause && hr >= PluginConfig.Instance.PauseHR)
+            {
+                Log.Logger.Info("Heart Rate too high! Pausing!");
+                GamePauseController.PauseGame();
+            }
+
             try
             {
-                Task.Factory.StartNew(() =>
-                {
-                    OnHRUpdate?.Invoke(hr);
-                });
+                Task.Factory.StartNew(() => { OnHRUpdate?.Invoke(hr); });
             }
             catch (Exception e)
             {

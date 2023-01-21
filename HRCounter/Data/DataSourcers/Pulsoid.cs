@@ -23,11 +23,11 @@ namespace HRCounter.Data.DataSourcers
 
         internal override void Start()
         {
-            logger.Info("Starts updating HR");
+            Logger.Info("Starts updating HR");
             _updating = true;
             Task.Factory.StartNew(async () =>
             {
-                logger.Debug("Requesting HR data");
+                Logger.Debug("Requesting HR data");
 
                 while (_updating)
                 {
@@ -49,7 +49,7 @@ namespace HRCounter.Data.DataSourcers
 
             if (hr == null)
             {
-                logger.Warn("No hr data");
+                Logger.Warn("No hr data");
             }
             else if (measuredAt == null)
             {
@@ -77,23 +77,23 @@ namespace HRCounter.Data.DataSourcers
                 }
                 else
                 {
-                    logger.Error($"Failed to fetch HR: {Convert.ToInt32(res.StatusCode)} {res.StatusCode}, Error Code {json["error_code"]}, {json["error_message"]}");
+                    Logger.Error($"Failed to fetch HR: {Convert.ToInt32(res.StatusCode)} {res.StatusCode}, Error Code {json["error_code"]}, {json["error_message"]}");
                 }
 
             }
             catch (HttpRequestException e)
             {
-                logger.Critical($"Failed to request HR: {e.Message}");
-                logger.Debug(e);
+                Logger.Critical($"Failed to request HR: {e.Message}");
+                Logger.Debug(e);
             }
             catch (JsonReaderException)
             {
-                logger.Critical($"Invalid json received");
+                Logger.Critical($"Invalid json received");
             }
             catch (Exception e)
             {
-                logger.Warn($"Error Requesting HR data: {e.Message}");
-                logger.Warn(e);
+                Logger.Warn($"Error Requesting HR data: {e.Message}");
+                Logger.Warn(e);
             }
         }
     }

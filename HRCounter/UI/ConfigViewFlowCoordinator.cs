@@ -7,7 +7,7 @@ namespace HRCounter.UI
 {
     public class ConfigViewFlowCoordinator : FlowCoordinator
     {
-        private SettingMenuController _mainPanel;
+        private SettingMenuController _mainPanel = null!;
         public void Awake()
         {
             if (_mainPanel == null)

@@ -18,11 +18,11 @@ namespace HRCounter.Data.DataSourcers
 
         internal override void Start()
         {
-            logger.Info("Starts updating HR");
+            Logger.Info("Starts updating HR");
             _updating = true;
             Task.Factory.StartNew(async () =>
             {
-                logger.Debug("Requesting HR data");
+                Logger.Debug("Requesting HR data");
 
                 while (_updating)
                 {
@@ -58,8 +58,8 @@ namespace HRCounter.Data.DataSourcers
                         var json = JObject.Parse(res);
                         if (json["bpm"] == null)
                         {
-                            logger.Warn("Json received does not contain necessary field");
-                            logger.Warn(res);
+                            Logger.Warn("Json received does not contain necessary field");
+                            Logger.Warn(res);
                         }
                         else
                         {
@@ -80,25 +80,25 @@ namespace HRCounter.Data.DataSourcers
                     }
                     catch (JsonReaderException)
                     {
-                        logger.Critical($"Invalid json received: {res}");
+                        Logger.Critical($"Invalid json received: {res}");
                     }
                 }
             }
             catch (InvalidOperationException e)
             {
-                logger.Error($"Invalid request URI: {FeedLink}");
-                logger.Info("Stopping hr update");
+                Logger.Error($"Invalid request URI: {FeedLink}");
+                Logger.Info("Stopping hr update");
                 Stop();
             }
             catch (HttpRequestException e)
             {
-                logger.Critical($"Failed to request HR: {e.Message}");
-                logger.Debug(e);
+                Logger.Critical($"Failed to request HR: {e.Message}");
+                Logger.Debug(e);
             }
             catch (Exception e)
             {
-                logger.Warn($"Error Requesting HR data: {e.Message}");
-                logger.Warn(e);
+                Logger.Warn($"Error Requesting HR data: {e.Message}");
+                Logger.Warn(e);
             }
         }
     }

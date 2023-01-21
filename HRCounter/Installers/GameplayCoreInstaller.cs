@@ -38,7 +38,7 @@ namespace HRCounter.Installers
             else
             {
                 Log.Logger.Debug("Binding HR Counter");
-                Container.BindInterfacesTo<HRCounterController>().AsTransient().NonLazy();
+                Container.BindInterfacesTo<HRCounterController>().AsSingle().NonLazy();
                 Log.Logger.Debug("HR Counter binded");
             }
         }
