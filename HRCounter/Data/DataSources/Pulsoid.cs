@@ -2,17 +2,17 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using HRCounter.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace HRCounter.Data.DataSourcers
+namespace HRCounter.Data.DataSources
 {
-    internal class Pulsoid : DataSourcer
+    internal class Pulsoid : DataSourceInternal
     {
         private static string Token => Config.PulsoidToken;
-        private static string URL => DataSourceUtils.PULSOID_API;
         private bool _updating;
+
+        private const string PULSOID_API = "https://dev.pulsoid.net/api/v1/data/heart_rate/latest";
 
         private static readonly HttpClient HttpClient = new HttpClient();
 
@@ -21,7 +21,7 @@ namespace HRCounter.Data.DataSourcers
             HttpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {Token}");
         }
 
-        internal override void Start()
+        protected internal override void Start()
         {
             Logger.Info("Starts updating HR");
             _updating = true;
@@ -37,7 +37,7 @@ namespace HRCounter.Data.DataSourcers
             });
         }
 
-        internal override void Stop()
+        protected internal override void Stop()
         {
             _updating = false;
         }
@@ -65,10 +65,10 @@ namespace HRCounter.Data.DataSourcers
         {
             try
             {
-                var res = await HttpClient.GetAsync(URL);
+                var res = await HttpClient.GetAsync(PULSOID_API);
 
                 // pulsoid: { "measured_at": 1650575246151, "data": { "heart_rate": 82 } }
-                
+
                 var json = JObject.Parse(await res.Content.ReadAsStringAsync());
 
                 if (res.IsSuccessStatusCode)
@@ -77,9 +77,9 @@ namespace HRCounter.Data.DataSourcers
                 }
                 else
                 {
-                    Logger.Error($"Failed to fetch HR: {Convert.ToInt32(res.StatusCode)} {res.StatusCode}, Error Code {json["error_code"]}, {json["error_message"]}");
+                    Logger.Error(
+                        $"Failed to fetch HR: {Convert.ToInt32(res.StatusCode)} {res.StatusCode}, Error Code {json["error_code"]}, {json["error_message"]}");
                 }
-
             }
             catch (HttpRequestException e)
             {

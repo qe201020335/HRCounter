@@ -7,17 +7,29 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
+using IPA.Loader;
 using Newtonsoft.Json.Linq;
 
 namespace HRCounter.Utils
 {
     public static class DataSourceUtils
     {
-        internal const string YUR_MOD_ID = "YUR Fit Calorie Tracker";
-        internal const string WEBSOCKET_SHARP_MOD_ID = "websocket-sharp";
-        internal const string PULSOID_API = "https://dev.pulsoid.net/api/v1/data/heart_rate/latest";
         internal static readonly List<object> DataSources = new object[] {"HypeRate", "Pulsoid Token", "WebRequest", "FitbitHRtoWS", "HRProxy", "Pulsoid", "YUR APP", "YUR MOD"}.ToList();
         private static readonly List<string> DataSourcesRequireWebSocket = new [] {"HypeRate", "FitbitHRtoWS", "Pulsoid", "HRProxy"}.ToList();
+
+        internal const string WEBSOCKET_SHARP_MOD_ID = "websocket-sharp";
+        internal const string YUR_MOD_ID = "YUR Fit Calorie Tracker";
+
+        private static bool? _webSocketSharpInstalled = null;
+
+        internal static bool WebSocketSharpInstalled
+        {
+            get
+            {
+                _webSocketSharpInstalled ??= PluginManager.GetPluginFromId(WEBSOCKET_SHARP_MOD_ID) != null;
+                return _webSocketSharpInstalled.Value;
+            }
+        }
 
         internal static bool NeedWebSocket(string dc)
         {
@@ -27,103 +39,35 @@ namespace HRCounter.Utils
         internal static Assembly GetModAssembly(string modName) => IPA.Loader.PluginManager.EnabledPlugins.ToList()
             .Find(metadata => metadata.Name == modName).Assembly;
 
-        internal static async Task<string> GetCurrentSourceLinkText()
+        internal static bool CheckYURProcess()
         {
-            switch (PluginConfig.Instance.DataSource)
-            {
-                case "WebRequest":
-                    return $"Current URL: {ConditionalTruncate(PluginConfig.Instance.FeedLink, 30)}";
-                
-                case "Pulsoid Token":
-                    if (PluginConfig.Instance.PulsoidToken == "NotSet")
-                    {
-                        return "Token Not Set";
-                    }
-                    
-                    var status = await CheckPulsoidToken();
-                    return $"Token Status: {(status == "" ? "<color=#00FF00>OK</color>" : $"<color=#FF0000>{status}</color>")}";
-
-                case "HypeRate":
-                    if (!Utils.IsModEnabled(WEBSOCKET_SHARP_MOD_ID))
-                    {
-                        return $"<color=#FF0000>{WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
-                    }
-                    return $"Current Session ID: {ConditionalTruncate(PluginConfig.Instance.HypeRateSessionID, 30)}";
-
-                case "FitbitHRtoWS":
-                    if (!Utils.IsModEnabled(WEBSOCKET_SHARP_MOD_ID))
-                    {
-                        return $"<color=#FF0000>{WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
-                    }
-                    return $"Current WebSocket Link: {ConditionalTruncate(PluginConfig.Instance.FitbitWebSocket, 30)}";
-                
-                case "HRProxy":
-                    if (!Utils.IsModEnabled(WEBSOCKET_SHARP_MOD_ID))
-                    {
-                        return $"<color=#FF0000>{WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
-                    }
-                    return $"Current HRProxy ID: {ConditionalTruncate(PluginConfig.Instance.HRProxyID, 30)}";
-                
-                case "Pulsoid":
-                    var s =
-                        "<color=#FFFF00>EXPERIMENTAL, MAY NOT WORK IN THE FUTURE. PLEASE USE TOKEN INSTEAD.</color>\n";
-                    if (!Utils.IsModEnabled(WEBSOCKET_SHARP_MOD_ID))
-                    {
-                        return s + $"<color=#FF0000>{WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
-                    }
-                    return s + $"Current Widget ID: {ConditionalTruncate(PluginConfig.Instance.PulsoidWidgetID, 30)}";
-
-                case "YUR APP":
-                    if (!CheckYURProcess())
-                    {
-                        return "<color=#FFFF00>YUR App does not seem to be running.</color>";
-                    }
-                    return "YUR App seems to be running.";
-                
-                case "YUR MOD":
-                    if (!Utils.IsModEnabled(YUR_MOD_ID))
-                    {
-                        return "<color=#FF0000>YUR MOD IS NOT INSTALLED OR ENABLED!</color>";
-                    }
-                    return "YUR MOD Detected!";
-
-                default:
-                    return "Unknown Data Source";
-            }
+            var processes = Process.GetProcessesByName("YUR.Fit.Windows.Service");
+            return processes.Length > 0;
         }
+        
+        private const string PULSOID_VALIDATE = "https://dev.pulsoid.net/api/v1/token/validate";
 
         internal static async Task<string> CheckPulsoidToken()
         {
-            var httpClient = new HttpClient();
+            using var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {PluginConfig.Instance.PulsoidToken}");
-            
             try
             {
-                var res = await httpClient.GetAsync(PULSOID_API);
-            
+                var res = await httpClient.GetAsync(PULSOID_VALIDATE);
+                
                 if (res.IsSuccessStatusCode)
                 {
                     return "";
                 }
                 var json = JObject.Parse(await res.Content.ReadAsStringAsync());
-                return $"{Convert.ToInt32(res.StatusCode)} {res.StatusCode}, {json["error_code"]}, {json["error_message"]}";
+
+                return $"{Convert.ToInt32(res.StatusCode)} {res.StatusCode}, {json?["error_code"]}, {json?["error_message"]}";
             }
             catch (Exception e)
             {
                 Log.Logger.Error(e);
                 return "Error validating token";
             }
-        }
-
-        internal static string ConditionalTruncate(string s, int length)
-        {
-            return s.Length <= length ? s : s.Substring(0, length) + "...";
-        }
-
-        internal static bool CheckYURProcess()
-        {
-            var processes = Process.GetProcessesByName("YUR.Fit.Windows.Service");
-            return processes.Length > 0;
         }
     }
 }

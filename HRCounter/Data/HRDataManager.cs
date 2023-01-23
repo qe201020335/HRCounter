@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
-using HRCounter.Data.DataSourcers;
+using HRCounter.Data.DataSources;
 using Zenject;
 using IPALogger = IPA.Logging.Logger;
 
@@ -10,11 +10,11 @@ namespace HRCounter.Data
     public class HRDataManager : IInitializable, IDisposable
     {
         private static readonly IPALogger _logger = Log.Logger;
-        private static DataSourcer? _dataSourcer;
+        private static DataSource? _dataSource;
 
-        internal HRDataManager(DataSourcer dataSourcer)
+        internal HRDataManager(DataSource dataSource)
         {
-            _dataSourcer = dataSourcer;
+            _dataSource = dataSource;
         }
 
         public static event Action<int>? OnHRUpdate;
@@ -22,8 +22,8 @@ namespace HRCounter.Data
         internal static void ClearThings()
         {
             Log.Logger.Info("Clearing bpm downloader and all related event subscribers");
-            // _dataSourcer?.Stop();
-            _dataSourcer = null;
+            // _dataSource?.Stop();
+            _dataSource = null;
 
             OnHRUpdate = null;
         }
@@ -31,38 +31,38 @@ namespace HRCounter.Data
         public void Initialize()
         {
             _logger.Debug("HRDataManager Init");
-            if (_dataSourcer == null)
+            if (_dataSource == null)
             {
                 _logger.Warn("BPM Downloader is null!");
                 return;
             }
 
-            _dataSourcer.OnHRUpdate += OnHRUpdateInternalHandler;
+            _dataSource.OnHRUpdate += OnHRUpdateInternalHandler;
 
             try
             {
-                _dataSourcer.Start();
+                _dataSource.Start();
                 _logger.Info("Start updating heart rate");
             }
             catch (Exception e)
             {
                 _logger.Error($"Could not start bpm downloader. {e.Message}");
                 _logger.Debug(e);
-                _dataSourcer.OnHRUpdate -= OnHRUpdateInternalHandler;
-                _dataSourcer.Stop();
+                _dataSource.OnHRUpdate -= OnHRUpdateInternalHandler;
+                _dataSource.Stop();
             }
         }
 
         public void Dispose()
         {
             _logger.Debug("HRDataManager Dispose");
-            if (_dataSourcer != null)
+            if (_dataSource != null)
             {
-                _dataSourcer.OnHRUpdate -= OnHRUpdateInternalHandler;
+                _dataSource.OnHRUpdate -= OnHRUpdateInternalHandler;
             }
 
-            _dataSourcer?.Stop();
-            // _dataSourcer = null;
+            _dataSource?.Stop();
+            // _dataSource = null;
         }
 
         private static void OnHRUpdateInternalHandler(int hr)

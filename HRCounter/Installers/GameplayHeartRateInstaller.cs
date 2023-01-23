@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using HRCounter.Configuration;
 using HRCounter.Data;
-using HRCounter.Data.DataSourcers;
+using HRCounter.Data.DataSources;
 using HRCounter.Utils;
 using Zenject;
 
@@ -32,7 +32,7 @@ namespace HRCounter.Installers
                         Log.Logger.Warn("Feed link not set.");
                         return;
                     }
-                    Container.Bind<DataSourcer>().To<WebRequest>().AsSingle();
+                    Container.Bind<DataSource>().To<WebRequest>().AsSingle();
                     break;
                 
                 case "Pulsoid Token":
@@ -41,7 +41,7 @@ namespace HRCounter.Installers
                         Log.Logger.Warn("Pulsoid Token not set.");
                         return;
                     }
-                    Container.Bind<DataSourcer>().To<Pulsoid>().AsSingle();
+                    Container.Bind<DataSource>().To<Pulsoid>().AsSingle();
                     break;
                 
                 case "HypeRate":
@@ -50,7 +50,7 @@ namespace HRCounter.Installers
                         Log.Logger.Warn("Hype Rate Session ID not set.");
                         return;
                     }
-                    Container.Bind<DataSourcer>().To<HRProxy>().AsSingle();
+                    Container.Bind<DataSource>().To<HRProxy>().AsSingle();
                     break;
                     
                 case "Pulsoid":
@@ -59,7 +59,7 @@ namespace HRCounter.Installers
                         Log.Logger.Warn("Pulsoid Widget ID not set.");
                         return;
                     }
-                    Container.Bind<DataSourcer>().To<HRProxy>().AsSingle();
+                    Container.Bind<DataSource>().To<HRProxy>().AsSingle();
                     break;
 
                 case "FitbitHRtoWS":
@@ -68,7 +68,7 @@ namespace HRCounter.Installers
                         Log.Logger.Warn("FitbitWebSocket is empty.");
                         return;
                     }
-                    Container.Bind<DataSourcer>().To<FitbitHRtoWS>().AsSingle();
+                    Container.Bind<DataSource>().To<FitbitHRtoWS>().AsSingle();
                     break;
                 
                 case "HRProxy":
@@ -77,11 +77,11 @@ namespace HRCounter.Installers
                         Log.Logger.Warn("HRProxy ID not set.");
                         return;
                     }
-                    Container.Bind<DataSourcer>().To<HRProxy>().AsSingle();
+                    Container.Bind<DataSource>().To<HRProxy>().AsSingle();
                     break;
                 
                 case "YUR APP":
-                    Container.Bind<DataSourcer>().To<YURApp>().AsSingle();
+                    Container.Bind<DataSource>().To<YURApp>().AsSingle();
                     break;
                 
                 case "YUR MOD":
@@ -90,12 +90,12 @@ namespace HRCounter.Installers
                         Log.Logger.Error($"{DataSourceUtils.YUR_MOD_ID} is not installed but required for the data source {Config.DataSource}, NOT BINDING!");
                         return;
                     }
-                    Container.Bind<DataSourcer>().To<YURMod>().AsSingle();
+                    Container.Bind<DataSource>().To<YURMod>().AsSingle();
                     break;
                 
                 case "Random":
-                    Container.Bind(new[] { typeof(DataSourcer) }.Concat(typeof(DataSourcer).GetInterfaces())).To<RandomHR>().AsSingle();
-                    Container.Bind<DataSourcer>().To<RandomHR>().AsSingle();
+                    Container.Bind(new[] { typeof(DataSource) }.Concat(typeof(DataSource).GetInterfaces())).To<RandomHR>().AsSingle();
+                    Container.Bind<DataSource>().To<RandomHR>().AsSingle();
                     break;
 
                 default:
@@ -103,7 +103,7 @@ namespace HRCounter.Installers
                     break;
             }
 
-            if (Container.HasBinding<DataSourcer>())
+            if (Container.HasBinding<DataSource>())
             {
                 Log.Logger.Debug("binding hr controller");
                 Container.BindInterfacesAndSelfTo<HRDataManager>().AsSingle().NonLazy();

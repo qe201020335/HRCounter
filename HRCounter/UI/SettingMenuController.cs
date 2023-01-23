@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
+using HRCounter.Data;
 using HRCounter.Utils;
 using TMPro;
 
@@ -110,7 +111,7 @@ namespace HRCounter.UI
                 Task.Factory.StartNew(async () =>
                 {
                     await Task.Delay(100);
-                    modifiedText.text = await DataSourceUtils.GetCurrentSourceLinkText();
+                    UpdateText();
                 });
                 return "Loading Data Source Info...";
             }
@@ -118,7 +119,10 @@ namespace HRCounter.UI
 
         private async void UpdateText()
         {
-            modifiedText.text = await DataSourceUtils.GetCurrentSourceLinkText();
+            var source = DataSourceType.GetFromStr(PluginConfig.Instance.DataSource);
+            modifiedText.text = source == null 
+                ? "Unknown Data Source"
+                : await source.GetSourceLinkText();
         }
         
         [UIValue("NoBloom")]

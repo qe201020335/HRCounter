@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace HRCounter.Data.DataSourcers
+namespace HRCounter.Data.DataSources
 {
-    internal sealed class YURApp: DataSourcer
+    internal sealed class YURApp: DataSource
     {
         private const string HOST = "127.0.0.1";
         private const int PORT = 11010;
@@ -20,7 +20,7 @@ namespace HRCounter.Data.DataSourcers
 
         private CancellationTokenSource? _cancellationSource;
 
-        internal override void Start()
+        protected internal override void Start()
         {
             _running = true;
             if (_client != null)
@@ -235,7 +235,7 @@ namespace HRCounter.Data.DataSourcers
             _client = null;
         }
 
-        internal override void Stop()
+        protected internal override void Stop()
         {
             _running = false;
             _cancellationSource?.Cancel();

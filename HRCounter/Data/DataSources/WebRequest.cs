@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace HRCounter.Data.DataSourcers
+namespace HRCounter.Data.DataSources
 {
-    internal sealed class WebRequest : DataSourcer
+    internal sealed class WebRequest : DataSourceInternal
     {
         private static string FeedLink => Config.FeedLink;
         private bool _updating;
@@ -16,7 +16,7 @@ namespace HRCounter.Data.DataSourcers
         
         private static readonly HttpClient HttpClient = new HttpClient();
 
-        internal override void Start()
+        protected internal override void Start()
         {
             Logger.Info("Starts updating HR");
             _updating = true;
@@ -32,7 +32,7 @@ namespace HRCounter.Data.DataSourcers
             });
         }
 
-        internal override void Stop()
+        protected internal override void Stop()
         {
             _updating = false;
         }

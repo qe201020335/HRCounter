@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using HRCounter.Configuration;
+using HRCounter.Data;
 using HRCounter.Utils;
 
 namespace HRCounter.UI.CountersPlus
@@ -18,7 +19,10 @@ namespace HRCounter.UI.CountersPlus
                 Task.Factory.StartNew(async () =>
                 {
                     await Task.Delay(100);
-                    _tmpText.text = await DataSourceUtils.GetCurrentSourceLinkText();
+                    var source = DataSourceType.GetFromStr(PluginConfig.Instance.DataSource);
+                    _tmpText.text = source == null 
+                        ? "Unknown Data Source"
+                        : await source.GetSourceLinkText();
                 });
 
                 return "Loading Current Data Source Info...";

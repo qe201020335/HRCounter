@@ -2,11 +2,11 @@
 using YUR.Fit.Core.Models;
 using YUR.Fit.Unity;
 
-namespace HRCounter.Data.DataSourcers
+namespace HRCounter.Data.DataSources
 {
-    internal sealed class YURMod : DataSourcer
+    internal sealed class YURMod : DataSource
     {
-        internal override void Start()
+        protected internal override void Start()
         {
             CoreServiceManager.OverlayUpdateAction += OnOverlayStatusUpdate;
         }
@@ -38,7 +38,7 @@ namespace HRCounter.Data.DataSourcers
             }
         }
         
-        internal override void Stop()
+        protected internal override void Stop()
         {
             CoreServiceManager.OverlayUpdateAction -= OnOverlayStatusUpdate;
         }

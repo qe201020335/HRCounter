@@ -152,14 +152,16 @@
   <ItemGroup>
     <Compile Include="AssetBundleManager.cs" />
     <Compile Include="Data\BPM.cs" />
-    <Compile Include="Data\DataSourcers\DataSourcer.cs" />
-    <Compile Include="Data\DataSourcers\FitbitHRtoWS.cs" />
-    <Compile Include="Data\DataSourcers\HRProxy.cs" />
-    <Compile Include="Data\DataSourcers\Pulsoid.cs" />
-    <Compile Include="Data\DataSourcers\RandomHR.cs" />
-    <Compile Include="Data\DataSourcers\WebRequest.cs" />
-    <Compile Include="Data\DataSourcers\YURApp.cs" />
-    <Compile Include="Data\DataSourcers\YURMod.cs" />
+    <Compile Include="Data\DataSources\DataSource.cs" />
+    <Compile Include="Data\DataSources\DataSourceInternal.cs" />
+    <Compile Include="Data\DataSources\FitbitHRtoWS.cs" />
+    <Compile Include="Data\DataSources\HRProxy.cs" />
+    <Compile Include="Data\DataSources\Pulsoid.cs" />
+    <Compile Include="Data\DataSources\RandomHR.cs" />
+    <Compile Include="Data\DataSources\WebRequest.cs" />
+    <Compile Include="Data\DataSources\YURApp.cs" />
+    <Compile Include="Data\DataSources\YURMod.cs" />
+    <Compile Include="Data\DataSourceType.cs" />
     <Compile Include="Data\HRDataManager.cs" />
     <Compile Include="GamePauseController.cs" />
     <Compile Include="HRCounterCountersPlus.cs" />
@@ -175,6 +177,7 @@
     <Compile Include="UI\CountersPlus\SettingController.cs" />
     <Compile Include="UI\SettingMenuController.cs" />
     <Compile Include="Utils\DataSourceUtils.cs" />
+    <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

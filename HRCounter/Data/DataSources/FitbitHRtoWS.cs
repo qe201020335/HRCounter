@@ -2,9 +2,9 @@ using System;
 using System.Threading;
 using WebSocketSharp;
 
-namespace HRCounter.Data.DataSourcers
+namespace HRCounter.Data.DataSources
 {
-    internal sealed class FitbitHRtoWS : DataSourcer
+    internal sealed class FitbitHRtoWS : DataSourceInternal
     {
         private Thread? _worker;
 
@@ -41,7 +41,7 @@ namespace HRCounter.Data.DataSourcers
             _worker = null;
         }
 
-        internal override void Start()
+        protected internal override void Start()
         {
             // Start Thread
             VerifyDeadThread();
@@ -106,7 +106,7 @@ namespace HRCounter.Data.DataSourcers
             OnHearRateDataReceived(_lastHR);
         }
 
-        internal override void Stop()
+        protected internal override void Stop()
         {
             if(_webSocket != null)
             {

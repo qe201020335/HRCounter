@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
-using HRCounter.Configuration;
 using IPALogger = IPA.Logging.Logger;
 
-namespace HRCounter.Data.DataSourcers
+namespace HRCounter.Data.DataSources
 {
-    internal abstract class DataSourcer
+    public abstract class DataSource
     {
         protected readonly IPALogger Logger = Log.Logger;
-        protected static PluginConfig Config => PluginConfig.Instance;
+
+        // private static PluginConfig Config => PluginConfig.Instance;
 
         internal event Action<int>? OnHRUpdate;
 
@@ -16,10 +16,10 @@ namespace HRCounter.Data.DataSourcers
         {
             BPM.Set(hr, receivedAt);
 
-            if (Config.LogHR)
-            {
-                Logger.Info(BPM.Str);
-            }
+            // if (Config.LogHR)
+            // {
+            //     Logger.Info(BPM.Str);
+            // }
             
             try
             {
@@ -35,11 +35,9 @@ namespace HRCounter.Data.DataSourcers
             }
         }
         
-        internal abstract void Start();
+        protected internal abstract void Start();
 
-        internal abstract void Stop();
-        
-        
+        protected internal abstract void Stop();
         
     }
 }

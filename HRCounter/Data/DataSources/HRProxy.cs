@@ -5,9 +5,9 @@ using Newtonsoft.Json.Linq;
 using WebSocketSharp;
 using Random = UnityEngine.Random;
 
-namespace HRCounter.Data.DataSourcers
+namespace HRCounter.Data.DataSources
 {
-    internal sealed class HRProxy : DataSourcer
+    internal sealed class HRProxy : DataSourceInternal
     {
         private const string URL = "wss://hrproxy.fortnite.lol:2096/hrproxy";
 
@@ -44,13 +44,13 @@ namespace HRCounter.Data.DataSourcers
             _sessionJson = _subscribe.ToString();
         }
 
-        internal override void Start()
+        protected internal override void Start()
         {
             _updating = true;
             CreateAndConnectSocket();
         }
 
-        internal override void Stop()
+        protected internal override void Stop()
         {
             _updating = false;
             _webSocket?.CloseAsync();

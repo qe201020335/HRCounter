@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using IPALogger = IPA.Logging.Logger;
 using System.Reflection;
@@ -5,9 +6,9 @@ using HarmonyLib;
 using HRCounter.Configuration;
 using UnityEngine;
 using BeatLeader.Replayer;
-using Hive.Versioning;
 using IPA.Loader;
 using JetBrains.Annotations;
+using Version = Hive.Versioning.Version;
 
 namespace HRCounter.Utils
 {
@@ -82,6 +83,12 @@ namespace HRCounter.Utils
 
             Log.Logger.Warn("Cannot determine color, please check hr boundaries and color codes.");
             return ColorUtility.ToHtmlStringRGB(Color.white);
+        }
+        
+        // Can't name it Truncate, Beat Saber has the same extension in the global namespace
+        internal static string TruncateW(this string s, int length = 30)
+        {
+            return s.Length <= length ? s : s.Substring(0, length) + "...";
         }
     }
 }
