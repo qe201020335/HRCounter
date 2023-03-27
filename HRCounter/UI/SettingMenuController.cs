@@ -66,7 +66,7 @@ namespace HRCounter.UI
         }
         
         [UIValue("source-list-options")]
-        public List<object> options = DataSourceUtils.DataSources;
+        public List<object> options = new List<object>(DataSourceType.DataSourceTypes.Keys);
 
         [UIValue("source-list-choice")]
         public string listChoice

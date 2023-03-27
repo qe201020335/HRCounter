@@ -18,25 +18,24 @@ namespace HRCounter.Configuration
         public virtual bool ModEnable { get; set; } = true;
         public virtual bool LogHR { get; set; } = false;
 
-        [UseConverter()]
         public virtual string DataSource
         {
             get => _dataSourceStr;
             set => _dataSourceStr = DataSourceType.MigrateStr(value);
-        } // HypeRate, Pulsoid, Pulsoid Token, WebRequest, YUR APP, FitbitHRtoWS, HRProxy, YUR MOD, Also Random for testing 
+        }
 
         [JsonIgnore] private string _dataSourceStr = DataSourceType.YURMod.Str;
-        public virtual string PulsoidToken { get; set; } = "NotSet";
+        public virtual string PulsoidToken { get; set; } = "";
 
-        public virtual string HypeRateSessionID { get; set; } = "-1";
+        public virtual string HypeRateSessionID { get; set; } = "";
 
-        public virtual string PulsoidWidgetID { get; set; } = "NotSet";
+        public virtual string PulsoidWidgetID { get; set; } = "";
 
-        public virtual string FitbitWebSocket { get; set; } = "ws://localhost:8080/";
+        public virtual string FitbitWebSocket { get; set; } = "";
 
-        public virtual string HRProxyID { get; set; } = "NotSet";
+        public virtual string HRProxyID { get; set; } = "";
 
-        public virtual string FeedLink { get; set; } = "NotSet";
+        public virtual string FeedLink { get; set; } = "";
 
 
         public virtual bool NoBloom { get; set; } = false;
