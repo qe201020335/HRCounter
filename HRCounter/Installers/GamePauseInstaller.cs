@@ -14,9 +14,9 @@ namespace HRCounter.Installers
             }
             if (PluginConfig.Instance.AutoPause)
             {
-                Logger.logger.Debug("Binging game pause");
+                Log.Logger.Debug("Binging game pause");
                 Container.BindInterfacesAndSelfTo<GamePauseController>().AsSingle().NonLazy();
-                Logger.logger.Debug("Game pause bound");
+                Log.Logger.Debug("Game pause bound");
             }
         }
     }

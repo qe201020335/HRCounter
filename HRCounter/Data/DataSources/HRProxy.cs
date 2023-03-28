@@ -1,65 +1,56 @@
 ﻿using System;
 using System.Threading.Tasks;
-using HRCounter.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
 using Random = UnityEngine.Random;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSources
 {
-    internal sealed class HRProxy : BpmDownloader
+    internal sealed class HRProxy : DataSourceInternal
     {
         private const string URL = "wss://hrproxy.fortnite.lol:2096/hrproxy";
 
         // private const string PONG = "{\"method\": \"pong\"}";
         
-        private string _sessionJson;
+        private readonly string _sessionJson;
 
-        private string _reader = Config.DataSource;
-
-        private string _id;
         private bool _updating;
 
-        private WebSocket _webSocket;
+        private WebSocket? _webSocket;
 
         internal HRProxy()
         {
-            RefreshSettings();
-        }
-
-        private void RefreshSettings()
-        {
-            _reader = Config.DataSource;
-
-            if (_reader == "HypeRate")
+            var reader = Config.DataSource;
+            string id;
+            if (reader == "HypeRate")
             {
-                _id = Config.HypeRateSessionID;
+                id = Config.HypeRateSessionID;
             }
-            else if(_reader == "Pulsoid")
+            else if(reader == "Pulsoid")
             {
-                _id = Config.PulsoidWidgetID;
+                id = Config.PulsoidWidgetID;
             }
             else
             {
-                _id = Config.HRProxyID;
+                id = Config.HRProxyID;
             }
 
             JObject _subscribe = new JObject();
-            _subscribe["reader"] = _reader;
-            _subscribe["identifier"] = _id;
+            _subscribe["reader"] = reader;
+            _subscribe["identifier"] = id;
             _subscribe["service"] = "beatsaber";
             
             _sessionJson = _subscribe.ToString();
         }
 
-        internal override void Start()
+        protected internal override void Start()
         {
             _updating = true;
             CreateAndConnectSocket();
         }
 
-        internal override void Stop()
+        protected internal override void Stop()
         {
             _updating = false;
             _webSocket?.CloseAsync();
@@ -79,7 +70,7 @@ namespace HRCounter.Data.BpmDownloaders
                 return;
             }
             
-            logger.Warn("WebSocket is closed. Stopping HR updates");
+            Logger.Warn("WebSocket is closed. Stopping HR updates");
             Stop();
         }
 
@@ -87,11 +78,11 @@ namespace HRCounter.Data.BpmDownloaders
         {
             if (_webSocket != null && _webSocket.IsAlive)
             {
-                logger.Info("We have an old WebSocket, destroying");
+                Logger.Info("We have an old WebSocket, destroying");
                 _webSocket.Close();
                 _webSocket = null;
             }
-            logger.Info("Creating new WebSocket");
+            Logger.Info("Creating new WebSocket");
             _webSocket = new WebSocket(URL);
             _webSocket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
             _webSocket.OnMessage += OnMessageReceive;
@@ -101,30 +92,30 @@ namespace HRCounter.Data.BpmDownloaders
             SendMessage(_sessionJson);
         }
 
-        private async Task Pong(JObject data)
+        private async void Pong(JObject data)
         {
             var delay = Random.Range(30, 15000);
-            logger.Debug($"Random delay {delay} ms for pong.");
+            Logger.Debug($"Random delay {delay} ms for pong.");
             await Task.Delay(delay); // random delay between 30 ms and 15 sec
             if (_updating)
             {
-                logger.Debug("Pong!");
+                Logger.Debug("Pong!");
                 SendMessage(data.ToString());
             }
         }
 
         private void SendMessage(string s)
         {
-            logger.Debug($"Trying to send message {s}");
+            Logger.Debug($"Trying to send message {s}");
             if (!_updating)
             {
-                logger.Debug($"Not updating, no message sent.");
+                Logger.Debug($"Not updating, no message sent.");
                 return;
             }
             if (_webSocket == null || _webSocket.ReadyState == WebSocketState.Closed)
             {
-                logger.Critical("WebSocket is null or Closed. Terminating HR Update.");
-                logger.Notice("Server unreachable! Does your internet get disconnected?");
+                Logger.Critical("WebSocket is null or Closed. Terminating HR Update.");
+                Logger.Notice("Server unreachable! Does your internet get disconnected?");
                 Stop();
             }
             try
@@ -133,20 +124,20 @@ namespace HRCounter.Data.BpmDownloaders
                 {
                     if (!b)
                     {
-                        logger.Warn("WebSocket failed to send message");
+                        Logger.Warn("WebSocket failed to send message");
                         Stop();
                     }
                     else
                     {
-                        logger.Debug("Message sent successfully");
+                        Logger.Debug("Message sent successfully");
                     }
                 });
             }
             catch (Exception e)
             {
-                logger.Error("Error happened when sending message. Terminating HR Update.");
-                logger.Error(e.Message);
-                logger.Debug(e);
+                Logger.Error("Error happened when sending message. Terminating HR Update.");
+                Logger.Error(e.Message);
+                Logger.Debug(e);
                 Stop();
             }
             
@@ -159,8 +150,8 @@ namespace HRCounter.Data.BpmDownloaders
                 return;
             }
             Stop();
-            logger.Error(e.Message);
-            logger.Debug(e.Exception);
+            Logger.Error(e.Message);
+            Logger.Debug(e.Exception);
         }
         
         private void OnMessageReceive(object sender, MessageEventArgs e)
@@ -170,7 +161,7 @@ namespace HRCounter.Data.BpmDownloaders
                 return;
             }
             
-            Logger.DebugSpam(e.Data);
+            Log.DebugSpam(e.Data);
 
             try
             {
@@ -178,7 +169,7 @@ namespace HRCounter.Data.BpmDownloaders
 
                 if (json["method"]?.ToString() == "ping")
                 {
-                    logger.Debug("Ping!");
+                    Logger.Debug("Ping!");
                     json["method"] = "pong";
                     Pong(json);
                 }
@@ -190,8 +181,8 @@ namespace HRCounter.Data.BpmDownloaders
             }
             catch (JsonReaderException)
             {
-                logger.Warn("Invalid json received.");
-                logger.Warn(e.Data);
+                Logger.Warn("Invalid json received.");
+                Logger.Warn(e.Data);
             }
         }
 

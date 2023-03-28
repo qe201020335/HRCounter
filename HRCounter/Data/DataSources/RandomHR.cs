@@ -1,13 +1,13 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSources
 {
-    internal class RandomHR : BpmDownloader
+    internal class RandomHR : DataSource
     {
         private bool _updating = false;
 
-        internal override void Start()
+        protected internal override void Start()
         {
             _updating = true;
             Task.Factory.StartNew(async () =>
@@ -20,7 +20,7 @@ namespace HRCounter.Data.BpmDownloaders
             });
         }
 
-        internal override void Stop()
+        protected internal override void Stop()
         {
             _updating = false;
         }

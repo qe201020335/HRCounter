@@ -13,14 +13,12 @@ namespace HRCounter
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        internal static Plugin Instance { get; private set; }
-        internal static IPALogger Log { get; private set; }
+        internal static Plugin Instance { get; private set; } = null!;
+        internal static IPALogger Log { get; private set; } = null!;
+        
+        private readonly MenuButton _menuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick);
 
-        internal static string Name => "HR Counter";
-
-        internal MenuButton MenuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick, true);
-
-        private UI.ConfigViewFlowCoordinator _configViewFlowCoordinator;
+        private UI.ConfigViewFlowCoordinator? _configViewFlowCoordinator;
         
         private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
 
@@ -29,7 +27,7 @@ namespace HRCounter
         public void InitWithConfig(IPALogger logger, IPA.Config.Config conf, Zenjector zenject)
         {
             Instance = this;
-            Logger.logger = logger;
+            global::HRCounter.Log.Logger = logger;
             Log = logger;
             Log.Info("HRCounter initialized.");
             Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
@@ -45,14 +43,14 @@ namespace HRCounter
         
         [OnStart]
         public void OnStart() {
-            MenuButtons.instance.RegisterButton(MenuButton);
-            HRController.ClearThings();
+            MenuButtons.instance.RegisterButton(_menuButton);
+            HRDataManager.ClearThings();
         }
 
         [OnExit]
         public void OnExit()
         {
-            MenuButtons.instance.UnregisterButton(MenuButton);
+            MenuButtons.instance.UnregisterButton(_menuButton);
         }
 
         private static void OnMenuButtonClick()

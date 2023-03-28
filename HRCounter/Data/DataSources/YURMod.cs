@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections;
-using HRCounter.Configuration;
-using UnityEngine;
 using YUR.Fit.Core.Models;
 using YUR.Fit.Unity;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSources
 {
-    internal sealed class YURMod : BpmDownloader
+    internal sealed class YURMod : DataSource
     {
-        internal override void Start()
+        protected internal override void Start()
         {
             CoreServiceManager.OverlayUpdateAction += OnOverlayStatusUpdate;
         }
@@ -36,12 +33,12 @@ namespace HRCounter.Data.BpmDownloaders
             {
                 // we don't want ANY uncaught exception,
                 // YUR invokes the action on the freaking MAIN THREAD!!!
-                logger.Critical($"Exception occured while handling YUR Mod Status Update: {e.Message}");
-                logger.Critical(e);
+                Logger.Critical($"Exception occured while handling YUR Mod Status Update: {e.Message}");
+                Logger.Critical(e);
             }
         }
         
-        internal override void Stop()
+        protected internal override void Stop()
         {
             CoreServiceManager.OverlayUpdateAction -= OnOverlayStatusUpdate;
         }

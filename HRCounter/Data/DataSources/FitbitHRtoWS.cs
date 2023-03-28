@@ -1,24 +1,23 @@
 using System;
 using System.Threading;
-using HRCounter.Configuration;
 using WebSocketSharp;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSources
 {
-    internal sealed class FitbitHRtoWS : BpmDownloader
+    internal sealed class FitbitHRtoWS : DataSourceInternal
     {
-        private Thread _worker = null;
+        private Thread? _worker;
 
-        private WebSocket webSocket = null;
+        private WebSocket? _webSocket;
         private string _url = string.Empty;
-        private bool _updating = false;
+        private bool _updating;
         
-        private int lastHR = 0;
-        private bool isDeviceConnected = false;
+        private int _lastHR;
+        private bool isDeviceConnected;
 
         internal FitbitHRtoWS() => RefreshSettings();
 
-        private bool isSocketSecure(string url)
+        private bool IsSocketSecure(string url)
         {
             bool btr = false;
             try
@@ -28,7 +27,7 @@ namespace HRCounter.Data.BpmDownloaders
             }
             catch(Exception)
             {
-                logger.Warn("WebSocket URI is not valid! Assuming insecure.");
+                Logger.Warn("WebSocket URI is not valid! Assuming insecure.");
             }
 
             return btr;
@@ -42,36 +41,36 @@ namespace HRCounter.Data.BpmDownloaders
             _worker = null;
         }
 
-        internal override void Start()
+        protected internal override void Start()
         {
             // Start Thread
             VerifyDeadThread();
             _worker = new Thread(() =>
             {
-                if (webSocket != null)
+                if (_webSocket != null)
                 {
                     // WebSocket is listening. Stopping it then continue.
                     Stop();
                 }
-                webSocket = new WebSocket(_url);
-                if (isSocketSecure(_url))
-                    webSocket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
-                webSocket.OnClose += WebSocket_OnClose;
-                webSocket.OnMessage += WebSocket_OnMessage;
-                webSocket.Connect();
+                _webSocket = new WebSocket(_url);
+                if (IsSocketSecure(_url))
+                    _webSocket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+                _webSocket.OnClose += WebSocket_OnClose;
+                _webSocket.OnMessage += WebSocket_OnMessage;
+                _webSocket.Connect();
                 _updating = true;
                 while (_updating)
                 {
-                    if (webSocket != null)
-                        if (webSocket.ReadyState == WebSocketState.Open)
+                    if (_webSocket != null)
+                        if (_webSocket.ReadyState == WebSocketState.Open)
                         {
-                            webSocket.Send("getHR");
-                            webSocket.Send("checkFitbitConnection");
+                            _webSocket.Send("getHR");
+                            _webSocket.Send("checkFitbitConnection");
                         }
                         else
-                            logger.Warn("Failed to connect to WebSocket. Is it running?");
+                            Logger.Warn("Failed to connect to WebSocket. Is it running?");
                     else
-                        logger.Error("WebSocket is null!");
+                        Logger.Error("WebSocket is null!");
                     Thread.Sleep(1000);
                 }
             });
@@ -101,19 +100,19 @@ namespace HRCounter.Data.BpmDownloaders
                     break;
                 default:
                     // Assume it's the HeartRate
-                    try { lastHR = Convert.ToInt32(e.Data); } catch (Exception) { }
+                    try { _lastHR = Convert.ToInt32(e.Data); } catch (Exception) { }
                     break;
             }
-            OnHearRateDataReceived(lastHR);
+            OnHearRateDataReceived(_lastHR);
         }
 
-        internal override void Stop()
+        protected internal override void Stop()
         {
-            if(webSocket != null)
+            if(_webSocket != null)
             {
-                if (webSocket.ReadyState == WebSocketState.Open)
-                    webSocket.Close();
-                webSocket = null;
+                if (_webSocket.ReadyState == WebSocketState.Open)
+                    _webSocket.Close();
+                _webSocket = null;
             }
             _updating = false;
             VerifyDeadThread();
