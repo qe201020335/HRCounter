@@ -5,7 +5,6 @@ using System.Reflection;
 using HarmonyLib;
 using HRCounter.Configuration;
 using UnityEngine;
-using BeatLeader.Replayer;
 using IPA.Loader;
 using Version = Hive.Versioning.Version;
 
@@ -13,30 +12,22 @@ namespace HRCounter.Utils
 {
     public static class Utils
     {
-        private const string BEATLEADER_MOD_ID = "BeatLeader";
-
-        private static bool? _beatleaderHasReplay = null;
-
-        internal static bool BeatLeaderHasReplay
-        {
-            get
-            {
-                _beatleaderHasReplay ??= (FindEnabledPluginMetadata(BEATLEADER_MOD_ID)?.HVersion ?? new Version(0, 0, 0)) >= new Version(0, 5, 0);
-                return _beatleaderHasReplay.Value;
-            }
-        }
 
         // copied from Camera2
-        private static readonly MethodBase ScoreSaber_playbackEnabled =
+        private static readonly MethodBase? ScoreSaber_playbackEnabled =
             AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
 
+        private static readonly MethodBase? GetBeatLeaderIsStartedAsReplay =
+            AccessTools.Property(AccessTools.TypeByName("BeatLeader.Replayer.ReplayerLauncher"), "IsStartedAsReplay")?.GetGetMethod(false);
+
+        
         internal static bool IsInReplay()
         {
             // copied from Camera2
-            var ssReplay = ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false;
+            var ssReplay = ScoreSaber_playbackEnabled != null && (bool) ScoreSaber_playbackEnabled.Invoke(null, null) == false;
 
-            var blReplay = BeatLeaderHasReplay && ReplayerLauncher.IsStartedAsReplay;
-
+            var blReplay = GetBeatLeaderIsStartedAsReplay != null && (bool) GetBeatLeaderIsStartedAsReplay.Invoke(null, null);
+            
             return ssReplay || blReplay;
         }
 
