@@ -23,7 +23,7 @@ namespace HRCounter
         
         public void Initialize()
         {
-            using var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("HRCounter.hrcounter");
+            using var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("HRCounter.Resources.hrcounter");
             if (resourceStream == null)
             {
                 _logger.Error("Failed to find hrcounter AssetBundle from ManifestResourceStream!");

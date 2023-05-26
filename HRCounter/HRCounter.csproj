@@ -182,6 +182,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
+    <EmbeddedResource Include="Resources\hrcounter" />
     <EmbeddedResource Include="UI\BSML\configMenu.bsml" />
     <EmbeddedResource Include="UI\CountersPlus\config.bsml" />
   </ItemGroup>
@@ -199,9 +200,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\hrcounter.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="hrcounter" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
