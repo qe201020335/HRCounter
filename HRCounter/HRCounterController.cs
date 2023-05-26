@@ -2,6 +2,7 @@
 using System.Linq;
 using HRCounter.Configuration;
 using HRCounter.Data;
+using HRCounter.Utils;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 using TMPro;
@@ -19,6 +20,7 @@ namespace HRCounter
         [Inject] private readonly AssetBundleManager _assetBundleManager = null!;
         [Inject] private readonly PluginConfig _config = null!;
         [Inject] private readonly SiraLog _logger = null!;
+        [Inject] private readonly RenderUtils _renderUtils = null!;
         [InjectOptional] private readonly HRDataManager? _hrDataManager;
 
         private bool _needs360Move;
@@ -101,10 +103,10 @@ namespace HRCounter
 
         private void OnHRUpdate(int bpm)
         {
-            _numbersText.text = _config.Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
+            _numbersText.text = _config.Colorize ? $"<color={_renderUtils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
         }
 
-        private void OnSettingChange(object? sender, EventArgs e)
+        private void OnSettingChange()
         {
             _logger.Info("Settings changed, updating counter location.");
             try

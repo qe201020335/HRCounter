@@ -1,6 +1,7 @@
 ﻿using CountersPlus.Counters.Custom;
 using HRCounter.Configuration;
 using HRCounter.Data;
+using HRCounter.Utils;
 using SiraUtil.Logging;
 using TMPro;
 using IPALogger = IPA.Logging.Logger;
@@ -19,6 +20,8 @@ namespace HRCounter
         [Inject] private readonly SiraLog _logger = null!;
 
         [InjectOptional] private readonly HRDataManager? _hrDataManager;
+
+        [Inject] private readonly RenderUtils _renderUtils = null!;
 
         private TMP_Text? _counter;
 
@@ -64,7 +67,7 @@ namespace HRCounter
             var canvas = CanvasUtility.GetCanvasFromID(Settings.CanvasID);
             if (canvas == null)
             {
-                Log.Logger.Warn("Cannot find counters+ canvas");
+                _logger.Warn("Cannot find counters+ canvas");
                 return false;
             }
 
@@ -98,7 +101,7 @@ namespace HRCounter
 
         private void OnHRUpdate(int bpm)
         {
-            _customCounterText.text = _config.Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
+            _customCounterText.text = _config.Colorize ? $"<color={_renderUtils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
         }
 
         public override void CounterDestroy()

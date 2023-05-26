@@ -12,8 +12,8 @@ namespace HRCounter
     {
         [Inject] private readonly PluginConfig _config = null!;
         [Inject] private readonly SiraLog _logger = null!;
-        [InjectOptional] private readonly ISongControl? _songControl;
-        [InjectOptional] private readonly HRDataManager? _hrDataManager;
+        [InjectOptional] private readonly ISongControl? _songControl = null;
+        [InjectOptional] private readonly HRDataManager? _hrDataManager = null;
 
         public void Initialize()
         {

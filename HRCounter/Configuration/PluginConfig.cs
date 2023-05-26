@@ -69,7 +69,7 @@ namespace HRCounter.Configuration
             z = 7f
         };
 
-        internal event EventHandler<EventArgs>? OnSettingsChanged;
+        internal event Action? OnSettingsChanged;
 
         public virtual void OnReload()
         {
@@ -77,7 +77,7 @@ namespace HRCounter.Configuration
             try
             {
                 var e = OnSettingsChanged;
-                Task.Factory.StartNew(() => { e?.Invoke(this, EventArgs.Empty); });
+                Task.Factory.StartNew(() => { e?.Invoke(); });
             }
             catch (Exception e)
             {

@@ -120,7 +120,7 @@ namespace HRCounter.UI
 
         private async void UpdateText()
         {
-            var source = DataSourceType.GetFromStr(PluginConfig.Instance.DataSource);
+            var source = DataSourceType.GetFromStr(_config.DataSource);
             modifiedText.text = source == null 
                 ? "Unknown Data Source"
                 : await source.GetSourceLinkText();

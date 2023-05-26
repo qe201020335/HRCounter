@@ -126,7 +126,7 @@ namespace HRCounter.Data
                     return "Token Not Set";
                 }
 
-                var status = await DataSourceUtils.CheckPulsoidToken();
+                var status = await DataSourceUtils.CheckPulsoidToken(PluginConfig.Instance.PulsoidToken);
                 return "Token Status: " + (status == "" ? "<color=#00FF00>OK</color>" : $"<color=#FF0000>{status}</color>");
             },
             () => GenericPrecondition(Config.PulsoidToken)

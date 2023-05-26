@@ -33,10 +33,10 @@ namespace HRCounter.Utils
         
         private const string PULSOID_VALIDATE = "https://dev.pulsoid.net/api/v1/token/validate";
 
-        internal static async Task<string> CheckPulsoidToken()
+        internal static async Task<string> CheckPulsoidToken(string token)
         {
             using var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {PluginConfig.Instance.PulsoidToken}");
+            httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}");
             try
             {
                 var res = await httpClient.GetAsync(PULSOID_VALIDATE);

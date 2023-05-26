@@ -1,4 +1,5 @@
 ﻿using HRCounter.Configuration;
+using HRCounter.Utils;
 using Zenject;
 
 namespace HRCounter.Installers
@@ -16,6 +17,7 @@ namespace HRCounter.Installers
         {
             Container.BindInstance(_config).AsSingle();
             Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<RenderUtils>().AsSingle().Lazy();
         }
     }
 }
