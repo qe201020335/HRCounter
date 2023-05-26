@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources;
+using SiraUtil.Logging;
 using Zenject;
 using IPALogger = IPA.Logging.Logger;
 
@@ -9,7 +10,9 @@ namespace HRCounter.Data
 {
     public class HRDataManager : IInitializable, IDisposable
     {
-        private static readonly IPALogger _logger = Log.Logger;
+        
+        [Inject] private readonly SiraLog _logger = null!;
+
         private static DataSource? _dataSource;
 
         internal HRDataManager(DataSource dataSource)
@@ -17,16 +20,7 @@ namespace HRCounter.Data
             _dataSource = dataSource;
         }
 
-        public static event Action<int>? OnHRUpdate;
-
-        internal static void ClearThings()
-        {
-            Log.Logger.Info("Clearing bpm downloader and all related event subscribers");
-            // _dataSource?.Stop();
-            _dataSource = null;
-
-            OnHRUpdate = null;
-        }
+        public event Action<int>? OnHRUpdate;
 
         public void Initialize()
         {
@@ -65,14 +59,8 @@ namespace HRCounter.Data
             // _dataSource = null;
         }
 
-        private static void OnHRUpdateInternalHandler(int hr)
+        private void OnHRUpdateInternalHandler(int hr)
         {
-            if (PluginConfig.Instance.AutoPause && hr >= PluginConfig.Instance.PauseHR)
-            {
-                Log.Logger.Info("Heart Rate too high! Pausing!");
-                GamePauseController.PauseGame();
-            }
-
             try
             {
                 Task.Factory.StartNew(() => { OnHRUpdate?.Invoke(hr); });

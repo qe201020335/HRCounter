@@ -3,6 +3,7 @@ using System.Linq;
 using HRCounter.Configuration;
 using HRCounter.Data;
 using JetBrains.Annotations;
+using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,23 +15,20 @@ namespace HRCounter
 {
     internal class HRCounterController : IInitializable, IDisposable
     {
-        private readonly GameplayCoreSceneSetupData? _sceneSetupData;
+        [InjectOptional] private readonly GameplayCoreSceneSetupData? _sceneSetupData = null;
+        [Inject] private readonly AssetBundleManager _assetBundleManager = null!;
+        [Inject] private readonly PluginConfig _config = null!;
+        [Inject] private readonly SiraLog _logger = null!;
+        [InjectOptional] private readonly HRDataManager? _hrDataManager;
 
         private bool _needs360Move;
 
         private GameObject _currentCanvas = null!;
         private TMP_Text _numbersText = null!;
-        private static bool Colorize => PluginConfig.Instance.Colorize;
-        private readonly IPALogger _logger = Log.Logger;
-
-        internal HRCounterController([InjectOptional] GameplayCoreSceneSetupData gameplayCoreSceneSetupData)
-        {
-            _sceneSetupData = gameplayCoreSceneSetupData;
-        }
 
         public void Initialize()
         {
-            if (!PluginConfig.Instance.ModEnable)
+            if (!_config.ModEnable)
             {
                 return;
             }
@@ -41,9 +39,15 @@ namespace HRCounter
                 return;
             }
 
-            if (PluginConfig.Instance.HideDuringReplay && Utils.Utils.IsInReplay())
+            if (_config.HideDuringReplay && Utils.Utils.IsInReplay())
             {
                 _logger.Info("We are in a replay, HRCounter hides.");
+                return;
+            }
+
+            if (_hrDataManager == null)
+            {
+                Plugin.Log.Warn("HRDataManager is null");
                 return;
             }
 
@@ -56,22 +60,25 @@ namespace HRCounter
                 return;
             }
 
+            _hrDataManager.OnHRUpdate -= OnHRUpdate;
+            _hrDataManager.OnHRUpdate += OnHRUpdate;
+            _config.OnSettingsChanged += OnSettingChange;
+            
             _logger.Info("HRCounter Initialized");
         }
 
         private bool CreateCounter()
         {
             _logger.Info("Creating HRCounter");
-            var counter = AssetBundleManager.SetupCustomCounter();
-
-            _currentCanvas = counter.CurrentCanvas;
-            _numbersText = counter.Numbers;
-
-            if (_currentCanvas == null)
+            var counter = _assetBundleManager.SetupCustomCounter();
+            if (!counter.IsNotNull())
             {
-                _logger.Error("Cannot create custom counter");
+                _logger.Warn("No Counter asset is loaded!");
                 return false;
             }
+
+            _currentCanvas = counter.Counter!;
+            _numbersText = counter.Numbers!;
 
             _currentCanvas.transform.localScale = Vector3.one / 150;
 
@@ -80,7 +87,7 @@ namespace HRCounter
             if (!_needs360Move)
             {
                 // Place our Canvas in a Static Location
-                var location = PluginConfig.Instance.StaticCounterPosition;
+                var location = _config.StaticCounterPosition;
                 _currentCanvas.transform.position = new Vector3(location.x, location.y, location.z);
                 _currentCanvas.transform.rotation = Quaternion.identity;
             }
@@ -89,39 +96,40 @@ namespace HRCounter
                 // Attach it to the FlyingHUD
                 _currentCanvas.AddComponent<MapMover>();
             }
-
-            HRDataManager.OnHRUpdate += OnHRUpdate;
-            PluginConfig.Instance.OnSettingsChanged += OnSettingChange;
             return true;
         }
 
         private void OnHRUpdate(int bpm)
         {
-            _numbersText.text = Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
+            _numbersText.text = _config.Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
         }
 
         private void OnSettingChange(object? sender, EventArgs e)
         {
-            Log.Logger.Info("Settings changed, updating counter location.");
+            _logger.Info("Settings changed, updating counter location.");
             try
             {
                 if (!_needs360Move)
                 {
-                    var location = PluginConfig.Instance.StaticCounterPosition;
+                    var location = _config.StaticCounterPosition;
                     _currentCanvas.transform.position = new Vector3(location.x, location.y, location.z);
                 }
             }
             catch (Exception exception)
             {
-                Log.Logger.Warn($"Exception Caught during counter location update");
-                Log.Logger.Warn(exception);
+                _logger.Warn($"Exception Caught during counter location update");
+                _logger.Warn(exception);
             }
         }
 
         public void Dispose()
         {
-            HRDataManager.OnHRUpdate -= OnHRUpdate;
-            PluginConfig.Instance.OnSettingsChanged -= OnSettingChange;
+            if (_hrDataManager != null)
+            {
+                _hrDataManager.OnHRUpdate -= OnHRUpdate;
+            }
+            
+            _config.OnSettingsChanged -= OnSettingChange;
 
             if (_currentCanvas != null)
             {

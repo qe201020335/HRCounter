@@ -162,6 +162,8 @@
     <Compile Include="GamePauseController.cs" />
     <Compile Include="HRCounterCountersPlus.cs" />
     <Compile Include="HRCounterController.cs" />
+    <Compile Include="Installers\AppInstaller.cs" />
+    <Compile Include="Installers\MenuInstaller.cs" />
     <Compile Include="Installers\GamePauseInstaller.cs" />
     <Compile Include="Installers\GameplayCoreInstaller.cs" />
     <Compile Include="Installers\GameplayHeartRateInstaller.cs" />
@@ -171,9 +173,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\ConfigViewFlowCoordinator.cs" />
     <Compile Include="UI\CountersPlus\SettingController.cs" />
+    <Compile Include="UI\MenuButtonManager.cs" />
     <Compile Include="UI\SettingMenuController.cs" />
     <Compile Include="Utils\DataSourceUtils.cs" />
     <Compile Include="Utils\Extensions.cs" />
+    <Compile Include="Utils\RenderUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

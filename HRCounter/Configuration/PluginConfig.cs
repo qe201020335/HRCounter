@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using HRCounter.Data;
 using IPA.Config.Stores;
-using IPA.Config.Stores.Attributes;
 using Newtonsoft.Json;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
@@ -12,6 +11,7 @@ namespace HRCounter.Configuration
 {
     internal class PluginConfig
     {
+        [Obsolete]
         public static PluginConfig Instance { get; set; }
         // Must be 'virtual' if you want BSIPA to detect a value change and save the config automatically.
 

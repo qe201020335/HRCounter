@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 
 namespace HRCounter.Data.DataSources
 {
-    internal sealed class YURApp: DataSource
+    internal sealed class YURApp: DataSourceInternal
     {
         private const string HOST = "127.0.0.1";
         private const int PORT = 11010;

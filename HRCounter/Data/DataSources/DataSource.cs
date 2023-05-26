@@ -6,10 +6,6 @@ namespace HRCounter.Data.DataSources
 {
     public abstract class DataSource
     {
-        protected readonly IPALogger Logger = Log.Logger;
-
-        // private static PluginConfig Config => PluginConfig.Instance;
-
         internal event Action<int>? OnHRUpdate;
 
         protected void OnHearRateDataReceived(int hr, string? receivedAt = null)

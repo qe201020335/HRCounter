@@ -4,7 +4,7 @@ using YUR.Fit.Unity;
 
 namespace HRCounter.Data.DataSources
 {
-    internal sealed class YURMod : DataSource
+    internal sealed class YURMod : DataSourceInternal
     {
         protected internal override void Start()
         {

@@ -1,16 +1,18 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using HRCounter.Configuration;
 using HRCounter.Data;
-using HRCounter.Utils;
+using Zenject;
 
 namespace HRCounter.UI.CountersPlus
 {
     // setting controller for Counters+ counter configuration page
     internal class SettingController
     {
+        [Inject]
+        private readonly PluginConfig _config = null!;
+        
         [UIValue("data-source-info-text")]
         private string dataSourceInfo
         {
@@ -19,7 +21,7 @@ namespace HRCounter.UI.CountersPlus
                 Task.Factory.StartNew(async () =>
                 {
                     await Task.Delay(100);
-                    var source = DataSourceType.GetFromStr(PluginConfig.Instance.DataSource);
+                    var source = DataSourceType.GetFromStr(_config.DataSource);
                     _tmpText.text = source == null 
                         ? "Unknown Data Source"
                         : await source.GetSourceLinkText();
@@ -32,6 +34,6 @@ namespace HRCounter.UI.CountersPlus
         [UIComponent("data-source-info-text")] private TextMeshProUGUI _tmpText;
 
         [UIValue("data-source-text")]
-        private string dataSource => $"Current DataSource: {PluginConfig.Instance.DataSource}";
+        private string dataSource => $"Current DataSource: {_config.DataSource}";
     }
 }

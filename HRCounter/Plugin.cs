@@ -16,11 +16,7 @@ namespace HRCounter
         internal static Plugin Instance { get; private set; } = null!;
         internal static IPALogger Log { get; private set; } = null!;
         
-        private readonly MenuButton _menuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick);
-
-        private UI.ConfigViewFlowCoordinator? _configViewFlowCoordinator;
-        
-        private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
+        // private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
 
 
         [Init]
@@ -29,37 +25,20 @@ namespace HRCounter
             Instance = this;
             global::HRCounter.Log.Logger = logger;
             Log = logger;
-            Log.Info("HRCounter initialized.");
-            Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
+            var config = conf.Generated<Configuration.PluginConfig>();
+            Configuration.PluginConfig.Instance = config;
             Log.Debug("Config loaded");
-            AssetBundleManager.LoadAssetBundle();
+            zenject.UseLogger(logger);
+            zenject.UseMetadataBinder<Plugin>();
+            
+            zenject.Install<AppInstaller>(Location.App, config);
+            zenject.Install<MenuInstaller>(Location.Menu);
             zenject.Install<GameplayHearRateInstaller>(Location.Player);
             zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);
             // we don't want to popup the pause menu during multiplayer, that's not gonna help anything!
             zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer); 
             
-            Log.Debug("Installers!");
-        }
-        
-        [OnStart]
-        public void OnStart() {
-            MenuButtons.instance.RegisterButton(_menuButton);
-            HRDataManager.ClearThings();
-        }
-
-        [OnExit]
-        public void OnExit()
-        {
-            MenuButtons.instance.UnregisterButton(_menuButton);
-        }
-
-        private static void OnMenuButtonClick()
-        {
-            if (Instance._configViewFlowCoordinator == null)
-            {
-                Instance._configViewFlowCoordinator = BeatSaberUI.CreateFlowCoordinator<UI.ConfigViewFlowCoordinator>();
-            }
-            BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(Instance._configViewFlowCoordinator);
+            Log.Info("HRCounter initialized.");
         }
     }
 }

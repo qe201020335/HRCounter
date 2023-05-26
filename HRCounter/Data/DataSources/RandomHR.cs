@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace HRCounter.Data.DataSources
 {
-    internal class RandomHR : DataSource
+    internal class RandomHR : DataSourceInternal
     {
         private bool _updating = false;
 
