@@ -1,12 +1,8 @@
-using System;
 using System.Linq;
 using IPALogger = IPA.Logging.Logger;
 using System.Reflection;
 using HarmonyLib;
-using HRCounter.Configuration;
-using UnityEngine;
 using IPA.Loader;
-using Version = Hive.Versioning.Version;
 
 namespace HRCounter.Utils
 {
