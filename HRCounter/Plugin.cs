@@ -1,6 +1,3 @@
-using BeatSaberMarkupLanguage.MenuButtons;
-using BeatSaberMarkupLanguage;
-using HRCounter.Data;
 using IPA;
 using IPA.Config.Stores;
 using SiraUtil.Zenject;
@@ -32,15 +29,12 @@ namespace HRCounter
             zenject.UseMetadataBinder<Plugin>();
             
             zenject.Install<AppInstaller>(Location.App, config);
+            zenject.Install<MenuInstaller>(Location.Menu);
             zenject.Install<GameplayHearRateInstaller>(Location.Player);
             zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);
             // we don't want to popup the pause menu during multiplayer, that's not gonna help anything!
-            zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer); 
+            zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer);
             
-            if (Utils.Utils.IsModEnabled("BeatSaberMarkupLanguage"))
-            {
-                zenject.Install<MenuInstaller>(Location.Menu);
-            }
             
             Log.Info("HRCounter initialized.");
         }
