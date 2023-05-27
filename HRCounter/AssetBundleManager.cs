@@ -35,6 +35,7 @@ namespace HRCounter
                 // Load the AssetBundle
                 var bundle = AssetBundle.LoadFromStream(resourceStream);
                 CounterPrefab = bundle.LoadAsset<GameObject>("Assets/HRCounter.prefab");
+                bundle.Unload(false);
                 if (CounterPrefab == null)
                 {
                     throw new NullReferenceException("The counter prefab is null!");
