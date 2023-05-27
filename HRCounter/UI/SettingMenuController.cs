@@ -120,6 +120,8 @@ namespace HRCounter.UI
 
         private async void UpdateText()
         {
+            modifiedText.text = "Loading Data Source Info...";
+            await Task.Delay(100);
             var source = DataSourceType.GetFromStr(_config.DataSource);
             modifiedText.text = source == null 
                 ? "Unknown Data Source"
