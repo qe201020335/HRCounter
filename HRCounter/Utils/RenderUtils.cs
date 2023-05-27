@@ -13,8 +13,11 @@ namespace HRCounter.Utils
             new Lazy<Material>(() => Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(x => x.name == "UINoGlow"));
 
         private static Lazy<Shader> _textNoGlow = new Lazy<Shader>(() => Shader.Find("TextMeshPro/Mobile/Distance Field Zero Alpha Write"));
+
+        private static Lazy<Shader> _textGlow = new Lazy<Shader>(() => Shader.Find("TextMeshPro/Mobile/Distance Field"));
         public static Material UINoGlow => _uiNoGlow.Value;
         public static Shader TextNoGlow => _textNoGlow.Value;
+        public static Shader TextGlow => _textGlow.Value;
 
         private readonly PluginConfig _config;
         private readonly SiraLog _logger;

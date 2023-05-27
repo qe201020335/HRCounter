@@ -81,6 +81,10 @@ namespace HRCounter
             {
                 numbers.fontMaterial.shader = RenderUtils.TextNoGlow;
             }
+            else
+            {
+                numbers.fontMaterial.shader = RenderUtils.TextGlow;
+            }
 
             return new CustomCounter
             {
