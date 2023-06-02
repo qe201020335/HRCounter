@@ -1,0 +1,52 @@
+a {
+  color: #c8b4db;
+}
+
+button {
+  border: 2px solid #8fa1b2;
+  background: #525c66;
+  color: whitesmoke;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: whitesmoke;
+  color: #525c66;
+}
+
+#main {
+  background-color: #1f2831;
+  padding: 25px;
+  border-radius: 5px;
+  display: inline-block;
+  line-height: 200%;
+}
+
+#source-select {
+  border-radius: 2px;
+  background: #525c66;
+  color: whitesmoke;
+}
+
+#source-info-input {
+  border-radius: 2px;
+  background: #525c66;
+  color: whitesmoke;
+  border: 1px solid black;
+}
+
+#data-source-hint {
+  min-height: 1em;
+}
+
+#submit {
+  font-size: larger;
+}
+
+#credits {
+  padding-left: 25px;
+  font-size: smaller;
+  color: gray;
+}
+

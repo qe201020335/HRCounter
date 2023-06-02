@@ -1,0 +1,20 @@
+{
+  "short_name": "HRCounter Configurator",
+  "name": "HRCounter Config Generator and Editor",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "hrcounter.png",
+      "type": "image/png",
+      "sizes": "256x256"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
