@@ -101,7 +101,8 @@ namespace HRCounter
 
         private void OnHRUpdate(int bpm)
         {
-            _customCounterText.text = _config.Colorize ? $"<color={_renderUtils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
+            _customCounterText.color = _config.Colorize ? _renderUtils.DetermineColor(bpm) : Color.white;
+            _customCounterText.text = bpm.ToString();
         }
 
         public override void CounterDestroy()

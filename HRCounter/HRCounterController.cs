@@ -103,7 +103,8 @@ namespace HRCounter
 
         private void OnHRUpdate(int bpm)
         {
-            _numbersText.text = _config.Colorize ? $"<color={_renderUtils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
+            _numbersText.color = _config.Colorize ? _renderUtils.DetermineColor(bpm) : Color.white;
+            _numbersText.text = bpm.ToString();
         }
 
         private void OnSettingChange()

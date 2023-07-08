@@ -167,8 +167,11 @@ namespace HRCounter.Data
 
 #if DEBUG
 
-        private const string RANDOM_STR = "Random";
-        internal static DataSourceType Random = NewAndAppend<RandomHR>(RANDOM_STR, false, () => "debug lul", () => true);
+        private const string DEBUG_RANDOM_STR = "Random Debug";
+        internal static DataSourceType Random = NewAndAppend<RandomHR>(DEBUG_RANDOM_STR, false, () => "debug lul", () => true);
+        
+        private const string DEBUG_SWEEP_STR = "Sweep Debug";
+        internal static DataSourceType Sweep = NewAndAppend<SweepHR>(DEBUG_SWEEP_STR, false, () => "debug lulul", () => true);
 
 #endif
 

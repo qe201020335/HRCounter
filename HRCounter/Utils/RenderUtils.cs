@@ -48,42 +48,29 @@ namespace HRCounter.Utils
 
         private void OnConfigChanged()
         {
+            _logger.Info("Config changed, updating colors");
             if (ColorUtility.TryParseHtmlString(_config.HighColor, out var colorHigh)) _highColor = colorHigh;
             if (ColorUtility.TryParseHtmlString(_config.LowColor, out var colorLow)) _lowColor = colorLow;
-            if (ColorUtility.TryParseHtmlString(_config.HighColor, out var colorMid))  _midColor = colorMid;
-            
+            if (ColorUtility.TryParseHtmlString(_config.MidColor, out var colorMid)) _midColor = colorMid;
+
             _hrLow = _config.HRLow;
             _hrHigh = _config.HRHigh;
+            _logger.Debug($"{_lowColor}:{_midColor}:{_highColor}, {_hrLow}:{_hrHigh}");
         }
 
-        internal string DetermineColor(int hr)
+        internal Color DetermineColor(int hr)
         {
-            var result = Color.white;
             if (_hrHigh >= _hrLow && _hrLow > 0 && _lowColor != null && _highColor != null && _midColor != null)
             {
-                if (hr <= _hrLow)
-                {
-                    result = _lowColor.Value; //the rgb color in setting are #RRGGBB, need to omit the #
-                }
-                else if (hr >= _hrHigh)
-                {
-                    result = _highColor.Value;
-                }
-                else
-                {
-                    var ratio = (hr - _hrLow) / (float)(_hrHigh - _hrLow) * 2;
-                    var color = ratio < 1
-                        ? Color.Lerp(_lowColor.Value, _midColor.Value, ratio)
-                        : Color.Lerp(_midColor.Value, _highColor.Value, ratio - 1);
-                    result = color;
-                }
-            }
-            else
-            {
-                _logger.Warn("Cannot determine color, please check hr boundaries and color codes.");
+                var ratio = (hr - _hrLow) / (float)(_hrHigh - _hrLow) * 2;
+                var color = ratio < 1
+                    ? Color.Lerp(_lowColor.Value, _midColor.Value, ratio)
+                    : Color.Lerp(_midColor.Value, _highColor.Value, ratio - 1);
+                return color;
             }
 
-            return "#" + ColorUtility.ToHtmlStringRGB(result);
+            _logger.Warn("Cannot determine color, please check hr boundaries and color codes.");
+            return Color.white;
         }
     }
 }
