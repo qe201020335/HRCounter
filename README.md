@@ -1,5 +1,5 @@
 # HRCounter
-A Beat Saber custom counter that displays your heart rate in game.
+A Beat Saber custom counter that displays your heart rate in-game.
 
 ![HR Counter 2.0](https://i.imgur.com/ybzx4gI.jpg)
 
@@ -22,22 +22,24 @@ Alternatively, you can also download them from their own site.
 * [YUR Desktop App](https://store.steampowered.com/app/1188920/YUR/) (Optional, install if you want to enable YUR App support)
 
 ## HOW TO INSTALL
-**Make sure all the required mods are working correctly brfore installing this mod!**
-## First Time Install/Configure
-### Auto Config Generator for Pulsoid and HypeRate
+> [!IMPORTANT]  
+> Make sure all the required mods are working correctly before installing this mod!
+
+### First-Time Install/Configure
+#### Auto Config Generator for Pulsoid and HypeRate
 1. Head over to the [**Config Generator**](https://hrcounter.skyqe.net/) and download the mod with config included.
 2. Extract the files into your `Beat Saber` game directory.
-3. Run the game and read instruction below if don't know how to use it.
+3. Run the game and read [HOW TO USE](#how-to-use) if you don't know how to use it.
 
-### Manual Config Editing
+#### Manual Config Editing
 1. Download the [latest release](https://github.com/qe201020335/HRCounter/releases/latest) and extract the files into your `Beat Saber` game directory.
 2. Run the game once
-3. Depend on your devices, follow the instructions below to configure the auto generated config file.
-4. Run the game and read instruction below if don't know how to use it.
+3. Depending on your devices, follow the instructions below to configure the auto-generated config file.
+4. Run the game and read [HOW TO USE](#how-to-use) if you don't know how to use it.
 
 The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad to open and edit it.
 
-## Update from Old Versions
+### Update from Old Versions
 1. Download the [latest release](https://github.com/qe201020335/HRCounter/releases/latest) and extract the files into your `Beat Saber` game directory.
 2. Choose Overwrite if asked.
 3. Done!
@@ -45,20 +47,20 @@ The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad 
 ## HOW TO USE
 1. Install or update it first. Instructions [above](#how-to-install).
 2. **If you are using Counters+, enable this counter in Counter+'s counter configuration page**
-3. Checkout the full configuration page of the mod under the "HRCounter" button in the main menu mods section.
-4. Toggle on **Auto Pause** in the "Health & Safty" tab if you want the mod to pause the game for you. Also set the **Pause Heart Rate** for yourself!
+3. Check out the full configuration page of the mod under the "HRCounter" button in the main menu mods section.
+4. Toggle on **Auto Pause** in the "Health & Safety" tab if you want the mod to pause the game for you. Also, set the **Pause Heart Rate** for yourself!
 
 ## DATA SOURCES
 ### Pulsoid
-If first time configure, checkout [**Config Generator**](https://hrcounter.skyqe.net/) to download mod with config included.
+If first time configure, check out [**Config Generator**](https://hrcounter.skyqe.net/) to download the mod with config included.
 #### Pulsoid Token (Recommended)
 1. Get you self a token [**HERE**](https://pulsoid.net/oauth2/authorize?response_type=token&client_id=0025a50e-9449-4aa5-9c68-36d2903cb6a5&redirect_uri=&scope=data:heart_rate:read&state=&response_mode=web_page) for free or [**HERE if you are a BRO**](https://pulsoid.net/ui/keys).
 2. Keep that token in a safe place because it will not expire in a short time. You can always reuse the token in the future.
-3. Paste the token in the config file as below and set the value of `DataSource` to `Pulsoid Token`
+3. Paste the token in the config file as below and set the value of `DataSource` to `Pulsoid Token`.
 ![pulsoid token config screenshot](https://i.imgur.com/lEUzf8D.png)
 
 ### HypeRate
-If first time configure, checkout [**Config Generator**](https://hrcounter.skyqe.net/) to download mod with config included.
+If first time configure, checkout [**Config Generator**](https://hrcounter.skyqe.net/) to download the mod with config included.
 
 1. In the HypeRate app on your phone or watch, there is the session ID, which is also the few hex digits at the end of your overlay link.
 2. Change the value of `HypeRateSessionID` to yours in the config file.
@@ -67,7 +69,10 @@ If first time configure, checkout [**Config Generator**](https://hrcounter.skyqe
 For example, if your overlay link is `https://app.hyperate.io/12ab`, then your session ID is `12ab` and the config will look like `"HypeRateSessionID": "12ab"`
 
 ### Fitbit
+#### Pulsoid Support (Recommended!)
+Check if your device supports [Pulsoid](https://pulsoid.net/)! If so, follow the instructions for Pulsoid [above](#Pulsoid).
 
+#### FitbitHRtoWS
 For support on how to set up FitbitHRtoWS, please ask for help in [200Tigersbloxed's Discord server](https://www.fortnite.lol/discord)
 1. Follow the instruction on [FitbitHRtoWS](https://github.com/200Tigersbloxed/FitbitHRtoWS/wiki/Setup) and set up your heart rate broadcast.
 2. Change the value of `FitbitWebSocket` to `"ws://YOUR_IP:YOUR_PORT/"`.
@@ -91,20 +96,19 @@ There are 2 options
 1. Download [HypeRate](https://www.hyperate.io/#download) on your iPhone and Apple Watch.
 2. Follow instructions for HypeRate [above](#HypeRate)
 
-Note: You need to have testflight since HypeRate is still in beta.
-
 
 ### WearOS Smart Watch
-There are 2 options.
-1. Use [Heart for Bluetooth](https://play.google.com/store/apps/details?id=lukas.the.coder.heartforbluetooth) on your watch and use it as a BLE heart rate monitor. Then follow the instructions for BLE Compatible HR Monitor [above](#ble-compatible-hr-monitor)
-2. Install [HypeRate](https://hyperate.io/) on your watch which you can download it on the [play store](https://play.google.com/store/apps/details?id=de.locxserv.hyperatewearos) and follow instructions for HypeRate [above](#HypeRate)
+There are 3 options.
+1. Check if your WearOS device is supported by [Pulsoid](https://pulsoid.net/)! If so, follow the instructions for Pulsoid [above](#Pulsoid).
+2. Use [Heart for Bluetooth](https://play.google.com/store/apps/details?id=lukas.the.coder.heartforbluetooth) on your watch and use it as a BLE heart rate monitor. Then follow the instructions for BLE Compatible HR Monitor [above](#ble-compatible-hr-monitor)
+3. Install [HypeRate](https://hyperate.io/) on your watch, which you can download on the [play store](https://play.google.com/store/apps/details?id=de.locxserv.hyperatewearos) and follow instructions for HypeRate [above](#HypeRate)
 
 Depending on your watch, monitoring quality may not be as good as a dedicated heart rate monitor. 
 
 ### Galaxy Watch
 1. Use [HeartRateToWeb](https://github.com/loic2665/HeartRateToWeb) and [this](https://galaxystore.samsung.com/geardetail/tUhSWQRbmv) app on your watch.
 2. Follow the instrucrion on [their github page](https://github.com/loic2665/HeartRateToWeb) to set up heart rate broadcast. Make sure you download the [**first**](https://github.com/loic2665/HeartRateToWeb/releases/tag/v1.0.0) realease, the csharp one is bugged (filelock issue, and requires admin for no reason).
-3. Make sure your watch and your computer is on the **SAME** network.
+3. Ensure your watch and computer are on the **SAME** network.
 4. Use [from /hr endpoint](https://github.com/loic2665/HeartRateToWeb#from-hr-endpoint) in the [OBS](https://github.com/loic2665/HeartRateToWeb#obs) section of HeartRateToWeb instructions.
     - Enter the feedlink as `http://YOUR_IP:YOUR_PORT/hr`
     - For example `"FeedLink": "http://192.168.1.100:6547/hr",`
