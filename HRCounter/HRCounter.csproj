@@ -165,6 +165,7 @@
     <Compile Include="HRCounterCountersPlus.cs" />
     <Compile Include="HRCounterController.cs" />
     <Compile Include="Installers\AppInstaller.cs" />
+    <Compile Include="Installers\BSMLInstaller.cs" />
     <Compile Include="Installers\MenuInstaller.cs" />
     <Compile Include="Installers\GamePauseInstaller.cs" />
     <Compile Include="Installers\GameplayCoreInstaller.cs" />

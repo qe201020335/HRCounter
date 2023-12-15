@@ -14,6 +14,8 @@ namespace HRCounter
         internal static IPALogger Log { get; private set; } = null!;
         
         // private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
+        
+        internal static bool BSMLInstalled { get; private set; } = false;
 
 
         [Init]
@@ -37,6 +39,12 @@ namespace HRCounter
             
             
             Log.Info("HRCounter initialized.");
+        }
+        
+        [OnStart]
+        public void OnEnable()
+        {
+            BSMLInstalled = Utils.Utils.IsModEnabled("BeatSaberMarkupLanguage");
         }
     }
 }

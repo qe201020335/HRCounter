@@ -1,19 +1,22 @@
-﻿using System;
-using HRCounter.UI;
+﻿using SiraUtil.Logging;
 using Zenject;
 
 namespace HRCounter.Installers
 {
     public class MenuInstaller: Installer<MenuInstaller>
     {
-        private static readonly Type? MenuControllerType = Type.GetType("HRCounter.UI.SettingMenuController");
+        [Inject] private readonly SiraLog _logger = null!; 
+        
         public override void InstallBindings()
         {
-            if (Utils.Utils.IsModEnabled("BeatSaberMarkupLanguage"))
+            if (Plugin.BSMLInstalled)
             {
-                Container.BindInterfacesAndSelfTo(MenuControllerType!).FromNewComponentAsViewController().AsSingle();
-                Container.BindInterfacesAndSelfTo<ConfigViewFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
-                Container.BindInterfacesAndSelfTo<MenuButtonManager>().AsSingle();
+                _logger.Debug("BSML is installed, installing the menus");
+                Container.Install<BSMLInstaller>();
+            }
+            else
+            {
+                _logger.Warn("BSML is not installed, not installing the menus");
             }
         }
     }
