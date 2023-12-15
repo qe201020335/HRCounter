@@ -20,7 +20,11 @@ namespace HRCounter.Installers
             if (_config.AutoPause)
             {
                 _logger.Debug("Binging game pause");
-                Container.BindInterfacesAndSelfTo<GamePauseController>().AsSingle().NonLazy();
+                Container
+                    .BindInterfacesAndSelfTo<GamePauseController>()
+                    .FromNewComponentOnNewGameObject()
+                    .WithGameObjectName($"HRCounter {nameof(GamePauseController)}")
+                    .AsSingle();
             }
         }
     }
