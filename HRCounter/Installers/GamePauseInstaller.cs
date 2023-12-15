@@ -1,22 +1,26 @@
 ﻿using HRCounter.Configuration;
 using HRCounter.Utils;
+using SiraUtil.Logging;
 using Zenject;
 
 namespace HRCounter.Installers
 {
     public class GamePauseInstaller : Installer<GamePauseInstaller>
     {
+        [Inject] private readonly PluginConfig _config = null!;
+        [Inject] private readonly SiraLog _logger = null!;
+
         public override void InstallBindings()
         {
-            if (!PluginConfig.Instance.ModEnable)
+            if (!_config.ModEnable)
             {
                 return;
             }
-            if (PluginConfig.Instance.AutoPause)
+
+            if (_config.AutoPause)
             {
-                Logger.logger.Debug("Binging game pause");
+                _logger.Debug("Binging game pause");
                 Container.BindInterfacesAndSelfTo<GamePauseController>().AsSingle().NonLazy();
-                Logger.logger.Debug("Game pause bound");
             }
         }
     }

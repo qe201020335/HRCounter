@@ -1,37 +1,49 @@
 ﻿using System;
 using System.Collections;
 using HRCounter.Configuration;
+using HRCounter.Data;
+using SiraUtil.Logging;
 using SiraUtil.Tools.SongControl;
 using Zenject;
 
 namespace HRCounter
 {
-    internal class GamePauseController : IDisposable
+    internal class GamePauseController : IInitializable, IDisposable
     {
-        private static ISongControl _songControl;
+        [Inject] private readonly PluginConfig _config = null!;
+        [Inject] private readonly SiraLog _logger = null!;
+        [InjectOptional] private readonly ISongControl? _songControl = null;
+        [InjectOptional] private readonly HRDataManager? _hrDataManager = null;
 
-        internal GamePauseController([InjectOptional] ISongControl songControl)
+        public void Initialize()
         {
-            _songControl = songControl;
+            if (_hrDataManager != null)
+            {
+                _hrDataManager.OnHRUpdate -= OnHRUpdate;
+                _hrDataManager.OnHRUpdate += OnHRUpdate;
+            }
         }
 
         public void Dispose()
         {
-            _songControl = null;
-            Logger.logger.Debug("SongControl got yeeted.");
+            if (_hrDataManager != null)
+            {
+                _hrDataManager.OnHRUpdate -= OnHRUpdate;
+            }
+            _logger.Debug("SongControl got yeeted.");
+        }
+
+        private void OnHRUpdate(int hr)
+        {
+            if (hr >= _config.PauseHR)
+            {
+                _logger.Info("Heart Rate too high! Pausing!");
+                PauseGame();
+            }
         }
         
-        internal static void PauseGame()
+        internal void PauseGame()
         {
-            if (!PluginConfig.Instance.ModEnable)
-            {
-                return;
-            }
-            if (!PluginConfig.Instance.AutoPause)
-            {
-                return;
-            }
-
             if (_songControl != null && !_songControl.IsPaused)
             {
                 // have to do this or some wierd stuff could be broken in some other pause menu related mods
@@ -40,10 +52,10 @@ namespace HRCounter
             }
         }
 
-        private static IEnumerator Pause()
+        private IEnumerator Pause()
         {
             yield return null;
-            _songControl.Pause();
+            _songControl?.Pause();
         }
     }
 }

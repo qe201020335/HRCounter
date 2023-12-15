@@ -6,8 +6,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   padding: 25px;
-  background-color: #1b1b1b;
-  color: #8fa1b2;
+  /*background-color: #1b1b1b;*/
+  /*color: #8fa1b2;*/
 
   line-height: 20px;
 }

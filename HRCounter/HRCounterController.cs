@@ -2,8 +2,9 @@
 using System.Linq;
 using HRCounter.Configuration;
 using HRCounter.Data;
-using HRCounter.Events;
+using HRCounter.Utils;
 using JetBrains.Annotations;
+using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,42 +16,44 @@ namespace HRCounter
 {
     internal class HRCounterController : IInitializable, IDisposable
     {
+        [InjectOptional] private readonly GameplayCoreSceneSetupData? _sceneSetupData = null;
+        [Inject] private readonly AssetBundleManager _assetBundleManager = null!;
+        [Inject] private readonly PluginConfig _config = null!;
+        [Inject] private readonly SiraLog _logger = null!;
+        [Inject] private readonly RenderUtils _renderUtils = null!;
+        [InjectOptional] private readonly HRDataManager? _hrDataManager;
 
-        [CanBeNull] private readonly GameplayCoreSceneSetupData _sceneSetupData;
+        private bool _needs360Move;
 
-        private bool _needs360Move = false;
-        
-        private GameObject CurrentCanvas;
-        private TMP_Text Numbers;
-        private static bool Colorize => PluginConfig.Instance.Colorize;
-        private readonly IPALogger _logger = Logger.logger;
-
-        
-        internal HRCounterController([InjectOptional] GameplayCoreSceneSetupData gameplayCoreSceneSetupData)
-        {
-            _sceneSetupData = gameplayCoreSceneSetupData;
-        }
+        private GameObject _currentCanvas = null!;
+        private TMP_Text _numbersText = null!;
 
         public void Initialize()
         {
-            if (!PluginConfig.Instance.ModEnable)
+            if (!_config.ModEnable)
             {
                 return;
             }
+
             if (_sceneSetupData == null)
             {
                 Plugin.Log.Warn("GameplayCoreSceneSetupData is null");
                 return;
             }
-            
-            if (PluginConfig.Instance.HideDuringReplay && Utils.Utils.IsInReplay())
+
+            if (_config.HideDuringReplay && Utils.Utils.IsInReplay())
             {
                 _logger.Info("We are in a replay, HRCounter hides.");
                 return;
             }
-            
-            _needs360Move = _sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic
-                .requires360Movement;
+
+            if (_hrDataManager == null)
+            {
+                Plugin.Log.Warn("HRDataManager is null");
+                return;
+            }
+
+            _needs360Move = _sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.requires360Movement;
             Plugin.Log.Info($"360/90?: {_needs360Move}");
 
             if (!CreateCounter())
@@ -58,6 +61,10 @@ namespace HRCounter
                 _logger.Warn("Cannot create HRCounter");
                 return;
             }
+
+            _hrDataManager.OnHRUpdate -= OnHRUpdate;
+            _hrDataManager.OnHRUpdate += OnHRUpdate;
+            _config.OnSettingsChanged += OnSettingChange;
             
             _logger.Info("HRCounter Initialized");
         }
@@ -65,71 +72,72 @@ namespace HRCounter
         private bool CreateCounter()
         {
             _logger.Info("Creating HRCounter");
-            var counter = AssetBundleManager.SetupCustomCounter();
-
-            CurrentCanvas = counter.CurrentCanvas;
-            Numbers = counter.Numbers;
-            
-            if (CurrentCanvas == null)
+            var counter = _assetBundleManager.SetupCustomCounter();
+            if (!counter.IsNotNull())
             {
-                _logger.Error("Cannot create custom counter");
+                _logger.Warn("No Counter asset is loaded!");
                 return false;
             }
-            
-            CurrentCanvas.transform.localScale = Vector3.one / 150;
-            
-            OnHRUpdate(null, new HRUpdateEventArgs(BPM.Instance.Bpm));  // give it an initial value
+
+            _currentCanvas = counter.Counter!;
+            _numbersText = counter.Numbers!;
+
+            _currentCanvas.transform.localScale = Vector3.one / 150;
+
+            OnHRUpdate(BPM.Bpm); // give it an initial value
 
             if (!_needs360Move)
             {
                 // Place our Canvas in a Static Location
-                var location = PluginConfig.Instance.StaticCounterPosition;
-                CurrentCanvas.transform.position = new Vector3(location.x, location.y, location.z);
-                CurrentCanvas.transform.rotation = Quaternion.identity;
+                var location = _config.StaticCounterPosition;
+                _currentCanvas.transform.position = new Vector3(location.x, location.y, location.z);
+                _currentCanvas.transform.rotation = Quaternion.identity;
             }
             else
             {
                 // Attach it to the FlyingHUD
-                CurrentCanvas.AddComponent<MapMover>();
+                _currentCanvas.AddComponent<MapMover>();
             }
-            HRController.OnHRUpdate += OnHRUpdate;
-            PluginConfig.Instance.OnSettingsChanged += OnSettingChange;
             return true;
         }
 
-        private void OnHRUpdate(object sender, HRUpdateEventArgs args)
+        private void OnHRUpdate(int bpm)
         {
-            var bpm = args.HeartRate;
-            Numbers.text = Colorize ? $"<color=#{Utils.Utils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
+            _numbersText.text = _config.Colorize ? $"<color={_renderUtils.DetermineColor(bpm)}>{bpm}</color>" : $"{bpm}";
         }
 
-        private void OnSettingChange(object sender, EventArgs e)
+        private void OnSettingChange()
         {
-            Logger.logger.Info("Settings changed, updating counter location.");
+            _logger.Info("Settings changed, updating counter location.");
             try
             {
                 if (!_needs360Move)
                 {
-                    var location = PluginConfig.Instance.StaticCounterPosition;
-                    CurrentCanvas.transform.position = new Vector3(location.x, location.y, location.z);
+                    var location = _config.StaticCounterPosition;
+                    _currentCanvas.transform.position = new Vector3(location.x, location.y, location.z);
                 }
             }
             catch (Exception exception)
             {
-                Logger.logger.Warn($"Exception Caught during counter location update");
-                Logger.logger.Warn(exception);
+                _logger.Warn($"Exception Caught during counter location update");
+                _logger.Warn(exception);
             }
         }
-        
+
         public void Dispose()
         {
-            HRController.OnHRUpdate -= OnHRUpdate;
-            PluginConfig.Instance.OnSettingsChanged -= OnSettingChange;
-
-            if (CurrentCanvas != null)
+            if (_hrDataManager != null)
             {
-                Object.Destroy(CurrentCanvas);
+                _hrDataManager.OnHRUpdate -= OnHRUpdate;
             }
+            
+            _config.OnSettingsChanged -= OnSettingChange;
+
+            if (_currentCanvas != null)
+            {
+                Object.Destroy(_currentCanvas);
+            }
+
             Plugin.Log.Info("HRCounter Disposed");
         }
 
@@ -138,53 +146,61 @@ namespace HRCounter
         /// </summary>
         private class MapMover : MonoBehaviour
         {
-            private GameObject _flyingHUD;
-            private RectTransform _iconRtTransform;
-            
-            private GameObject _currentCanvas;
-            private GameObject _icon;
+            private GameObject? _flyingHUD;
+            private RectTransform? _iconRtTransform;
+
+            private GameObject _currentCanvas = null!;
+            private GameObject _icon = null!;
 
             private void Awake()
             {
                 _currentCanvas = gameObject;
                 _icon = _currentCanvas.transform.GetChild(0).gameObject;
-                
+
                 if (_flyingHUD == null)
                 {
                     _flyingHUD = GetFlyingHUD();
                 }
+
                 if (_iconRtTransform == null)
                 {
                     _iconRtTransform = _icon.gameObject.GetComponent<RectTransform>();
+                }
+
+                if (_flyingHUD == null || _iconRtTransform == null)
+                {
+                    enabled = false;
+                    Destroy(this);
                 }
             }
 
             private void Update()
             {
-                _currentCanvas.transform.position = _flyingHUD.transform.position;
-                Vector3 position = _iconRtTransform.localPosition;
+                _currentCanvas.transform.position = _flyingHUD!.transform.position;
+                var position = _iconRtTransform!.localPosition;
                 _iconRtTransform.localPosition = new Vector3(position.x, 150, position.z);
                 _currentCanvas.transform.rotation = _flyingHUD.transform.rotation;
             }
-            
-            [CanBeNull]
-            private GameObject GetFlyingHUD()
+
+            private GameObject? GetFlyingHUD()
             {
                 // There should only be one
-                Scene scene = SceneManager.GetAllScenes()
-                    .FirstOrDefault(x => x.name.Contains("Environment") && x.isLoaded);
-
-                // Find the GameObject
-                GameObject environment = scene.GetRootGameObjects().FirstOrDefault(x => x.name == "Environment");
-
-                if (environment != null)
+                Scene? scene = null;
+                for (int i = 0; i < SceneManager.sceneCount; i++)
                 {
-                    return environment.transform.Find("FlyingGameHUD/Container")?.gameObject;
+                    var s = SceneManager.GetSceneAt(i);
+                    if (s.name.Contains("Environment") && s.isLoaded)
+                    {
+                        scene = s;
+                        break;
+                    }
                 }
 
-                return null;
+                // Find the GameObject
+                var environment = scene?.GetRootGameObjects().FirstOrDefault(x => x.name == "Environment");
+
+                return environment == null ? null : environment.transform.Find("FlyingGameHUD/Container")?.gameObject;
             }
         }
-        
     }
 }

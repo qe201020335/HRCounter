@@ -3,16 +3,16 @@ using IPALogger = IPA.Logging.Logger;
 
 namespace HRCounter
 {
-    internal static class Logger
+    internal static class Log
     {
-        internal static IPALogger logger { get; set; }
+        internal static IPALogger Logger { get; set; } = null!;
 
         internal static void DebugSpam(string s)
         {
 #if DEBUG
             if (PluginConfig.Instance.DebugSpam)
             {
-                logger.Debug(s);
+                Logger.Debug(s);
             }   
 #endif
         }

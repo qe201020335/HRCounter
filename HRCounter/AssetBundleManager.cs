@@ -1,82 +1,94 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using BeatSaberMarkupLanguage;
 using HRCounter.Configuration;
-using JetBrains.Annotations;
+using HRCounter.Utils;
+using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Zenject;
 using Object = UnityEngine.Object;
-using IPA.Utilities;
 
 namespace HRCounter
 {
-    public class AssetBundleManager
+    internal class AssetBundleManager: IInitializable, IDisposable
     {
-        private static AssetBundle loadedAssetBundle;
-        private static GameObject CanvasOverlay;
+        private GameObject? CounterPrefab { get; set; }
 
-        private static Material _uiNoGlow;
-        private static Shader _textNoGlow;
+        [Inject] private readonly PluginConfig _config = null!;
 
-        internal static Material UINoGlow
+        [Inject] private readonly SiraLog _logger = null!;
+        
+        public void Initialize()
         {
-            get
+            using var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("HRCounter.Resources.hrcounter");
+            if (resourceStream == null)
             {
-                _uiNoGlow ??= Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(x => x.name == "UINoGlow");
-                return _uiNoGlow;
+                _logger.Error("Failed to find hrcounter AssetBundle from ManifestResourceStream!");
+                return;
             }
-        }
 
-        internal static Shader TextNoGlow
-        {
-            get
+            try
             {
-                _textNoGlow ??= Shader.Find("TextMeshPro/Mobile/Distance Field Zero Alpha Write");
-                return _textNoGlow;
-            }
-        }
-
-        internal static void LoadAssetBundle()
-        {
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("HRCounter.hrcounter"))
-            {
-                if (stream != null)
+                // Load the AssetBundle
+                var bundle = AssetBundle.LoadFromStream(resourceStream);
+                CounterPrefab = bundle.LoadAsset<GameObject>("Assets/HRCounter.prefab");
+                bundle.Unload(false);
+                if (CounterPrefab == null)
                 {
-                    MemoryStream ms = new MemoryStream();
-                    stream.CopyTo(ms);
-                    byte[] assetBundleRaw = ms.ToArray();
-                    // Load the AssetBundle
-                    loadedAssetBundle = AssetBundle.LoadFromMemory(assetBundleRaw);
-                    CanvasOverlay = loadedAssetBundle.LoadAsset<GameObject>("Assets/HRCounter.prefab");
-                    loadedAssetBundle.Unload(false);
-                    Logger.logger.Info("Loaded AssetBundle!");
+                    throw new NullReferenceException("The counter prefab is null!");
                 }
-                else
-                    Logger.logger.Error("Failed to find hrcounter AssetBundle from ManifestResourceStream!");
+                
+                _logger.Info("AssetBundle Loaded!");
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"Cannot load the counter prefab from the asset bundle: {e.Message}");
+                _logger.Error(e);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (CounterPrefab != null)
+            {
+                Object.Destroy(CounterPrefab);
+                CounterPrefab = null;
+            }
+        }
+
+        internal CustomCounter SetupCustomCounter()
+        {
+            if (CounterPrefab == null)
+            {
+                return new CustomCounter
+                {
+                    Counter = null,
+                    Icon = null,
+                    Numbers = null
+                };
             }
             
-        }
-
-        internal static CustomCounter SetupCustomCounter()
-        {
-            var currentCanvas = Object.Instantiate(CanvasOverlay);
+            var currentCanvas = Object.Instantiate(CounterPrefab);
             var icon = currentCanvas.transform.GetChild(0).gameObject;
             var numbers = icon.transform.GetChild(0).GetComponent<TMP_Text>();
             numbers.alignment = TextAlignmentOptions.MidlineLeft;
-            
-            icon.GetComponent<Image>().material = UINoGlow;
-            if (PluginConfig.Instance.NoBloom)
+
+            icon.GetComponent<Image>().material = RenderUtils.UINoGlow;
+            if (_config.NoBloom)
             {
-                numbers.fontMaterial.shader = TextNoGlow;
+                numbers.fontMaterial.shader = RenderUtils.TextNoGlow;
+            }
+            else
+            {
+                numbers.fontMaterial.shader = RenderUtils.TextGlow;
             }
 
-            return new CustomCounter {
-                CurrentCanvas = currentCanvas,
+            return new CustomCounter
+            {
+                Counter = currentCanvas,
                 Icon = icon,
                 Numbers = numbers
             };
@@ -84,9 +96,14 @@ namespace HRCounter
 
         internal struct CustomCounter
         {
-            public GameObject CurrentCanvas;
-            public GameObject Icon;
-            public TMP_Text Numbers;
+            public GameObject? Counter;
+            public GameObject? Icon;
+            public TMP_Text? Numbers;
+
+            internal bool IsNotNull()
+            {
+                return Counter != null && Icon != null && Numbers != null;
+            }
         }
     }
 }

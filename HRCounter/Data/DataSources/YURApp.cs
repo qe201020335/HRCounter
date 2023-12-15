@@ -6,30 +6,29 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace HRCounter.Data.BpmDownloaders
+namespace HRCounter.Data.DataSources
 {
-    internal sealed class YURApp: BpmDownloader
+    internal sealed class YURApp: DataSourceInternal
     {
         private const string HOST = "127.0.0.1";
         private const int PORT = 11010;
-        private TcpClient _client = null;
+        private TcpClient? _client;
 
-        private bool _running = false;
+        private bool _running;
         
-        private Thread _worker;
+        private Thread? _worker;
 
-        private CancellationTokenSource _cancellationSource = null;
-        private CancellationToken _token => _cancellationSource.Token;
+        private CancellationTokenSource? _cancellationSource;
 
-        internal override void Start()
+        protected internal override void Start()
         {
             _running = true;
             if (_client != null)
             {
-                logger.Info("We have an old tcp client, destroying");
+                Logger.Info("We have an old tcp client, destroying");
                 CloseClientMakeNull();
             }
-            logger.Info("Creating new tcp connection");
+            Logger.Info("Creating new tcp connection");
             _client = new TcpClient();
             _cancellationSource?.Cancel();
             _cancellationSource = new CancellationTokenSource();
@@ -42,34 +41,34 @@ namespace HRCounter.Data.BpmDownloaders
         {
             try
             {
-                _client.ConnectAsync(HOST, PORT).Wait(_token);
+                _client?.ConnectAsync(HOST, PORT).Wait(_cancellationSource!.Token);
             }
             catch (OperationCanceledException)
             {
-                logger.Warn("Connect Canceled.");
+                Logger.Warn("Connect Canceled.");
             }
             catch (Exception e)
             {
-                logger.Warn("Cannot connect to YUR app");
-                logger.Warn(e.Message);
-                logger.Debug(e);
+                Logger.Warn("Cannot connect to YUR app");
+                Logger.Warn(e.Message);
+                Logger.Debug(e);
                 Stop();
                 return;
             }
 
             try
             {
-                ReadMessage().Wait(_token);
+                ReadMessage().Wait(_cancellationSource!.Token);
             }
             catch (OperationCanceledException)
             {
-                logger.Warn("Read Canceled.");
+                Logger.Warn("Read Canceled.");
             }
             catch (Exception e)
             {
-                logger.Critical("Exception occured while receiving data");
-                logger.Critical(e.Message);
-                logger.Debug(e);
+                Logger.Critical("Exception occured while receiving data");
+                Logger.Critical(e.Message);
+                Logger.Debug(e);
                 Stop();
             }
         }
@@ -79,7 +78,7 @@ namespace HRCounter.Data.BpmDownloaders
         {
             while (_running)
             {
-                if (!_client.Connected)
+                if (_client?.Connected != true)
                 {
                     return;
                 }
@@ -97,7 +96,7 @@ namespace HRCounter.Data.BpmDownloaders
                     if (type[0] == 1)
                     {
                         // ping message
-                        Logger.DebugSpam("Ping!");
+                        Log.DebugSpam("Ping!");
                         await Pong();
                     }
                     else if (type[0] == 20)
@@ -113,20 +112,20 @@ namespace HRCounter.Data.BpmDownloaders
                         HandleData(Encoding.UTF8.GetString(dataBytes));
                     }
                 }
-                catch (ObjectDisposedException e)
+                catch (ObjectDisposedException)
                 {
                     if (_running)
                     {
-                        logger.Warn("tcp client is not connected anymore");
+                        Logger.Warn("tcp client is not connected anymore");
                     }
                     return;
                 }
                 catch (Exception e)
                 {
                     
-                    logger.Critical("Exception occured while reading data");
-                    logger.Critical(e.Message);
-                    logger.Debug(e);
+                    Logger.Critical("Exception occured while reading data");
+                    Logger.Critical(e.Message);
+                    Logger.Debug(e);
                     return;
                 }
                 
@@ -134,7 +133,7 @@ namespace HRCounter.Data.BpmDownloaders
         }
 
 
-        private async Task SendMessage(byte type, string data)
+        private Task SendMessage(byte type, string? data)
         {
             byte[] dataArray;
             if (string.IsNullOrEmpty(data))
@@ -155,18 +154,25 @@ namespace HRCounter.Data.BpmDownloaders
 
             dataArray[0] = type;
 
-            using (var writer = new BinaryWriter(_client.GetStream(), Encoding.UTF8, true))
+            try
             {
+                using var writer = new BinaryWriter(_client?.GetStream(), Encoding.UTF8, true);
                 writer.Write(dataArray);
                 writer.Flush();
+                return _client?.GetStream().FlushAsync() ?? Task.CompletedTask;
             }
-            await _client.GetStream().FlushAsync();
+            catch (Exception e)
+            {
+                Logger.Critical($"Exception trying to send data through socket: {e.Message}");
+                Logger.Debug(e);
+                return Task.CompletedTask;
+            }
         }
 
         private void HandleData(string data)
         {
             
-            Logger.DebugSpam(data);
+            Log.DebugSpam(data);
 
             try
             {
@@ -183,7 +189,7 @@ namespace HRCounter.Data.BpmDownloaders
 
                 var osu = JObject.Parse(json["jsonData"]?.ToString());
                 
-                Logger.DebugSpam(osu.ToString());
+                Log.DebugSpam(osu.ToString());
 
                 var hrToken = osu["status"]?["heartRate"]?.Type != JTokenType.Null
                     ? osu["status"]?["heartRate"]
@@ -198,9 +204,9 @@ namespace HRCounter.Data.BpmDownloaders
             }
             catch (Exception e)
             {
-                logger.Warn("Exception occured while parsing hr data");
-                logger.Warn(e.Message);
-                logger.Debug(e);
+                Logger.Warn("Exception occured while parsing hr data");
+                Logger.Warn(e.Message);
+                Logger.Debug(e);
             }
             
         }
@@ -208,7 +214,7 @@ namespace HRCounter.Data.BpmDownloaders
 
         private async Task Pong()
         {
-            Logger.DebugSpam("Pong!");
+            Log.DebugSpam("Pong!");
             await SendMessage(2, null);
         }
         
@@ -222,21 +228,22 @@ namespace HRCounter.Data.BpmDownloaders
             }
             catch (Exception e)
             {
-                logger.Warn("Exception occured while closing tcp client");
-                logger.Warn(e.Message);
-                logger.Debug(e);
+                Logger.Warn("Exception occured while closing tcp client");
+                Logger.Warn(e.Message);
+                Logger.Debug(e);
             }
             _client = null;
         }
 
-        internal override void Stop()
+        protected internal override void Stop()
         {
             _running = false;
             _cancellationSource?.Cancel();
+            _cancellationSource?.Dispose();
             _cancellationSource = null;
             CloseClientMakeNull();
             _worker = null;
-            logger.Info("Stopped");
+            Logger.Info("Stopped");
         }
     }
 }

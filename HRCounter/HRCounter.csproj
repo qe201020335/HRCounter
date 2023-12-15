@@ -22,6 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkProfile />
     <LangVersion>8</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <Optimize>false</Optimize>
@@ -148,54 +149,58 @@
   <ItemGroup>
     <Compile Include="AssetBundleManager.cs" />
     <Compile Include="Data\BPM.cs" />
-    <Compile Include="Data\BpmDownloaders\BpmDownloader.cs" />
-    <Compile Include="Data\BpmDownloaders\FitbitHRtoWS.cs" />
-    <Compile Include="Data\BpmDownloaders\HRProxy.cs" />
-    <Compile Include="Data\BpmDownloaders\Pulsoid.cs" />
-    <Compile Include="Data\BpmDownloaders\RandomHR.cs" />
-    <Compile Include="Data\BpmDownloaders\WebRequest.cs" />
-    <Compile Include="Data\BpmDownloaders\YURApp.cs" />
-    <Compile Include="Data\BpmDownloaders\YURMod.cs" />
-    <Compile Include="Data\HRController.cs" />
-    <Compile Include="Events\HRUpdateEventArgs.cs" />
+    <Compile Include="Data\DataSources\DataSource.cs" />
+    <Compile Include="Data\DataSources\DataSourceInternal.cs" />
+    <Compile Include="Data\DataSources\FitbitHRtoWS.cs" />
+    <Compile Include="Data\DataSources\HRProxy.cs" />
+    <Compile Include="Data\DataSources\Pulsoid.cs" />
+    <Compile Include="Data\DataSources\RandomHR.cs" />
+    <Compile Include="Data\DataSources\WebRequest.cs" />
+    <Compile Include="Data\DataSources\YURApp.cs" />
+    <Compile Include="Data\DataSources\YURMod.cs" />
+    <Compile Include="Data\DataSourceType.cs" />
+    <Compile Include="Data\HRDataManager.cs" />
     <Compile Include="GamePauseController.cs" />
-    <Compile Include="HRCounter.cs" />
+    <Compile Include="HRCounterCountersPlus.cs" />
     <Compile Include="HRCounterController.cs" />
+    <Compile Include="Installers\AppInstaller.cs" />
+    <Compile Include="Installers\MenuInstaller.cs" />
     <Compile Include="Installers\GamePauseInstaller.cs" />
     <Compile Include="Installers\GameplayCoreInstaller.cs" />
     <Compile Include="Installers\GameplayHeartRateInstaller.cs" />
-    <Compile Include="Logger.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Configuration\PluginConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\ConfigViewFlowCoordinator.cs" />
     <Compile Include="UI\CountersPlus\SettingController.cs" />
+    <Compile Include="UI\MenuButtonManager.cs" />
     <Compile Include="UI\SettingMenuController.cs" />
     <Compile Include="Utils\DataSourceUtils.cs" />
+    <Compile Include="Utils\Extensions.cs" />
+    <Compile Include="Utils\RenderUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
+    <EmbeddedResource Include="Resources\hrcounter" />
+    <EmbeddedResource Include="Resources\hrcounter.png" />
     <EmbeddedResource Include="UI\BSML\configMenu.bsml" />
     <EmbeddedResource Include="UI\CountersPlus\config.bsml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
-    <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="HRCounter.csproj.user" Condition="Exists('HRCounter.csproj.user')" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BeatSaberModdingTools.Tasks">
-      <Version>1.2.3</Version>
+      <Version>2.0.0-beta7</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\hrcounter.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="hrcounter" />
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

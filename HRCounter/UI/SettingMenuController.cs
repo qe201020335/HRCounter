@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
-using HRCounter.Utils;
+using HRCounter.Data;
 using TMPro;
+using Zenject;
 
 namespace HRCounter.UI
 {
@@ -14,66 +15,67 @@ namespace HRCounter.UI
     internal class SettingMenuController : BSMLAutomaticViewController
     {
 
-        private static PluginConfig Config => PluginConfig.Instance;
+        [Inject]
+        private readonly PluginConfig _config = null!;
 
         [UIValue("ModEnable")]
         private bool ModEnable
         {
-            get => Config.ModEnable;
-            set => Config.ModEnable = value;
+            get => _config.ModEnable;
+            set => _config.ModEnable = value;
         }
         
 
         [UIValue("LogHR")]
         public bool LogHR
         {
-            get => Config.LogHR;
-            set => Config.LogHR = value;
+            get => _config.LogHR;
+            set => _config.LogHR = value;
         }
         
 
         [UIValue("Colorize")]
         public bool Colorize
         {
-            get => Config.Colorize;
-            set => Config.Colorize = value;
+            get => _config.Colorize;
+            set => _config.Colorize = value;
         }
 
         [UIValue("HRLow")]
         public int HRLow
         {
-            get => Config.HRLow;
-            set => Config.HRLow = value;
+            get => _config.HRLow;
+            set => _config.HRLow = value;
         }
         
         [UIValue("HRHigh")]
         public int HRHigh
         {
-            get => Config.HRHigh;
-            set => Config.HRHigh = value;
+            get => _config.HRHigh;
+            set => _config.HRHigh = value;
         }
 
         [UIValue("color-info-text")]
         public string ColorInfoText =>
-            $"Current Colors: <color={Config.LowColor}>Low</color> -> <color={Config.MidColor}>Middle</color> -> <color={Config.HighColor}>High</color>";
+            $"Current Colors: <color={_config.LowColor}>Low</color> -> <color={_config.MidColor}>Middle</color> -> <color={_config.HighColor}>High</color>";
         
         [UIValue("HideDuringReplay")]
         public bool HideDuringReplay
         {
-            get => Config.HideDuringReplay;
-            set => Config.HideDuringReplay = value;
+            get => _config.HideDuringReplay;
+            set => _config.HideDuringReplay = value;
         }
         
         [UIValue("source-list-options")]
-        public List<object> options = DataSourceUtils.DataSources;
+        public List<object> options = new List<object>(DataSourceType.DataSourceTypes.Keys);
 
         [UIValue("source-list-choice")]
         public string listChoice
         {
-            get => Config.DataSource;
+            get => _config.DataSource;
             set
             {
-                Config.DataSource = value;
+                _config.DataSource = value;
                 UpdateText();
             }
         }
@@ -81,22 +83,22 @@ namespace HRCounter.UI
         [UIValue("PauseHR")]
         public int PauseHR
         {
-            get => Config.PauseHR;
-            set => Config.PauseHR = value;
+            get => _config.PauseHR;
+            set => _config.PauseHR = value;
         }
 
         [UIValue("AutoPause")]
         public bool AutoPause
         {
-            get => Config.AutoPause;
-            set => Config.AutoPause = value;
+            get => _config.AutoPause;
+            set => _config.AutoPause = value;
         }
 
         [UIValue("IgnoreCounters+")]
         public bool UseCountersPlus
         {
-            get => Config.IgnoreCountersPlus;
-            set => Config.IgnoreCountersPlus = value;
+            get => _config.IgnoreCountersPlus;
+            set => _config.IgnoreCountersPlus = value;
         }
         
         [UIComponent("data-source-info-text")]
@@ -110,7 +112,7 @@ namespace HRCounter.UI
                 Task.Factory.StartNew(async () =>
                 {
                     await Task.Delay(100);
-                    modifiedText.text = await DataSourceUtils.GetCurrentSourceLinkText();
+                    UpdateText();
                 });
                 return "Loading Data Source Info...";
             }
@@ -118,14 +120,19 @@ namespace HRCounter.UI
 
         private async void UpdateText()
         {
-            modifiedText.text = await DataSourceUtils.GetCurrentSourceLinkText();
+            modifiedText.text = "Loading Data Source Info...";
+            await Task.Delay(100);
+            var source = DataSourceType.GetFromStr(_config.DataSource);
+            modifiedText.text = source == null 
+                ? "Unknown Data Source"
+                : await source.GetSourceLinkText();
         }
         
         [UIValue("NoBloom")]
         private bool NoBloom
         {
-            get => Config.NoBloom;
-            set => Config.NoBloom = value;
+            get => _config.NoBloom;
+            set => _config.NoBloom = value;
         }
         
     }
