@@ -3,6 +3,7 @@ using IPA.Config.Stores;
 using SiraUtil.Zenject;
 using IPALogger = IPA.Logging.Logger;
 using HRCounter.Installers;
+using IPA.Loader;
 
 namespace HRCounter
 {
@@ -15,7 +16,9 @@ namespace HRCounter
         
         // private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
         
-        internal static bool BSMLInstalled { get; private set; } = false;
+        internal static PluginMetadata? BSMLMeta { get; private set; } = null;
+        
+        private const string BSMLId = "BeatSaberMarkupLanguage";
 
 
         [Init]
@@ -44,7 +47,7 @@ namespace HRCounter
         [OnStart]
         public void OnEnable()
         {
-            BSMLInstalled = Utils.Utils.IsModEnabled("BeatSaberMarkupLanguage");
+            BSMLMeta = Utils.Utils.FindEnabledPluginMetadata(BSMLId);
         }
     }
 }

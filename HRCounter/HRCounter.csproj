@@ -177,6 +177,7 @@
     <Compile Include="UI\ConfigViewFlowCoordinator.cs" />
     <Compile Include="UI\CountersPlus\SettingController.cs" />
     <Compile Include="UI\MenuButtonManager.cs" />
+    <Compile Include="UI\MenuButtonManagerOld.cs" />
     <Compile Include="UI\SettingMenuController.cs" />
     <Compile Include="Utils\DataSourceUtils.cs" />
     <Compile Include="Utils\Extensions.cs" />

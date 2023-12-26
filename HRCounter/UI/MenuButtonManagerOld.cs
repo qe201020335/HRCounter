@@ -5,30 +5,30 @@ using Zenject;
 
 namespace HRCounter.UI
 {
-    public class MenuButtonManager : IInitializable, IDisposable
+    public class MenuButtonManagerOld : IInitializable, IDisposable
     {
         private readonly MenuButton _menuButton;
         private readonly MainFlowCoordinator _mainFlowCoordinator;
         private readonly ConfigViewFlowCoordinator _configViewFlowCoordinator;
-        private readonly MenuButtons _menuButtons;
 
-        public MenuButtonManager(MainFlowCoordinator mainFlowCoordinator, ConfigViewFlowCoordinator configViewFlowCoordinator, [InjectOptional] MenuButtons? menuButtons)
+        public MenuButtonManagerOld(MainFlowCoordinator mainFlowCoordinator, ConfigViewFlowCoordinator configViewFlowCoordinator)
         {
             _mainFlowCoordinator = mainFlowCoordinator;
             _configViewFlowCoordinator = configViewFlowCoordinator;
-            _menuButtons = menuButtons ?? MenuButtons.instance;
-            
             _menuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick);
         }
 
         public void Initialize()
         {
-            _menuButtons.RegisterButton(_menuButton);
+            MenuButtons.instance.RegisterButton(_menuButton);
         }
 
         public void Dispose()
         {
-            _menuButtons.UnregisterButton(_menuButton);
+            if (MenuButtons.IsSingletonAvailable && BSMLParser.IsSingletonAvailable)
+            {
+                MenuButtons.instance.UnregisterButton(_menuButton);
+            }
         }
 
         private void OnMenuButtonClick()

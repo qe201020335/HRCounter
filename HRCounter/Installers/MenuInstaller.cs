@@ -9,7 +9,7 @@ namespace HRCounter.Installers
         
         public override void InstallBindings()
         {
-            if (Plugin.BSMLInstalled)
+            if (Plugin.BSMLMeta != null)
             {
                 _logger.Debug("BSML is installed, installing the menus");
                 Container.Install<BSMLInstaller>();
