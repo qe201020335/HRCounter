@@ -97,6 +97,8 @@ function App() {
         <h1>HRCounter Easy Config Generator</h1>
         <h3>DO NOT USE THIS IF YOU ALREADY HAVE DATA SOURCE CONFIGURED</h3>
         <div id="main">
+          <strong className="warning">Support for Beat Saber 1.34.4+ is still WIP. <br/> Don't download if you are on the latest version of the game</strong>
+          <br/>
           <label>
             <span>Data Source: </span>
             <select name="Data Source" id="source-select" defaultValue={source} onChange={onSourceChange}>
