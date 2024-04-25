@@ -22,7 +22,7 @@ namespace HRCounter
         [Inject] private readonly SiraLog _logger = null!;
         [Inject] private readonly RenderUtils _renderUtils = null!;
         [InjectOptional] private readonly HRDataManager? _hrDataManager;
-
+        [InjectOptional] private CoreGameHUDController.InitData? _hudInitData = null;
         private bool _needs360Move;
 
         private GameObject _currentCanvas = null!;
@@ -34,10 +34,16 @@ namespace HRCounter
             {
                 return;
             }
-
-            if (_sceneSetupData == null)
+            
+            if (_hudInitData == null)
             {
-                Plugin.Log.Warn("GameplayCoreSceneSetupData is null");
+                _logger.Warn("CoreGameHUDController.InitData is null, not creating HRCounter");
+                return;
+            }
+            
+            if (_hudInitData.hide)
+            {
+                _logger.Info("CoreGameHUDController.InitData says to hide the HUD, not creating HRCounter");
                 return;
             }
 
