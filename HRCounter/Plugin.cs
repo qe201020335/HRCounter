@@ -40,6 +40,7 @@ namespace HRCounter
             // we don't want to popup the pause menu during multiplayer, that's not gonna help anything!
             zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer);
             
+            zenject.Expose<FlyingGameHUDRotation>("Environment");
             
             Log.Info("HRCounter initialized.");
         }

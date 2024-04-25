@@ -16,7 +16,7 @@ namespace HRCounter
 {
     internal class HRCounterController : IInitializable, IDisposable
     {
-        [InjectOptional] private readonly GameplayCoreSceneSetupData? _sceneSetupData = null;
+        [InjectOptional] private readonly FlyingGameHUDRotation? _flyingGameHUDRotation = null;
         [Inject] private readonly AssetBundleManager _assetBundleManager = null!;
         [Inject] private readonly PluginConfig _config = null!;
         [Inject] private readonly SiraLog _logger = null!;
@@ -59,7 +59,7 @@ namespace HRCounter
                 return;
             }
 
-            _needs360Move = _sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.requires360Movement;
+            _needs360Move = _flyingGameHUDRotation != null;
             Plugin.Log.Info($"360/90?: {_needs360Move}");
 
             if (!CreateCounter())
@@ -78,6 +78,7 @@ namespace HRCounter
         private bool CreateCounter()
         {
             _logger.Info("Creating HRCounter");
+
             var counter = _assetBundleManager.SetupCustomCounter();
             if (!counter.IsNotNull())
             {
@@ -101,8 +102,18 @@ namespace HRCounter
             }
             else
             {
+                _logger.Debug("Attaching HRCounter to FlyingGameHUDRotation");
                 // Attach it to the FlyingHUD
-                _currentCanvas.AddComponent<MapMover>();
+                var hudContainer = _flyingGameHUDRotation!.transform.Find("Container");
+                if (hudContainer == null)
+                {
+                    _logger.Warn("Cannot find HUD container in FlyingGameHUDRotation");
+                    return false;
+                }
+                
+                _currentCanvas.transform.SetParent(hudContainer);
+                _currentCanvas.transform.localPosition = new Vector3(-2, -20, 0);
+                _currentCanvas.transform.localRotation = Quaternion.identity;
             }
             return true;
         }
@@ -146,68 +157,6 @@ namespace HRCounter
             }
 
             Plugin.Log.Info("HRCounter Disposed");
-        }
-
-        /// <summary>
-        /// Will have the canvas follow the player when on a 90/360 degree map
-        /// </summary>
-        private class MapMover : MonoBehaviour
-        {
-            private GameObject? _flyingHUD;
-            private RectTransform? _iconRtTransform;
-
-            private GameObject _currentCanvas = null!;
-            private GameObject _icon = null!;
-
-            private void Awake()
-            {
-                _currentCanvas = gameObject;
-                _icon = _currentCanvas.transform.GetChild(0).gameObject;
-
-                if (_flyingHUD == null)
-                {
-                    _flyingHUD = GetFlyingHUD();
-                }
-
-                if (_iconRtTransform == null)
-                {
-                    _iconRtTransform = _icon.gameObject.GetComponent<RectTransform>();
-                }
-
-                if (_flyingHUD == null || _iconRtTransform == null)
-                {
-                    enabled = false;
-                    Destroy(this);
-                }
-            }
-
-            private void Update()
-            {
-                _currentCanvas.transform.position = _flyingHUD!.transform.position;
-                var position = _iconRtTransform!.localPosition;
-                _iconRtTransform.localPosition = new Vector3(position.x, 150, position.z);
-                _currentCanvas.transform.rotation = _flyingHUD.transform.rotation;
-            }
-
-            private GameObject? GetFlyingHUD()
-            {
-                // There should only be one
-                Scene? scene = null;
-                for (int i = 0; i < SceneManager.sceneCount; i++)
-                {
-                    var s = SceneManager.GetSceneAt(i);
-                    if (s.name.Contains("Environment") && s.isLoaded)
-                    {
-                        scene = s;
-                        break;
-                    }
-                }
-
-                // Find the GameObject
-                var environment = scene?.GetRootGameObjects().FirstOrDefault(x => x.name == "Environment");
-
-                return environment == null ? null : environment.transform.Find("FlyingGameHUD/Container")?.gameObject;
-            }
         }
     }
 }
