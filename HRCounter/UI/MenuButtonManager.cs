@@ -1,6 +1,7 @@
 ﻿using System;
 using BeatSaberMarkupLanguage.MenuButtons;
 using BeatSaberMarkupLanguage;
+using SiraUtil.Logging;
 using Zenject;
 
 namespace HRCounter.UI
@@ -10,25 +11,42 @@ namespace HRCounter.UI
         private readonly MenuButton _menuButton;
         private readonly MainFlowCoordinator _mainFlowCoordinator;
         private readonly ConfigViewFlowCoordinator _configViewFlowCoordinator;
-        private readonly MenuButtons _menuButtons;
+        private readonly MenuButtons? _menuButtons;
+        
+        [Inject]
+        private readonly SiraLog _logger = null!;
 
         public MenuButtonManager(MainFlowCoordinator mainFlowCoordinator, ConfigViewFlowCoordinator configViewFlowCoordinator, [InjectOptional] MenuButtons? menuButtons)
         {
             _mainFlowCoordinator = mainFlowCoordinator;
             _configViewFlowCoordinator = configViewFlowCoordinator;
-            _menuButtons = menuButtons ?? MenuButtons.instance;
+            _menuButtons = menuButtons;
             
             _menuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick);
         }
 
         public void Initialize()
         {
-            _menuButtons.RegisterButton(_menuButton);
+            if (_menuButtons != null)
+            {
+                _menuButtons.RegisterButton(_menuButton);
+            }
+            else
+            {
+                _logger.Warn("BSML MenuButtons is null");
+            }
         }
 
         public void Dispose()
         {
-            _menuButtons.UnregisterButton(_menuButton);
+            if (_menuButtons != null)
+            {
+                _menuButtons.UnregisterButton(_menuButton);
+            }
+            else
+            {
+                _logger.Warn("BSML MenuButtons is null");
+            }
         }
 
         private void OnMenuButtonClick()

@@ -25,10 +25,7 @@ namespace HRCounter.UI
 
         public void Dispose()
         {
-            if (MenuButtons.IsSingletonAvailable && BSMLParser.IsSingletonAvailable)
-            {
-                MenuButtons.instance.UnregisterButton(_menuButton);
-            }
+            MenuButtons.instance.UnregisterButton(_menuButton);
         }
 
         private void OnMenuButtonClick()
