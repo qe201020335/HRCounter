@@ -3,10 +3,10 @@
     "id": "HRCounter",
     "name": "HRCounter",
     "author": "qe201020335",
-    "version": "3.0.0-2",
+    "version": "3.0.0-3",
     "icon": "HRCounter.Resources.hrcounter.png",
     "description": "A custom counter mod that displays your heart rate in game.",
-    "gameVersion": "1.34.2",
+    "gameVersion": "1.29.1",
     "dependsOn": {
         "BSIPA": "^4.2.0",
         "SiraUtil": "^3.0.0"
