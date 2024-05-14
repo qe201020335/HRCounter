@@ -1,6 +1,5 @@
-# HRCounter 
+# HRCounter <img src="https://img.shields.io/github/v/release/qe201020335/HRCounter?include_prereleases&style=for-the-badge&label=PRE-RELEASE" align="right"> <img src="https://img.shields.io/github/v/release/qe201020335/HRCounter?style=for-the-badge&label=RELEASE" align="right">
 A Beat Saber custom counter that displays your heart rate in-game.
-<img src="https://img.shields.io/github/v/release/qe201020335/HRCounter?include_prereleases&style=for-the-badge&label=PRE-RELEASE" align="right"> <img src="https://img.shields.io/github/v/release/qe201020335/HRCounter?style=for-the-badge&label=RELEASE" align="right">
 
 
 ![HR Counter 2.0](https://i.imgur.com/ybzx4gI.jpg)
