@@ -21,8 +21,6 @@ namespace HRCounter
 
         [InjectOptional] private readonly HRDataManager? _hrDataManager;
 
-        [Inject] private readonly RenderUtils _renderUtils = null!;
-
         private TMP_Text? _counter;
 
         private GameObject _customCounter = null!;
@@ -101,7 +99,7 @@ namespace HRCounter
 
         private void OnHRUpdate(int bpm)
         {
-            _customCounterText.color = _config.Colorize ? _renderUtils.DetermineColor(bpm) : Color.white;
+            _customCounterText.color = _config.Colorize ? RenderUtils.DetermineColor(bpm) : Color.white;
             _customCounterText.text = bpm.ToString();
         }
 

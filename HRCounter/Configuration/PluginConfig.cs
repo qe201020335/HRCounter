@@ -3,7 +3,9 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using HRCounter.Data;
 using IPA.Config.Stores;
-using Newtonsoft.Json;
+using IPA.Config.Stores.Attributes;
+using IPA.Config.Stores.Converters;
+using UnityEngine;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 
@@ -24,7 +26,9 @@ namespace HRCounter.Configuration
             set => _dataSourceStr = DataSourceType.MigrateStr(value);
         }
 
-        [JsonIgnore] private string _dataSourceStr = DataSourceType.YURMod.Str;
+        [Ignore]
+        private string _dataSourceStr = DataSourceType.YURMod.Str;
+
         public virtual string PulsoidToken { get; set; } = "";
 
         public virtual string HypeRateSessionID { get; set; } = "";
@@ -48,11 +52,14 @@ namespace HRCounter.Configuration
 
         public virtual int HRHigh { get; set; } = 180;
 
-        public virtual string LowColor { get; set; } = "#00FF00"; // default to green
+        [UseConverter(typeof(HexColorConverter))]
+        public virtual Color LowColor { get; set; } = new Color(0, 1, 0); // default to green
 
-        public virtual string MidColor { get; set; } = "#FFFF00"; // default to yellow
+        [UseConverter(typeof(HexColorConverter))]
+        public virtual Color MidColor { get; set; } = new Color(1, 1, 0); // default to yellow
 
-        public virtual string HighColor { get; set; } = "#FF0000"; // default to red
+        [UseConverter(typeof(HexColorConverter))]
+        public virtual Color HighColor { get; set; } = new Color(1, 0, 0); // default to red
 
         public virtual int PauseHR { get; set; } = 200;
 

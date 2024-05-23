@@ -20,7 +20,6 @@ namespace HRCounter
         [Inject] private readonly AssetBundleManager _assetBundleManager = null!;
         [Inject] private readonly PluginConfig _config = null!;
         [Inject] private readonly SiraLog _logger = null!;
-        [Inject] private readonly RenderUtils _renderUtils = null!;
         [InjectOptional] private readonly HRDataManager? _hrDataManager;
         [InjectOptional] private CoreGameHUDController.InitData? _hudInitData = null;
         private bool _needs360Move;
@@ -120,7 +119,7 @@ namespace HRCounter
 
         private void OnHRUpdate(int bpm)
         {
-            _numbersText.color = _config.Colorize ? _renderUtils.DetermineColor(bpm) : Color.white;
+            _numbersText.color = _config.Colorize ? RenderUtils.DetermineColor(bpm) : Color.white;
             _numbersText.text = bpm.ToString();
         }
 

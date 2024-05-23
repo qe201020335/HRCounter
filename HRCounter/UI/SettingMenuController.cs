@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
 using HRCounter.Data;
 using TMPro;
+using UnityEngine;
 using Zenject;
 
 namespace HRCounter.UI
@@ -57,7 +58,7 @@ namespace HRCounter.UI
 
         [UIValue("color-info-text")]
         public string ColorInfoText =>
-            $"Current Colors: <color={_config.LowColor}>Low</color> -> <color={_config.MidColor}>Middle</color> -> <color={_config.HighColor}>High</color>";
+            $"Current Colors: <color={ColorUtility.ToHtmlStringRGBA(_config.LowColor)}>Low</color> -> <color={ColorUtility.ToHtmlStringRGBA(_config.MidColor)}>Middle</color> -> <color={ColorUtility.ToHtmlStringRGBA(_config.HighColor)}>High</color>";
         
         [UIValue("HideDuringReplay")]
         public bool HideDuringReplay
