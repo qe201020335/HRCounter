@@ -62,12 +62,7 @@ namespace HRCounter.Configuration
 
         public virtual bool DebugSpam { get; set; } = false;
 
-        public virtual V3 StaticCounterPosition { get; set; } = new V3
-        {
-            x = 0f,
-            y = 1.2f,
-            z = 7f
-        };
+        public virtual Vector3 StaticCounterPosition { get; set; } = new Vector3(0f, 1.2f, 7f);
 
         internal event Action? OnSettingsChanged;
 
@@ -84,13 +79,6 @@ namespace HRCounter.Configuration
                 Log.Logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
                 Log.Logger.Critical(e);
             }
-        }
-
-        public struct V3
-        {
-            public float x;
-            public float y;
-            public float z;
         }
     }
 }
