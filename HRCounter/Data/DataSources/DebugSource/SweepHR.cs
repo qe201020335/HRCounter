@@ -1,21 +1,25 @@
 ﻿using System.Threading.Tasks;
-using UnityEngine;
 
-namespace HRCounter.Data.DataSources
+namespace HRCounter.Data.DataSources.DebugSource
 {
-    internal class RandomHR : DataSource
+    internal class SweepHR: DataSource
     {
         private bool _updating = false;
-
+        private const int Low = 60;
+        private const int High = 240;
+            
+        
         protected override void Start()
         {
             _updating = true;
             Task.Factory.StartNew(async () =>
             {
+                var hr = 0;
                 while (_updating)
                 {
-                    OnHeartRateDataReceived(Random.Range(60, 180));
-                    await Task.Delay(Random.Range(250, 1000));
+                    OnHeartRateDataReceived(hr + Low);
+                    await Task.Delay(100);
+                    hr = (hr + 1) % (High - Low);
                 }
             });
         }

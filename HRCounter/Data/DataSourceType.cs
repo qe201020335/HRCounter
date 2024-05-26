@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources;
+using HRCounter.Data.DataSources.DebugSource;
 using HRCounter.Utils;
 using IPA.Loader;
 
@@ -172,6 +173,9 @@ namespace HRCounter.Data
         
         private const string DEBUG_SWEEP_STR = "Sweep Debug";
         internal static DataSourceType Sweep = NewAndAppend<SweepHR>(DEBUG_SWEEP_STR, false, () => "debug lulul", () => true);
+        
+        private const string DEBUG_FPS_STR = "FPS Debug";
+        internal static DataSourceType FrameRate = NewAndAppend<FrameRateHR>(DEBUG_FPS_STR, false, () => "debug lululul", () => true);
 
 #endif
 
