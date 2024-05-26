@@ -1,39 +1,65 @@
 ﻿using System;
 using System.Threading.Tasks;
-using IPALogger = IPA.Logging.Logger;
+using HRCounter.Configuration;
+using SiraUtil.Logging;
+using Zenject;
 
 namespace HRCounter.Data.DataSources
 {
-    public abstract class DataSource
+    internal abstract class DataSource : IHRDataSource, IInitializable, IDisposable
     {
-        internal event Action<int>? OnHRUpdate;
+        [Inject]
+        protected readonly PluginConfig Config = null!;
+        
+        [Inject]
+        protected readonly SiraLog Logger = null!;
 
-        protected void OnHearRateDataReceived(int hr, string? receivedAt = null)
+        public event EventHandler<HRDataReceivedEventArgs>? OnHRDataReceived;
+
+        protected void OnHeartRateDataReceived(int hr, string? receivedAt = null)
         {
-            BPM.Set(hr, receivedAt);
-
             // if (Config.LogHR)
             // {
             //     Logger.Info(BPM.Str);
             // }
             
+            Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    var handler = OnHRDataReceived;
+                    handler?.Invoke(this, new HRDataReceivedEventArgs(hr, receivedAt));
+                }
+                catch (Exception e)
+                {
+                    Log.Logger.Critical($"Exception Caught while broadcasting hr update event: {e.Message}");
+                    Log.Logger.Critical(e);
+                }
+            });
+        }
+
+        public virtual void Initialize()
+        {
             try
             {
-                Task.Factory.StartNew(() =>
-                {
-                    OnHRUpdate?.Invoke(hr);
-                });
+                Start();
+                Logger.Info("Start updating heart rate");
             }
             catch (Exception e)
             {
-                Log.Logger.Critical($"Exception Caught while broadcasting hr update event: {e.Message}");
-                Log.Logger.Critical(e);
+                Logger.Error($"Could not start bpm downloader. {e.Message}");
+                Logger.Critical(e);
+                Stop();
             }
         }
-        
-        protected internal abstract void Start();
 
-        protected internal abstract void Stop();
-        
+        public virtual void Dispose()
+        {
+            Stop();
+        }
+
+        protected abstract void Start();
+
+        protected abstract void Stop();
     }
 }

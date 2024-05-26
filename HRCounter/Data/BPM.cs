@@ -2,7 +2,7 @@
 
 namespace HRCounter.Data
 {
-    class BPM
+    internal class BPM
     {
         public static int Bpm { get; private set; }
         public static string ReceivedAt { get; private set; } = string.Empty;

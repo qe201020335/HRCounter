@@ -40,7 +40,7 @@ namespace HRCounter.Installers
             }
 
             _logger.Debug("Binding BPM Downloader");
-            Container.Bind<DataSource>().To(dataSource.DataSourcerType).AsSingle();
+            Container.BindInterfacesTo(dataSource.DataSourcerType).AsSingle();
             _logger.Debug("binding hr controller");
             Container.BindInterfacesAndSelfTo<HRDataManager>().AsSingle().NonLazy();
         }

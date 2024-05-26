@@ -42,7 +42,7 @@ namespace HRCounter.Data
         }
 
         private static DataSourceType NewAndAppend<T>(string str, bool needWebSocket, Func<Task<string>> sourceLinkTextCallback,
-            Func<bool> precondition) where T : DataSource
+            Func<bool> precondition) where T : IHRDataSource
         {
             var type = new DataSourceType(str, needWebSocket, typeof(T), sourceLinkTextCallback, precondition);
             _sourceTypes[str] = type;
@@ -50,7 +50,7 @@ namespace HRCounter.Data
         }
 
         private static DataSourceType NewAndAppend<T>(string str, bool needWebSocket, Func<string> sourceLinkTextCallback, Func<bool> precondition)
-            where T : DataSource
+            where T : IHRDataSource
         {
             return NewAndAppend<T>(str, needWebSocket, () => Task.FromResult(sourceLinkTextCallback()), precondition);
         }

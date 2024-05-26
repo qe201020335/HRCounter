@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace HRCounter.Data.DataSources
 {
-    internal sealed class HRProxy : DataSourceInternal
+    internal sealed class HRProxy : DataSource
     {
         private const string URL = "wss://hrproxy.fortnite.lol:2096/hrproxy";
 
@@ -44,13 +44,13 @@ namespace HRCounter.Data.DataSources
             _sessionJson = _subscribe.ToString();
         }
 
-        protected internal override void Start()
+        protected override void Start()
         {
             _updating = true;
             CreateAndConnectSocket();
         }
 
-        protected internal override void Stop()
+        protected override void Stop()
         {
             _updating = false;
             _webSocket?.CloseAsync();
@@ -194,11 +194,11 @@ namespace HRCounter.Data.DataSources
                 var timestamp = json["timestamp"]?.ToObject<string>();
                 if (timestamp == null)
                 {
-                    OnHearRateDataReceived(hr);
+                    OnHeartRateDataReceived(hr);
                 }
                 else
                 {
-                    OnHearRateDataReceived(hr, timestamp);
+                    OnHeartRateDataReceived(hr, timestamp);
                 }
             }
         }
