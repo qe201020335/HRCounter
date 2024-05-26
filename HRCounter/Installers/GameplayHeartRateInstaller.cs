@@ -1,8 +1,8 @@
 ﻿using HRCounter.Configuration;
 using HRCounter.Data;
-using HRCounter.Data.DataSources;
 using HRCounter.Utils;
 using SiraUtil.Logging;
+using UnityEngine;
 using Zenject;
 
 namespace HRCounter.Installers
@@ -40,7 +40,18 @@ namespace HRCounter.Installers
             }
 
             _logger.Debug("Binding BPM Downloader");
-            Container.BindInterfacesTo(dataSource.DataSourcerType).AsSingle();
+            if (typeof(Component).IsAssignableFrom(dataSource.DataSourcerType))
+            {
+                Container.BindInterfacesAndSelfTo(dataSource.DataSourcerType)
+                    .FromNewComponentOnNewGameObject()
+                    .WithGameObjectName($"HRCounter {dataSource.Str} Data Source")
+                    .AsSingle();
+            }
+            else
+            {
+                Container.BindInterfacesTo(dataSource.DataSourcerType).AsSingle();
+            }
+            
             _logger.Debug("binding hr controller");
             Container.BindInterfacesAndSelfTo<HRDataManager>().AsSingle().NonLazy();
         }
