@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources;
-using HRCounter.Data.DataSources.DebugSource;
 using HRCounter.Utils;
 using IPA.Loader;
+
+#if DEBUG
+using HRCounter.Data.DataSources.DebugSource;
+#endif
 
 namespace HRCounter.Data
 {

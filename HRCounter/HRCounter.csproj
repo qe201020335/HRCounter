@@ -146,13 +146,17 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+  
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <Compile Include="Data\DataSources\DebugSource\FrameRateHR.cs" />
+    <Compile Include="Data\DataSources\DebugSource\RandomHR.cs" />
+    <Compile Include="Data\DataSources\DebugSource\SweepHR.cs" />
+  </ItemGroup>
+  
   <ItemGroup>
     <Compile Include="AssetBundleManager.cs" />
     <Compile Include="Data\BPM.cs" />
     <Compile Include="Data\DataSources\DataSource.cs" />
-    <Compile Include="Data\DataSources\DebugSource\FrameRateHR.cs" />
-    <Compile Include="Data\DataSources\DebugSource\RandomHR.cs" />
-    <Compile Include="Data\DataSources\DebugSource\SweepHR.cs" />
     <Compile Include="Data\DataSources\FitbitHRtoWS.cs" />
     <Compile Include="Data\DataSources\HRProxy.cs" />
     <Compile Include="Data\DataSources\Pulsoid.cs" />
