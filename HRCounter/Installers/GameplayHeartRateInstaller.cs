@@ -19,7 +19,7 @@ namespace HRCounter.Installers
                 return;
             }
 
-            if (!DataSourceManager.TryGetFromStr(_config.DataSource, out var dataSource))
+            if (!DataSourceManager.TryGetFromKey(_config.DataSource, out var dataSource))
             {
                 _logger.Error($"Unknown data source: {_config.DataSource}");
                 return;

@@ -23,7 +23,7 @@ namespace HRCounter.Configuration
         public virtual string DataSource
         {
             get => _dataSourceStr;
-            set => _dataSourceStr = DataSourceManager.MigrateStr(value);
+            set => _dataSourceStr = DataSourceManager.MigrateKey(value);
         }
 
         [Ignore]

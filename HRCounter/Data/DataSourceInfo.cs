@@ -9,16 +9,16 @@ namespace HRCounter.Data
         public string Key { get; }
         public Type DataSourceType { get; }
         
-        private readonly Func<Task<string>> _sourceLinkTextAction;
+        private readonly Func<Task<string>> _sourceTextAction;
         
         private readonly Func<bool> _precondition;
 
-        internal DataSourceInfo(string key, Type dataSourceType, Func<Task<string>> sourceLinkTextCallback,
+        internal DataSourceInfo(string key, Type dataSourceType, Func<Task<string>> sourceTextCallback,
             Func<bool> precondition)
         {
             Key = key;
             DataSourceType = dataSourceType;
-            _sourceLinkTextAction = sourceLinkTextCallback;
+            _sourceTextAction = sourceTextCallback;
             _precondition = precondition;
         }
 
@@ -53,7 +53,7 @@ namespace HRCounter.Data
 
         internal async Task<string> GetSourceLinkText()
         {
-            return await _sourceLinkTextAction();
+            return await _sourceTextAction();
         }
 
         internal bool PreconditionSatisfied()

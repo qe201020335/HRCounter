@@ -123,7 +123,7 @@ namespace HRCounter.UI
         {
             modifiedText.text = "Loading Data Source Info...";
             await Task.Delay(100);
-            modifiedText.text = DataSourceManager.TryGetFromStr(_config.DataSource, out var source) 
+            modifiedText.text = DataSourceManager.TryGetFromKey(_config.DataSource, out var source) 
                 ? await source.GetSourceLinkText()
                 : "Unknown Data Source";
         }
