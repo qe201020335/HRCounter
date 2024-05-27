@@ -68,7 +68,7 @@ namespace HRCounter.UI
         }
         
         [UIValue("source-list-options")]
-        public List<object> options = new List<object>(DataSourceType.DataSourceTypes.Keys);
+        public List<object> options = new List<object>(DataSourceManager.DataSourceTypes.Keys);
 
         [UIValue("source-list-choice")]
         public string listChoice
@@ -123,10 +123,9 @@ namespace HRCounter.UI
         {
             modifiedText.text = "Loading Data Source Info...";
             await Task.Delay(100);
-            var source = DataSourceType.GetFromStr(_config.DataSource);
-            modifiedText.text = source == null 
-                ? "Unknown Data Source"
-                : await source.GetSourceLinkText();
+            modifiedText.text = DataSourceManager.TryGetFromStr(_config.DataSource, out var source) 
+                ? await source.GetSourceLinkText()
+                : "Unknown Data Source";
         }
         
         [UIValue("NoBloom")]

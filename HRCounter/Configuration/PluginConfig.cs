@@ -23,11 +23,11 @@ namespace HRCounter.Configuration
         public virtual string DataSource
         {
             get => _dataSourceStr;
-            set => _dataSourceStr = DataSourceType.MigrateStr(value);
+            set => _dataSourceStr = DataSourceManager.MigrateStr(value);
         }
 
         [Ignore]
-        private string _dataSourceStr = DataSourceType.YURMod.Str;
+        private string _dataSourceStr = DataSourceManager.YURMod.Key;
 
         public virtual string PulsoidToken { get; set; } = "";
 

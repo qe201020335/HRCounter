@@ -156,6 +156,7 @@
   <ItemGroup>
     <Compile Include="AssetBundleManager.cs" />
     <Compile Include="Data\BPM.cs" />
+    <Compile Include="Data\DataSourceManager.cs" />
     <Compile Include="Data\DataSources\DataSource.cs" />
     <Compile Include="Data\DataSources\FitbitHRtoWS.cs" />
     <Compile Include="Data\DataSources\HRProxy.cs" />
@@ -163,7 +164,7 @@
     <Compile Include="Data\DataSources\WebRequest.cs" />
     <Compile Include="Data\DataSources\YURApp.cs" />
     <Compile Include="Data\DataSources\YURMod.cs" />
-    <Compile Include="Data\DataSourceType.cs" />
+    <Compile Include="Data\DataSourceInfo.cs" />
     <Compile Include="Data\HRDataManager.cs" />
     <Compile Include="Data\HRDataReceivedEventArgs.cs" />
     <Compile Include="Data\IHRDataSource.cs" />

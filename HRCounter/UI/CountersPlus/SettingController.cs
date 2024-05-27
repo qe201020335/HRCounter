@@ -21,10 +21,9 @@ namespace HRCounter.UI.CountersPlus
                 Task.Factory.StartNew(async () =>
                 {
                     await Task.Delay(100);
-                    var source = DataSourceType.GetFromStr(_config.DataSource);
-                    _tmpText.text = source == null 
-                        ? "Unknown Data Source"
-                        : await source.GetSourceLinkText();
+                    _tmpText.text = DataSourceManager.TryGetFromStr(_config.DataSource, out var source) 
+                        ? await source.GetSourceLinkText()
+                        : "Unknown Data Source";
                 });
 
                 return "Loading Current Data Source Info...";
