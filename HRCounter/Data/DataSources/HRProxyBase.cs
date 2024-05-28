@@ -7,42 +7,34 @@ using Random = UnityEngine.Random;
 
 namespace HRCounter.Data.DataSources
 {
-    internal sealed class HRProxy : DataSource
+    internal abstract class HRProxyBase : DataSource
     {
         private const string URL = "wss://hrproxy.fortnite.lol:2096/hrproxy";
 
         // private const string PONG = "{\"method\": \"pong\"}";
         
-        private readonly string _sessionJson;
+        protected abstract string ReaderName { get; }
+        
+        protected abstract string EventIdentifier { get; }
+        
+        private string SubscribeJson
+        {
+            get
+            {
+                var o = new JObject
+                {
+                    new JProperty("reader", ReaderName),
+                    new JProperty("identifier", EventIdentifier),
+                    new JProperty("service", "beatsaber")
+                };
+            
+                return o.ToString();
+            }
+        }
 
         private bool _updating;
 
         private WebSocket? _webSocket;
-
-        internal HRProxy()
-        {
-            var reader = Config.DataSource;
-            string id;
-            if (reader == "HypeRate")
-            {
-                id = Config.HypeRateSessionID;
-            }
-            else if(reader == "Pulsoid")
-            {
-                id = Config.PulsoidWidgetID;
-            }
-            else
-            {
-                id = Config.HRProxyID;
-            }
-
-            JObject _subscribe = new JObject();
-            _subscribe["reader"] = reader;
-            _subscribe["identifier"] = id;
-            _subscribe["service"] = "beatsaber";
-            
-            _sessionJson = _subscribe.ToString();
-        }
 
         protected override void Start()
         {
@@ -89,7 +81,7 @@ namespace HRCounter.Data.DataSources
             _webSocket.OnError += OnSocketError;
             _webSocket.OnClose += OnSocketClose;
             _webSocket.Connect();
-            SendMessage(_sessionJson);
+            SendMessage(SubscribeJson);
         }
 
         private async void Pong(JObject data)

@@ -16,6 +16,7 @@ namespace HRCounter.Data
     {
         private const string HYPERATE_KEY = "HypeRate";
         private const string PULSOID_KEY = "Pulsoid";
+        private const string PULSOID_WIDEGT_KEY = "PulsoidWidget";
         private const string WEBREQUEST_KEY = "WebRequest";
         private const string FITBIT_KEY = "FitbitHRtoWS";
         private const string HRPROXY_KEY = "HRProxy";
@@ -55,7 +56,7 @@ namespace HRCounter.Data
         internal static string MigrateKey(string old)
         {
             if (DataSourceTypes.ContainsKey(old)) return old;
-            if (old.ToLower().Contains("pulsoid")) return Puloid.Key;
+            if (old.ToLower().StartsWith("pulsoid")) return Pulsoid.Key;
             return old;
         }
         
@@ -71,12 +72,12 @@ namespace HRCounter.Data
 
         #region Some Instances
 
-        internal static DataSourceInfo HypeRate = RegisterDataSource<HRProxy>(HYPERATE_KEY,
+        internal static DataSourceInfo HypeRate = RegisterDataSource<HypeRate>(HYPERATE_KEY,
             () => DataSourceUtils.WebSocketSharpInstalled ? $"Current Session ID: {Config.HypeRateSessionID}" : WSNotInstalledStr,
             () => GenericPreconditionWS(Config.HypeRateSessionID)
         );
 
-        internal static DataSourceInfo Puloid = RegisterDataSource<Pulsoid>(PULSOID_KEY, async () =>
+        internal static DataSourceInfo Pulsoid = RegisterDataSource<Pulsoid>(PULSOID_KEY, async () =>
             {
                 if (!GenericPrecondition(Config.PulsoidToken))
                 {
@@ -101,7 +102,7 @@ namespace HRCounter.Data
             () => GenericPreconditionWS(Config.FitbitWebSocket)
         );
 
-        internal static DataSourceInfo HRProxy = RegisterDataSource<HRProxy>(HRPROXY_KEY,
+        internal static DataSourceInfo HRProxy = RegisterDataSource<HRProxyCustomReader>(HRPROXY_KEY,
             () => DataSourceUtils.WebSocketSharpInstalled
                 ? $"Current HRProxy ID: {Config.HRProxyID.TruncateW()}"
                 : WSNotInstalledStr,
@@ -120,6 +121,14 @@ namespace HRCounter.Data
                 ? "<color=#FF0000>YUR MOD IS NOT INSTALLED OR ENABLED!</color>"
                 : "YUR MOD Detected!",
             () => PluginManager.GetPluginFromId(DataSourceUtils.YUR_MOD_ID) != null
+        );
+        
+        internal static DataSourceInfo PulsoidWidget = RegisterDataSource<PulsoidWidget>(PULSOID_WIDEGT_KEY, async () =>
+            {
+                var status = $"Widget ID: {(GenericPrecondition(Config.PulsoidWidgetID) ? Config.PulsoidWidgetID.TruncateW(10) : "Not Set")}"; 
+                return "<color=#FF5630>EXPERIMENTAL</color> "+ status;
+            },
+            () => GenericPrecondition(Config.PulsoidToken)
         );
 
 #if DEBUG
