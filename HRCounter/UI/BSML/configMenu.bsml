@@ -10,7 +10,7 @@
                 <dropdown-list-setting text="Data Source" value="source-list-choice" choices="source-list-options" apply-on-change="true"/>
                 <!-- Don't know why it is horizontal but it works! Thank you Aeroluna! :D-->
                 <horizontal pad-top="0" pad-bottom="0">
-                    <text id="data-source-info-text" text='~data-source-info-text' italics="false" align="Center"/>
+                    <text id="data-source-info-text" italics="false" align="Center"/>
                 </horizontal>
             </vertical>
         </tab>

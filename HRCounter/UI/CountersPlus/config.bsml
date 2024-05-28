@@ -1,13 +1,5 @@
 ﻿<vertical spacing="1.5" horizontal-fit="PreferredSize">
-<!--    <bool-setting text="Hide During Replay" value="HideDuringReplay" hover-hint="Hide this counter while in a replay" apply-on-change="true"/>-->
-<!--    <bool-setting text="Colorize HR Text" value="Colorize" hover-hint="Colorize the heart rate number." apply-on-change="true"/>-->
-<!--    <dropdown-list-setting text="Data Source" value="source-list-choice" choices="source-list-options" apply-on-change="true"/>-->
     <text text="All configurations are moved to the main menu mods panel!"/>
-    <text text="~data-source-text" italics="true" align="Center"/>
-    <text text='~data-source-info-text' id='data-source-info-text' italics="true" align="Center"/>
-<!--    <increment-setting text="Heart Rate Lower Bound" value="HRLow" integer-only="true" min="60" max="140" increment="1" apply-on-change="true"/>-->
-<!--    <increment-setting text="Heart Rate Upper Bound" value="HRHigh" integer-only="true" min="140" max="220" increment="1" apply-on-change="true"/>-->
-<!--    <bool-setting text="Auto Pause" value="AutoPause" hover-hint="Automatically pause the game if your heart rate is too high, set threshold below" apply-on-change="true"/>-->
-<!--    <increment-setting text="Pause Heart Rate" value="PauseHR" integer-only="true" min="150" max="250" increment="5" apply-on-change="true"/>-->
-<!--    <bool-setting text="Log Heart Rate" value="LogHR" hover-hint="Whether the received HR data will be logged." apply-on-change="true"/>-->
+    <text id="data-source-text" italics="true" align="Center"/>
+    <text id='data-source-info-text' italics="true" align="Center"/>
 </vertical>

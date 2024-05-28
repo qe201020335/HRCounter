@@ -7,21 +7,21 @@ using Newtonsoft.Json.Linq;
 
 namespace HRCounter.Data.DataSources
 {
-    internal class Pulsoid : DataSourceInternal
+    internal class Pulsoid : DataSource
     {
-        private static string Token => Config.PulsoidToken;
         private bool _updating;
 
         private const string PULSOID_API = "https://dev.pulsoid.net/api/v1/data/heart_rate/latest";
 
         private static readonly HttpClient HttpClient = new HttpClient();
 
-        internal Pulsoid()
+        public override void Initialize()
         {
-            HttpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {Token}");
+            HttpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {Config.PulsoidToken}");
+            base.Initialize();
         }
 
-        protected internal override void Start()
+        protected override void Start()
         {
             Logger.Info("Starts updating HR");
             _updating = true;
@@ -37,7 +37,7 @@ namespace HRCounter.Data.DataSources
             });
         }
 
-        protected internal override void Stop()
+        protected override void Stop()
         {
             _updating = false;
         }
@@ -53,11 +53,11 @@ namespace HRCounter.Data.DataSources
             }
             else if (measuredAt == null)
             {
-                OnHearRateDataReceived(hr.Value);
+                OnHeartRateDataReceived(hr.Value);
             }
             else
             {
-                OnHearRateDataReceived(hr.Value, measuredAt);
+                OnHeartRateDataReceived(hr.Value, measuredAt);
             }
         }
 

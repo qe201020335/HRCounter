@@ -1,15 +1,15 @@
 ﻿using System.Threading.Tasks;
 
-namespace HRCounter.Data.DataSources
+namespace HRCounter.Data.DataSources.DebugSource
 {
-    internal class SweepHR: DataSourceInternal
+    internal class SweepHR: DataSource
     {
         private bool _updating = false;
         private const int Low = 60;
         private const int High = 240;
             
         
-        protected internal override void Start()
+        protected override void Start()
         {
             _updating = true;
             Task.Factory.StartNew(async () =>
@@ -17,14 +17,14 @@ namespace HRCounter.Data.DataSources
                 var hr = 0;
                 while (_updating)
                 {
-                    OnHearRateDataReceived(hr + Low);
+                    OnHeartRateDataReceived(hr + Low);
                     await Task.Delay(100);
                     hr = (hr + 1) % (High - Low);
                 }
             });
         }
 
-        protected internal override void Stop()
+        protected override void Stop()
         {
             _updating = false;
         }

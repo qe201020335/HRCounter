@@ -146,21 +146,31 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+  
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <Compile Include="Data\DataSources\DebugSource\FrameRateHR.cs" />
+    <Compile Include="Data\DataSources\DebugSource\RandomHR.cs" />
+    <Compile Include="Data\DataSources\DebugSource\SweepHR.cs" />
+  </ItemGroup>
+  
   <ItemGroup>
     <Compile Include="AssetBundleManager.cs" />
     <Compile Include="Data\BPM.cs" />
+    <Compile Include="Data\DataSourceManager.cs" />
     <Compile Include="Data\DataSources\DataSource.cs" />
-    <Compile Include="Data\DataSources\DataSourceInternal.cs" />
     <Compile Include="Data\DataSources\FitbitHRtoWS.cs" />
-    <Compile Include="Data\DataSources\HRProxy.cs" />
+    <Compile Include="Data\DataSources\HRProxyBase.cs" />
+    <Compile Include="Data\DataSources\HRProxyCustomReader.cs" />
+    <Compile Include="Data\DataSources\HypeRate.cs" />
     <Compile Include="Data\DataSources\Pulsoid.cs" />
-    <Compile Include="Data\DataSources\RandomHR.cs" />
-    <Compile Include="Data\DataSources\SweepHR.cs" />
+    <Compile Include="Data\DataSources\PulsoidWidget.cs" />
     <Compile Include="Data\DataSources\WebRequest.cs" />
     <Compile Include="Data\DataSources\YURApp.cs" />
     <Compile Include="Data\DataSources\YURMod.cs" />
-    <Compile Include="Data\DataSourceType.cs" />
+    <Compile Include="Data\DataSourceInfo.cs" />
     <Compile Include="Data\HRDataManager.cs" />
+    <Compile Include="Data\HRDataReceivedEventArgs.cs" />
+    <Compile Include="Data\IHRDataSource.cs" />
     <Compile Include="GamePauseController.cs" />
     <Compile Include="HRCounterCountersPlus.cs" />
     <Compile Include="HRCounterController.cs" />

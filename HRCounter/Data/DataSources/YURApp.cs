@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 
 namespace HRCounter.Data.DataSources
 {
-    internal sealed class YURApp: DataSourceInternal
+    internal sealed class YURApp: DataSource
     {
         private const string HOST = "127.0.0.1";
         private const int PORT = 11010;
@@ -20,7 +20,7 @@ namespace HRCounter.Data.DataSources
 
         private CancellationTokenSource? _cancellationSource;
 
-        protected internal override void Start()
+        protected override void Start()
         {
             _running = true;
             if (_client != null)
@@ -197,7 +197,7 @@ namespace HRCounter.Data.DataSources
 
                 if (hrToken != null)
                 {
-                    OnHearRateDataReceived(hrToken.ToObject<int>());
+                    OnHeartRateDataReceived(hrToken.ToObject<int>());
                 }
                 
 
@@ -235,7 +235,7 @@ namespace HRCounter.Data.DataSources
             _client = null;
         }
 
-        protected internal override void Stop()
+        protected override void Stop()
         {
             _running = false;
             _cancellationSource?.Cancel();

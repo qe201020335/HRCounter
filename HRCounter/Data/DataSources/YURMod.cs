@@ -4,9 +4,9 @@ using YUR.Fit.Unity;
 
 namespace HRCounter.Data.DataSources
 {
-    internal sealed class YURMod : DataSourceInternal
+    internal sealed class YURMod : DataSource
     {
-        protected internal override void Start()
+        protected override void Start()
         {
             CoreServiceManager.OverlayUpdateAction += OnOverlayStatusUpdate;
         }
@@ -21,12 +21,12 @@ namespace HRCounter.Data.DataSources
                     var hr = calMetric?.GetType().GetProperty("EstHeartRate")?.GetValue(calMetric);
                     if (hr != null)
                     {
-                        OnHearRateDataReceived(Convert.ToInt32(hr));
+                        OnHeartRateDataReceived(Convert.ToInt32(hr));
                     }
                 }
                 else
                 {
-                    OnHearRateDataReceived(Convert.ToInt32(osu.HeartRate.Value));
+                    OnHeartRateDataReceived(Convert.ToInt32(osu.HeartRate.Value));
                 }
             }
             catch (Exception e)
@@ -38,7 +38,7 @@ namespace HRCounter.Data.DataSources
             }
         }
         
-        protected internal override void Stop()
+        protected override void Stop()
         {
             CoreServiceManager.OverlayUpdateAction -= OnOverlayStatusUpdate;
         }

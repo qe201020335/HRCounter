@@ -7,16 +7,16 @@ using Newtonsoft.Json.Linq;
 
 namespace HRCounter.Data.DataSources
 {
-    internal sealed class WebRequest : DataSourceInternal
+    internal sealed class WebRequest : DataSource
     {
-        private static string FeedLink => Config.FeedLink;
+        private string FeedLink => Config.FeedLink;
         private bool _updating;
 
         private readonly Regex _regex = new Regex("^\\d+$");
         
         private static readonly HttpClient HttpClient = new HttpClient();
 
-        protected internal override void Start()
+        protected override void Start()
         {
             Logger.Info("Starts updating HR");
             _updating = true;
@@ -32,7 +32,7 @@ namespace HRCounter.Data.DataSources
             });
         }
 
-        protected internal override void Stop()
+        protected override void Stop()
         {
             _updating = false;
         }
@@ -47,7 +47,7 @@ namespace HRCounter.Data.DataSources
                     var hr = int.Parse(res);
                     if (_updating)
                     {
-                        OnHearRateDataReceived(hr);
+                        OnHeartRateDataReceived(hr);
                     }
                 }
                 else
@@ -69,11 +69,11 @@ namespace HRCounter.Data.DataSources
                             {
                                 if (timestamp == null)
                                 {
-                                    OnHearRateDataReceived(hr);
+                                    OnHeartRateDataReceived(hr);
                                 }
                                 else
                                 {
-                                    OnHearRateDataReceived(hr, timestamp);
+                                    OnHeartRateDataReceived(hr, timestamp);
                                 }
                             }
                         }

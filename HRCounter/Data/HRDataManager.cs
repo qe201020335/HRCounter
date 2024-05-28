@@ -1,50 +1,32 @@
 ﻿using System;
 using System.Threading.Tasks;
-using HRCounter.Configuration;
-using HRCounter.Data.DataSources;
 using SiraUtil.Logging;
 using Zenject;
-using IPALogger = IPA.Logging.Logger;
 
 namespace HRCounter.Data
 {
     public class HRDataManager : IInitializable, IDisposable
     {
-        
-        [Inject] private readonly SiraLog _logger = null!;
+        [Inject] 
+        private readonly SiraLog _logger = null!;
 
-        private static DataSource? _dataSource;
-
-        internal HRDataManager(DataSource dataSource)
-        {
-            _dataSource = dataSource;
-        }
+        [InjectOptional]
+        private IHRDataSource? _dataSource;
 
         public event Action<int>? OnHRUpdate;
+        
+        public int CurrentBpm => BPM.Bpm;
 
         public void Initialize()
         {
             _logger.Debug("HRDataManager Init");
             if (_dataSource == null)
             {
-                _logger.Warn("BPM Downloader is null!");
+                _logger.Critical("BPM Downloader is null!");
                 return;
             }
 
-            _dataSource.OnHRUpdate += OnHRUpdateInternalHandler;
-
-            try
-            {
-                _dataSource.Start();
-                _logger.Info("Start updating heart rate");
-            }
-            catch (Exception e)
-            {
-                _logger.Error($"Could not start bpm downloader. {e.Message}");
-                _logger.Debug(e);
-                _dataSource.OnHRUpdate -= OnHRUpdateInternalHandler;
-                _dataSource.Stop();
-            }
+            _dataSource.OnHRDataReceived += OnHrDataReceivedInternalHandler;
         }
 
         public void Dispose()
@@ -52,24 +34,27 @@ namespace HRCounter.Data
             _logger.Debug("HRDataManager Dispose");
             if (_dataSource != null)
             {
-                _dataSource.OnHRUpdate -= OnHRUpdateInternalHandler;
+                _dataSource.OnHRDataReceived -= OnHrDataReceivedInternalHandler;
             }
-
-            _dataSource?.Stop();
-            // _dataSource = null;
         }
 
-        private void OnHRUpdateInternalHandler(int hr)
+        private void OnHrDataReceivedInternalHandler(object sender, HRDataReceivedEventArgs args)
         {
-            try
+            BPM.Set(args.HR, args.ReceivedAt);
+            
+            Task.Factory.StartNew(() =>
             {
-                Task.Factory.StartNew(() => { OnHRUpdate?.Invoke(hr); });
-            }
-            catch (Exception e)
-            {
-                _logger.Critical($"Exception Caught while broadcasting hr update event: {e.Message}");
-                _logger.Critical(e);
-            }
+                try
+                {
+                    var handler = OnHRUpdate;
+                    handler?.Invoke(args.HR);
+                }
+                catch (Exception e)
+                {
+                    _logger.Critical($"Exception Caught while broadcasting hr update event: {e.Message}");
+                    _logger.Critical(e);
+                }
+            });
         }
     }
 }
