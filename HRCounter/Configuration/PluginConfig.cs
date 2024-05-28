@@ -5,6 +5,7 @@ using HRCounter.Data;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using IPA.Config.Stores.Converters;
+using JetBrains.Annotations;
 using UnityEngine;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
@@ -72,20 +73,35 @@ namespace HRCounter.Configuration
         public virtual Vector3 StaticCounterPosition { get; set; } = new Vector3(0f, 1.2f, 7f);
 
         internal event Action? OnSettingsChanged;
+        
+        private void RaiseSettingsChanged()
+        {
+            Log.Logger.Trace("HRCounter Settings Changed!");
+            Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    var e = OnSettingsChanged;
+                    e?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Log.Logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
+                    Log.Logger.Critical(e);
+                }
+            });
+        }
+        
+        [UsedImplicitly]
+        public virtual void Changed()
+        {
+            RaiseSettingsChanged();
+        }
 
+        [UsedImplicitly]
         public virtual void OnReload()
         {
-            Log.Logger.Notice("HRCounter Settings Changed!");
-            try
-            {
-                var e = OnSettingsChanged;
-                Task.Factory.StartNew(() => { e?.Invoke(); });
-            }
-            catch (Exception e)
-            {
-                Log.Logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
-                Log.Logger.Critical(e);
-            }
+            RaiseSettingsChanged();
         }
     }
 }

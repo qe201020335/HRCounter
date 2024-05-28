@@ -1,9 +1,11 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
+﻿using System;
+using BeatSaberMarkupLanguage.Attributes;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
 using HRCounter.Data;
+using IPA.Utilities.Async;
+using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -15,10 +17,80 @@ namespace HRCounter.UI
     [ViewDefinition("HRCounter.UI.BSML.configMenu.bsml")]
     internal class SettingMenuController : BSMLAutomaticViewController
     {
-
         [Inject]
         private readonly PluginConfig _config = null!;
+        
+        [Inject]
+        private readonly SiraLog _logger = null!;
+        
+        private string _previousDataSource = "";
+        
+        private void RefreshConfigUi()
+        {
+            _logger.Trace("SettingMenuController RefreshConfigUi");
+            NotifyPropertyChanged();
 
+            if (_previousDataSource != _config.DataSource)
+            {
+                _previousDataSource = _config.DataSource;
+                UpdateDataSourceInfoText();
+            }
+        }
+        
+        private void UpdateDataSourceInfoText()
+        {
+            var known = DataSourceManager.TryGetFromKey(_config.DataSource, out var source);
+            if (!known)
+            {
+                _dataSourceInfoText.text = "Unknown Data Source";
+                return;
+            }
+            
+            _dataSourceInfoText.text = "Loading Data Source Info...";
+            UnityMainThreadTaskScheduler.Factory.StartNew(async () =>
+            {
+                try
+                {
+                    _dataSourceInfoText.text = await source.GetSourceLinkText();
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"Failed to update data source info text: {e}");
+                    throw;
+                }
+            });
+        }
+
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+        {
+            _logger.Trace("SettingMenuController DidActivate");
+            base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+            
+            if (firstActivation)
+            {
+                // no point to refresh the ui if it literally just activated and read the config
+                UpdateDataSourceInfoText();
+                _previousDataSource = _config.DataSource;
+            }
+            else
+            {
+                // config might have changed while we were inactive
+                RefreshConfigUi();
+            }
+            
+            _config.OnSettingsChanged += RefreshConfigUi;
+        }
+
+        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
+        {
+            _logger.Trace("SettingMenuController DidDeactivate");
+            _config.OnSettingsChanged -= RefreshConfigUi;
+            _previousDataSource = "";  // force a refresh next time we activate
+            base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
+        }
+
+        #region UIComponents
+        
         [UIValue("ModEnable")]
         private bool ModEnable
         {
@@ -58,7 +130,7 @@ namespace HRCounter.UI
 
         [UIValue("color-info-text")]
         public string ColorInfoText =>
-            $"Current Colors: <color={ColorUtility.ToHtmlStringRGBA(_config.LowColor)}>Low</color> -> <color={ColorUtility.ToHtmlStringRGBA(_config.MidColor)}>Middle</color> -> <color={ColorUtility.ToHtmlStringRGBA(_config.HighColor)}>High</color>";
+            $"Current Colors: <color=#{ColorUtility.ToHtmlStringRGBA(_config.LowColor)}>Low</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(_config.MidColor)}>Middle</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(_config.HighColor)}>High</color>";
         
         [UIValue("HideDuringReplay")]
         public bool HideDuringReplay
@@ -68,17 +140,13 @@ namespace HRCounter.UI
         }
         
         [UIValue("source-list-options")]
-        public List<object> options = new List<object>(DataSourceManager.DataSourceTypes.Keys);
+        public List<object> DataSourceOptions => new List<object>(DataSourceManager.DataSourceTypes.Keys);
 
         [UIValue("source-list-choice")]
-        public string listChoice
+        public string DataSourceChoice
         {
             get => _config.DataSource;
-            set
-            {
-                _config.DataSource = value;
-                UpdateText();
-            }
+            set => _config.DataSource = value;
         }
         
         [UIValue("PauseHR")]
@@ -103,30 +171,7 @@ namespace HRCounter.UI
         }
         
         [UIComponent("data-source-info-text")]
-        private TextMeshProUGUI modifiedText;
-
-        [UIValue("data-source-info-text")]
-        private string dataSourceInfo
-        {
-            get
-            {
-                Task.Factory.StartNew(async () =>
-                {
-                    await Task.Delay(100);
-                    UpdateText();
-                });
-                return "Loading Data Source Info...";
-            }
-        }
-
-        private async void UpdateText()
-        {
-            modifiedText.text = "Loading Data Source Info...";
-            await Task.Delay(100);
-            modifiedText.text = DataSourceManager.TryGetFromKey(_config.DataSource, out var source) 
-                ? await source.GetSourceLinkText()
-                : "Unknown Data Source";
-        }
+        private TextMeshProUGUI _dataSourceInfoText = null!;
         
         [UIValue("NoBloom")]
         private bool NoBloom
@@ -134,6 +179,7 @@ namespace HRCounter.UI
             get => _config.NoBloom;
             set => _config.NoBloom = value;
         }
-        
+        #endregion
+
     }
 }
