@@ -33,6 +33,10 @@ namespace HRCounter.UI.CountersPlus
             _logger.Trace("SettingController constructed");
         }
 
+        // Due to an really old issue in Counters+ https://github.com/NuggoDEV/CountersPlus/pull/141
+        // MonoBehaviour settings menu will not work, though we should use MonoBehaviour to sync up 
+        // our menu lifecycle with the UI components'
+        // A workaround here using a de-constructor.
         ~SettingController()
         {
             _config.OnSettingsChanged -= SettingsChangedHandler;
@@ -49,9 +53,12 @@ namespace HRCounter.UI.CountersPlus
 
         private void SettingsChangedHandler()
         {
-            if (_dataSourceText == null || _dataSourceInfoText == null)
+            if (!_parsed || _dataSourceText == null || _dataSourceInfoText == null)
             {
-                _parsed = false; // the game soft restarted so the components were destroyed
+                // the game soft restarted so the components were destroyed
+                _parsed = false;
+                _dataSourceText = null!;
+                _dataSourceInfoText = null!;
                 return;
             }
 

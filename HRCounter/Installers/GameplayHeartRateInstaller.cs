@@ -41,7 +41,7 @@ namespace HRCounter.Installers
             }
             else
             {
-                Container.BindInterfacesTo(dataSource.DataSourceType).AsSingle();
+                Container.BindInterfacesAndSelfTo(dataSource.DataSourceType).AsSingle();
             }
             
             _logger.Debug("binding hr controller");
