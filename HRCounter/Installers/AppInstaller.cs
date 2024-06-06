@@ -1,4 +1,5 @@
 ﻿using HRCounter.Configuration;
+using HRCounter.Web;
 using Zenject;
 
 namespace HRCounter.Installers
@@ -16,6 +17,10 @@ namespace HRCounter.Installers
         {
             Container.BindInstance(_config).AsSingle();
             Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
+            
+            // Web stuff
+            Container.BindInterfacesTo<SimpleHttpServer>().AsSingle();
+            Container.BindInterfacesTo<HttpConfigHandler>().AsSingle();
         }
     }
 }

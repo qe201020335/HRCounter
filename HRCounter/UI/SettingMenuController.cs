@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
 using HRCounter.Data;
+using HRCounter.Web;
 using IPA.Utilities.Async;
 using SiraUtil.Logging;
 using TMPro;

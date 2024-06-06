@@ -21,7 +21,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkProfile />
-    <LangVersion>8</LangVersion>
+    <LangVersion>12</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -189,10 +189,16 @@
     <Compile Include="UI\MenuButtonManager.cs" />
     <Compile Include="UI\MenuButtonManagerOld.cs" />
     <Compile Include="UI\SettingMenuController.cs" />
+    <Compile Include="Utils\Converters\HexColorJsonConverter.cs" />
+    <Compile Include="Utils\Converters\Vector3JsonConverter.cs" />
     <Compile Include="Utils\DataSourceUtils.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\RenderUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
+    <Compile Include="Web\HttpConfigHandler.cs" />
+    <Compile Include="Web\HttpListenerContextExtensions.cs" />
+    <Compile Include="Web\IHttpRouteHandler.cs" />
+    <Compile Include="Web\SimpleHttpServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
