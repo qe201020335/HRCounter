@@ -29,7 +29,7 @@ namespace HRCounter.UI
         private void RefreshConfigUi()
         {
             _logger.Trace("SettingMenuController RefreshConfigUi");
-            NotifyPropertyChanged();
+            NotifyPropertyChanged(string.Empty);  // refresh all of them
 
             if (_previousDataSource != _config.DataSource)
             {
