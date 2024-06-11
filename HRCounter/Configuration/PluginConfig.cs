@@ -18,6 +18,8 @@ namespace HRCounter.Configuration
     {
         [Obsolete("Try using DI instead.")]
         public static PluginConfig Instance { get; set; }
+        
+        public static PluginConfig DefaultValues { get; } = new PluginConfig();
 
         #region private backing fields
         

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using BeatSaberMarkupLanguage.Attributes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
 using HRCounter.Data;
-using HRCounter.Web;
+using HRCounter.Utils;
 using IPA.Utilities.Async;
 using SiraUtil.Logging;
 using TMPro;
@@ -38,6 +39,16 @@ namespace HRCounter.UI
                 _previousDataSource = _config.DataSource;
                 UpdateDataSourceInfoText();
             }
+
+            UpdateColorText();
+        }
+        
+        private void UpdateColorText()
+        {
+            if (_colorVisualizerCoroutine == null)
+            {
+                ColorInfoText.text = DefaultColorText;
+            }
         }
         
         private void UpdateDataSourceInfoText()
@@ -69,6 +80,14 @@ namespace HRCounter.UI
                 _dataSourceInfoRefreshBtn.interactable = true;
             });
         }
+        
+        /**
+         * Request a UI refresh from other threads
+         */
+        private void RequestUiRefresh()
+        {
+            UnityMainThreadTaskScheduler.Factory.StartNew(RefreshConfigUi);
+        }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
@@ -80,6 +99,7 @@ namespace HRCounter.UI
                 // no point to refresh the ui if it literally just activated and read the config
                 UpdateDataSourceInfoText();
                 _previousDataSource = _config.DataSource;
+                UpdateColorText();
             }
             else
             {
@@ -87,14 +107,19 @@ namespace HRCounter.UI
                 RefreshConfigUi();
             }
             
-            _config.OnSettingsChanged += RefreshConfigUi;
+            _config.OnSettingsChanged += RequestUiRefresh;
         }
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
         {
             _logger.Trace("SettingMenuController DidDeactivate");
-            _config.OnSettingsChanged -= RefreshConfigUi;
+            _config.OnSettingsChanged -= RequestUiRefresh;
             _previousDataSource = "";  // force a refresh next time we activate
+            if (_colorVisualizerCoroutine != null)
+            {
+                VisualizeColorsBtnPressed();  // stop the visualization and reset the text
+            }
+            
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
         }
 
@@ -137,9 +162,8 @@ namespace HRCounter.UI
             set => _config.HRHigh = value;
         }
 
-        [UIValue("color-info-text")]
-        public string ColorInfoText =>
-            $"Current Colors: <color=#{ColorUtility.ToHtmlStringRGBA(_config.LowColor)}>Low</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(_config.MidColor)}>Middle</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(_config.HighColor)}>High</color>";
+        [UIComponent("color-info-text")]
+        private TMP_Text ColorInfoText = null!;
         
         [UIValue("HideDuringReplay")]
         public bool HideDuringReplay
@@ -198,12 +222,101 @@ namespace HRCounter.UI
             get => _config.EnableHttpServer;
             set => _config.EnableHttpServer = value;
         }
+        
+        [UIValue("LowColor")]
+        private Color LowColor
+        {
+            get => _config.LowColor;
+            set => _config.LowColor = value;
+        }
+        
+        [UIValue("MidColor")]
+        private Color MidColor
+        {
+            get => _config.MidColor;
+            set => _config.MidColor = value;
+        }
+        
+        [UIValue("HighColor")]
+        private Color HighColor
+        {
+            get => _config.HighColor;
+            set => _config.HighColor = value;
+        }
         #endregion
         
         [UIAction("data-source-info-refresh-btn-action")]
         private void OnDataSourceInfoRefreshBtnPressed()
         {
             UpdateDataSourceInfoText();
+        }
+        
+        [UIAction("reset-low-color")]
+        private void ResetLowColor()
+        {
+            _config.LowColor = PluginConfig.DefaultValues.LowColor;
+        }
+        
+        [UIAction("reset-mid-color")]
+        private void ResetMidColor()
+        {
+            _config.MidColor = PluginConfig.DefaultValues.MidColor;
+        }
+        
+        [UIAction("reset-high-color")]
+        private void ResetHighColor()
+        {
+            _config.HighColor = PluginConfig.DefaultValues.HighColor;
+        }
+        
+        private Coroutine? _colorVisualizerCoroutine;
+        
+        private string _visualizeColorsBtnText = "Visualize";
+        
+        [UIValue("visualize-colors-btn-text")]
+        private string VisualizeColorsBtnText { 
+            get => _visualizeColorsBtnText;
+            set
+            {
+                _visualizeColorsBtnText = value;
+                NotifyPropertyChanged();
+            } 
+        }
+        
+        [UIAction("visualize-colors-btn-pressed")]
+        private void VisualizeColorsBtnPressed()
+        {
+            if (_colorVisualizerCoroutine != null)
+            {
+                StopCoroutine(_colorVisualizerCoroutine);
+                _colorVisualizerCoroutine = null;
+                ColorInfoText.text = DefaultColorText;
+                VisualizeColorsBtnText = "Visualize";
+            }
+            else
+            {
+                _colorVisualizerCoroutine = StartCoroutine(VisualizeColorsCoroutine());
+                VisualizeColorsBtnText = "Stop";
+            }
+        }
+
+        private string DefaultColorText =>
+            $"<color=#{ColorUtility.ToHtmlStringRGBA(_config.LowColor)}>Low</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(_config.MidColor)}>Middle</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(_config.HighColor)}>High</color>";
+
+        private IEnumerator VisualizeColorsCoroutine()
+        {
+            var start = _config.HRLow;
+
+            while (isActivated)
+            {
+                ColorInfoText.text = $"<size=+5><color=#{ColorUtility.ToHtmlStringRGB(RenderUtils.DetermineColor(start))}>{start}</color></size>";
+                start++;
+                if (start > _config.HRHigh)
+                {
+                    start = _config.HRLow;
+                }
+                yield return new WaitForSeconds(0.05f);
+            }
         }
     }
 }
