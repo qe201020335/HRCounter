@@ -3,6 +3,7 @@ using HRCounter.Web;
 using HRCounter.Web.HTTP;
 using HRCounter.Web.HTTP.Handlers;
 using HRCounter.Web.OSC;
+using HRCounter.Web.OSC.Handlers;
 using Zenject;
 
 namespace HRCounter.Installers
@@ -27,6 +28,7 @@ namespace HRCounter.Installers
             Container.BindInterfacesAndSelfTo<HttpHRHandler>().AsSingle();
 
             Container.BindInterfacesTo<SimpleOscServer>().AsSingle();
+            Container.BindInterfacesAndSelfTo<OscHRHandler>().AsSingle();
         }
     }
 }

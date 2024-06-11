@@ -7,6 +7,7 @@ using HRCounter.Utils;
 using HRCounter.Web.HTTP;
 using IPA.Loader;
 
+
 #if DEBUG
 using HRCounter.Data.DataSources.DebugSource;
 #endif
@@ -24,6 +25,7 @@ namespace HRCounter.Data
         private const string YUR_APP_KEY = "YUR APP";
         private const string YUR_MOD_KEY = "YUR MOD";
         private const string HTTP_SERVER_KEY = "HttpServer";
+        private const string OSC_KEY = "OSC Protocol";
 
         private static readonly string WSNotInstalledStr =
             $"<color=#FF0000>{DataSourceUtils.WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
@@ -125,9 +127,15 @@ namespace HRCounter.Data
             () => PluginManager.GetPluginFromId(DataSourceUtils.YUR_MOD_ID) != null
         );
         
+        internal static DataSourceInfo OscServer = RegisterDataSource<OscHR>(OSC_KEY,
+            () => Config.EnableOscServer 
+                ? $"Send to port {Config.OscPort}, {Config.OscAddress}" 
+                : "<color=#FF0000>OSC Server is NOT enabled!</color>",
+            () => true);
+        
         internal static DataSourceInfo HttpServer = RegisterDataSource<HttpServerDataSource>(HTTP_SERVER_KEY,
             () => Config.EnableHttpServer 
-                ? $"POST to: {SimpleHttpServer.PREFIX}" 
+                ? $"POST to: {SimpleHttpServer.PREFIX}/hr" 
                 : "<color=#FF0000>HTTP Server is NOT enabled!</color>",
             () => true
         );
