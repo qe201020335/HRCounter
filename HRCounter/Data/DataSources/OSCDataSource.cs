@@ -62,6 +62,15 @@ namespace HRCounter.Data.DataSources.OSCDataSource
                 return;
             }
 
+            Regex? filter_re = null;
+            try
+            {
+                if (Config.OSCAddressFilterRegex != "")
+                    filter_re = new Regex(Config.OSCAddressFilterRegex);
+            }catch (ArgumentException) {
+                //invalid address filter
+            }
+
             while (_updating) {
                 try
                 {
@@ -70,16 +79,6 @@ namespace HRCounter.Data.DataSources.OSCDataSource
                     {
                         continue;
                     }
-
-                    Regex? filter_re = null;
-                    try
-                    {
-                        if (Config.OSCAddressFilterRegex != "")
-                            filter_re = new Regex(Config.OSCAddressFilterRegex);
-                    }catch (ArgumentException) {
-                        //invalid address filter
-                    }
-
 
                     try
                     {
