@@ -25,7 +25,8 @@
       <Private>False</Private>
     </Reference>
       <Reference Include="Counters+">
-      <HintPath>$(BeatSaberDir)\Plugins\Counters+.dll</HintPath><Private>False</Private>
+      <HintPath>$(BeatSaberDir)\Plugins\Counters+.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Hive.Versioning">
       <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
@@ -68,6 +69,7 @@
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
@@ -88,7 +90,6 @@
     <Reference Include="UnityEngine.UnityWebRequestModule">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="UnityEngine.VRModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
@@ -96,24 +97,23 @@
     </Reference>
     <Reference Include="websocket-sharp">
       <HintPath>$(BeatSaberDir)\Libs\websocket-sharp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Zenject">
-      <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Zenject-usage">
-      <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
     </Reference>
-      <Reference Include="SiraUtil">
-          <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
-          <Private>false</Private>
-      </Reference>
+    <Reference Include="SiraUtil">
+      <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="YUR.fit-BeatSaber-Mod">
       <HintPath>$(BeatSaberDir)\Plugins\YUR.fit-BeatSaber-Mod.dll</HintPath>
-      <Private>false</Private>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   
