@@ -30,6 +30,9 @@ namespace HRCounter.Configuration
         private string _fitbitWebSocket = "";
         private string _hrProxyID = "";
         private string _feedLink = "";
+        private string _oscBindIp = "0.0.0.0";
+        private int _oscPort = 9000;
+        private string _oscAddressFilterRegex = "";
         private bool _noBloom = false;
         private bool _colorize = true;
         private bool _hideDuringReplay = true;
@@ -101,6 +104,22 @@ namespace HRCounter.Configuration
         {
             get => _feedLink;
             set => _feedLink = value;
+        }
+
+        public virtual string OSCBindIP
+        {
+            get => _oscBindIp;
+            set => _oscBindIp = value;
+        }
+        public virtual int OSCPort
+        {
+            get => _oscPort;
+            set => _oscPort = value;
+        }
+        public virtual string OSCAddressFilterRegex
+        {
+            get => _oscAddressFilterRegex;
+            set => _oscAddressFilterRegex = value;
         }
 
         public virtual bool NoBloom
@@ -267,6 +286,9 @@ namespace HRCounter.Configuration
             _fitbitWebSocket = other._fitbitWebSocket;
             _hrProxyID = other._hrProxyID;
             _feedLink = other._feedLink;
+            _oscBindIp = other._oscBindIp;
+            _oscPort = other._oscPort;
+            _oscAddressFilterRegex = other._oscAddressFilterRegex;
             _noBloom = other._noBloom;
             _colorize = other._colorize;
             _hideDuringReplay = other._hideDuringReplay;

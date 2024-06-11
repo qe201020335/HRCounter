@@ -6,6 +6,8 @@ using HRCounter.Data.DataSources;
 using HRCounter.Utils;
 using HRCounter.Web;
 using IPA.Loader;
+using HRCounter.Data.DataSources.OSCDataSource;
+
 
 #if DEBUG
 using HRCounter.Data.DataSources.DebugSource;
@@ -24,6 +26,7 @@ namespace HRCounter.Data
         private const string YUR_APP_KEY = "YUR APP";
         private const string YUR_MOD_KEY = "YUR MOD";
         private const string HTTP_SERVER_KEY = "HttpServer";
+        private const string OSC_KEY = "OSC Protocol";
 
         private static readonly string WSNotInstalledStr =
             $"<color=#FF0000>{DataSourceUtils.WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
@@ -139,6 +142,11 @@ namespace HRCounter.Data
             },
             () => GenericPrecondition(Config.PulsoidToken)
         );
+
+        internal static DataSourceInfo OSCServer = RegisterDataSource<OSCDataSource>(OSC_KEY,
+            () =>
+             OSCDataSource.errorMessage ?? $"OSC protocol listening at {Config.OSCBindIP}:{Config.OSCPort}",
+            () => true);
 
 #if DEBUG
 

@@ -1,0 +1,1 @@
+Files in this folder is from [SharpOSC](https://github.com/ValdemarOrn/SharpOSC/tree/master/SharpOSC) under MIT License. Modified to work with this mod.
