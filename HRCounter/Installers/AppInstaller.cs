@@ -21,6 +21,7 @@ namespace HRCounter.Installers
             // Web stuff
             Container.BindInterfacesTo<SimpleHttpServer>().AsSingle();
             Container.BindInterfacesTo<HttpConfigHandler>().AsSingle();
+            Container.BindInterfacesAndSelfTo<HttpHRHandler>().AsSingle();
         }
     }
 }

@@ -161,6 +161,7 @@
     <Compile Include="Data\DataSources\FitbitHRtoWS.cs" />
     <Compile Include="Data\DataSources\HRProxyBase.cs" />
     <Compile Include="Data\DataSources\HRProxyCustomReader.cs" />
+    <Compile Include="Data\DataSources\HttpServerDataSource.cs" />
     <Compile Include="Data\DataSources\HypeRate.cs" />
     <Compile Include="Data\DataSources\Pulsoid.cs" />
     <Compile Include="Data\DataSources\PulsoidWidget.cs" />
@@ -196,6 +197,7 @@
     <Compile Include="Utils\RenderUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
     <Compile Include="Web\HttpConfigHandler.cs" />
+    <Compile Include="Web\HttpHRHandler.cs" />
     <Compile Include="Web\HttpListenerContextExtensions.cs" />
     <Compile Include="Web\IHttpRouteHandler.cs" />
     <Compile Include="Web\SimpleHttpServer.cs" />

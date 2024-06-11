@@ -12,7 +12,7 @@ namespace HRCounter.Web
 {
     internal class SimpleHttpServer: IInitializable, IDisposable
     {
-        private const string Prefix = "http://localhost:65302/";  // TODO: make it configurable?
+        internal const string PREFIX = "http://localhost:65302/";  // TODO: make it configurable?
         
         private readonly PluginConfig _config;
         private readonly SiraLog _logger;
@@ -28,7 +28,7 @@ namespace HRCounter.Web
         {
             _config = config;
             _logger = logger;
-            _listener.Prefixes.Add(Prefix);
+            _listener.Prefixes.Add(PREFIX);
             
             var handlersDict = new Dictionary<string, Dictionary<HttpMethod, IHttpRouteHandler>>();
             foreach (var handler in handlers)
@@ -97,7 +97,7 @@ namespace HRCounter.Web
                     continue;
                 }
                 
-                _logger.Debug($"{method}: {path}");
+                _logger.Trace($"{method}: {path}");
 
                 path = NormalizedPath(path);
                 
