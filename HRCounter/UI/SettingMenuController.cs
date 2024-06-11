@@ -191,6 +191,13 @@ namespace HRCounter.UI
         
         [UIComponent("data-source-info-refresh-btn")]
         private Button _dataSourceInfoRefreshBtn = null!;
+
+        [UIValue("EnableHttpServer")]
+        private bool EnableHttpServer
+        {
+            get => _config.EnableHttpServer;
+            set => _config.EnableHttpServer = value;
+        }
         #endregion
         
         [UIAction("data-source-info-refresh-btn-action")]

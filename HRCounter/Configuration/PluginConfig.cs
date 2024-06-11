@@ -43,6 +43,7 @@ namespace HRCounter.Configuration
         private bool _ignoreCountersPlus = false;
         private bool _debugSpam = false;
         private Vector3 _staticCounterPosition = new Vector3(0f, 1.2f, 7f);
+        private bool _enableHttpServer = true;
         
         #endregion
 
@@ -186,6 +187,12 @@ namespace HRCounter.Configuration
             get => _staticCounterPosition;
             set => _staticCounterPosition = value;
         }
+        
+        public virtual bool EnableHttpServer
+        {
+            get => _enableHttpServer;
+            set => _enableHttpServer = value;
+        }
 
         internal event Action? OnSettingsChanged;
         
@@ -244,7 +251,8 @@ namespace HRCounter.Configuration
                 _autoPause = _autoPause,
                 _ignoreCountersPlus = _ignoreCountersPlus,
                 _debugSpam = _debugSpam,
-                _staticCounterPosition = _staticCounterPosition
+                _staticCounterPosition = _staticCounterPosition,
+                _enableHttpServer = _enableHttpServer
             };
         }
 
@@ -272,6 +280,7 @@ namespace HRCounter.Configuration
             _ignoreCountersPlus = other._ignoreCountersPlus;
             _debugSpam = other._debugSpam;
             _staticCounterPosition = other._staticCounterPosition;
+            _enableHttpServer = other._enableHttpServer;
             Changed();
         }
     }

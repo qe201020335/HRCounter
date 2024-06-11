@@ -7,6 +7,7 @@
                 <bool-setting text="Hide During Replay" value="HideDuringReplay" hover-hint="Hide this counter while in a replay" apply-on-change="true" bind-value="true"/>
                 <bool-setting text="Counter No Bloom" value="NoBloom" hover-hint="Do you want no bloom on the text?" apply-on-change="true" bind-value="true"/>
                 <bool-setting text="Ignore Counters+" value="IgnoreCounters+" hover-hint="Ignore whether Counters+ is installed, ignore it to allow 2 hr counters to present at the same time" apply-on-change="true" bind-value="true"/>
+                <bool-setting text="Enable HTTP Server" value="EnableHttpServer" hover-hint="Enable the built-in HTTP server for runtime config updates and http server hr data source" apply-on-change="true" bind-value="true"/>
             </vertical>
         </tab>
         <tab tab-name="Data" tags="tabs">

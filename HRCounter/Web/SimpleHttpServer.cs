@@ -52,13 +52,27 @@ namespace HRCounter.Web
         
         public void Initialize()
         {
-            StartListener();
+            _config.OnSettingsChanged += UpdateListener;
+            UpdateListener();
         }
 
         public void Dispose()
         {
+            _config.OnSettingsChanged -= UpdateListener;
             StopListener();
             _listener.Close();
+        }
+        
+        private void UpdateListener()
+        {
+            if (_config.EnableHttpServer && !_isListening)
+            {
+                StartListener();
+            }
+            else if (!_config.EnableHttpServer && _isListening)
+            {
+                StopListener();
+            }
         }
         
         private void StartListener()
