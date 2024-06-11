@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources;
 using HRCounter.Utils;
+using HRCounter.Web;
 using IPA.Loader;
 
 #if DEBUG
@@ -22,6 +23,7 @@ namespace HRCounter.Data
         private const string HRPROXY_KEY = "HRProxy";
         private const string YUR_APP_KEY = "YUR APP";
         private const string YUR_MOD_KEY = "YUR MOD";
+        private const string HTTP_SERVER_KEY = "HttpServer";
 
         private static readonly string WSNotInstalledStr =
             $"<color=#FF0000>{DataSourceUtils.WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
@@ -121,6 +123,11 @@ namespace HRCounter.Data
                 ? "<color=#FF0000>YUR MOD IS NOT INSTALLED OR ENABLED!</color>"
                 : "YUR MOD Detected!",
             () => PluginManager.GetPluginFromId(DataSourceUtils.YUR_MOD_ID) != null
+        );
+        
+        internal static DataSourceInfo HttpServer = RegisterDataSource<HttpServerDataSource>(HTTP_SERVER_KEY,
+            () => $"POST to: {SimpleHttpServer.PREFIX}",
+            () => true
         );
         
         internal static DataSourceInfo PulsoidWidget = RegisterDataSource<PulsoidWidget>(PULSOID_WIDEGT_KEY, async () =>
