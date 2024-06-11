@@ -65,9 +65,7 @@ namespace HRCounter.Data.DataSources.OSCDataSource
             while (_updating) {
                 try
                 {
-                    Logger.Info("Waiting for package");
                     var pkg = await _client.ReceiveAsync();
-                    Logger.Info("Got package");
                     if (pkg == null)
                     {
                         continue;
@@ -90,7 +88,6 @@ namespace HRCounter.Data.DataSources.OSCDataSource
                         {
                             if (filter_re != null && !filter_re.IsMatch(msg.Address))
                                 return;
-                            Logger.Info("A package received");
                             if(msg.Arguments.Count == 1)
                             {
                                 var arg = msg.Arguments[0];
@@ -127,6 +124,7 @@ namespace HRCounter.Data.DataSources.OSCDataSource
                     }catch (Exception ex)
                     {
                         //Invalid package received. add small delay to prevent possible ddos attack
+                        Logger.Error(ex.ToString());
                         await Task.Delay(50);
                     }
 
@@ -136,7 +134,7 @@ namespace HRCounter.Data.DataSources.OSCDataSource
                 }
                 catch (SocketException ex)
                 {
-                    Logger.Info(ex.ToString());
+                    Logger.Error(ex.ToString());
                     //Don't make cpu busy if we have trouble
                     await Task.Delay(1000);
                 }
