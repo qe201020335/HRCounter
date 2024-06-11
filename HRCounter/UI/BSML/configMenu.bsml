@@ -1,5 +1,5 @@
 ﻿<settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-    <vertical child-control-height='false' spacing="2" pad-right="15">
+    <vertical child-control-height='false' spacing="2">
         <tab-selector tab-tag='tabs'/>
         <tab tab-name="General" tags="tabs">
             <vertical child-control-height='false' spacing="1">
