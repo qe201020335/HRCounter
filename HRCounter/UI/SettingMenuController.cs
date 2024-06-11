@@ -1,6 +1,7 @@
 ﻿using System;
 using BeatSaberMarkupLanguage.Attributes;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
 using HRCounter.Data;
@@ -9,6 +10,7 @@ using IPA.Utilities.Async;
 using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
 
 namespace HRCounter.UI
@@ -50,15 +52,21 @@ namespace HRCounter.UI
             _dataSourceInfoText.text = "Loading Data Source Info...";
             UnityMainThreadTaskScheduler.Factory.StartNew(async () =>
             {
+                _dataSourceInfoRefreshBtn.interactable = false;
+                string newText;
                 try
                 {
-                    _dataSourceInfoText.text = await source.GetSourceLinkText();
+                    newText = await source.GetSourceLinkText();
                 }
                 catch (Exception e)
                 {
                     _logger.Error($"Failed to update data source info text: {e}");
-                    throw;
+                    newText = "<color=#FF0000>Failed to load info, check logs for details.</color>";
                 }
+
+                _dataSourceInfoText.text = newText;
+                await Task.Delay(500);  // no spamming the button
+                _dataSourceInfoRefreshBtn.interactable = true;
             });
         }
 
@@ -180,7 +188,15 @@ namespace HRCounter.UI
             get => _config.NoBloom;
             set => _config.NoBloom = value;
         }
+        
+        [UIComponent("data-source-info-refresh-btn")]
+        private Button _dataSourceInfoRefreshBtn = null!;
         #endregion
-
+        
+        [UIAction("data-source-info-refresh-btn-action")]
+        private void OnDataSourceInfoRefreshBtnPressed()
+        {
+            UpdateDataSourceInfoText();
+        }
     }
 }
