@@ -14,28 +14,29 @@ internal class HttpHRHandler : IHttpRouteHandler
     
     internal event EventHandler<int>? HeartRatePosted;
 
-    public void HandleRequest(HttpListenerContext context)
+    public async Task HandleRequestAsync(HttpListenerContext context)
     {
         var request = context.Request;
         if (request.HttpMethod == HttpMethod.Get.Method)
         {
             var s = BPM.Bpm.ToString();
-            context.SendResponse(s);
+            await context.SendResponseAsync(s);
         }
         else if (request.HttpMethod == HttpMethod.Post.Method)
         {
             using var reader = new StreamReader(request.InputStream);
             var buffer = new char[16];
-            var numChars = reader.Read(buffer, 0, 16);
+            var numChars = await reader.ReadAsync(buffer, 0, 16);
             var truncated = new string(buffer, 0, numChars);
             if (int.TryParse(truncated, out var number))
             {
-                Task.Run(() =>
+                _ = Task.Run(() =>
                 {
                     var e = HeartRatePosted;
                     e?.Invoke(this, number);
                 });
-                context.SendResponse("OK");
+                
+                await context.SendResponseAsync("OK");
             }
             else
             {

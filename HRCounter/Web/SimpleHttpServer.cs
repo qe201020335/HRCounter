@@ -86,7 +86,7 @@ namespace HRCounter.Web
             
             _isListening = true;
             _listener.Start();
-            Task.Run(GetAndProcessRequests);
+            Task.Run(GetAndProcessRequestsAsync);
         }
         
         private void StopListener()
@@ -96,52 +96,66 @@ namespace HRCounter.Web
             _listener.Stop();
         }
         
-        private void GetAndProcessRequests()
+        private async Task GetAndProcessRequestsAsync()
         {
-            while (_listener.IsListening)  // TODO: make every request handling async
+            while (_listener.IsListening)
             {
-                var context = _listener.GetContext();
-                var path = context.Request.Url.AbsolutePath;
-                var method = context.Request.HttpMethod;
+                var context = await _listener.GetContextAsync();
 
-                if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(method))
-                {
-                    _logger.Warn("Empty path or method");
-                    context.BadRequest();
-                    continue;
-                }
-                
-                _logger.Trace($"{method}: {path}");
-
-                path = NormalizedPath(path);
-                
                 try
                 {
-                    if (_handlers.TryGetValue(path, out var methods))
-                    {
-                        if (methods.TryGetValue(new HttpMethod(method), out var handler))
-                        {
-                            handler.HandleRequest(context);
-                        }
-                        else
-                        {
-                            _logger.Warn($"BadMethod: {method} @ {path}");
-                            context.BadMethod();
-                        }
-                    }
-                    else
-                    {
-                        _logger.Warn($"NotFound: {method} @ {path}");
-                        context.NotFound();
-                    }
+                    _ = Task.Run(() => ProcessRequestAsync(context));
                 }
                 catch (Exception e)
                 {
-                    _logger.Critical("Exception while handling request");
+                    _logger.Critical("Exception while creating a new task for async request handling");
                     _logger.Critical(e);
-                    context.InternalServerError();
+                    await context.InternalServerErrorAsync(e);
                 }
+            }
+        }
+
+        private async Task ProcessRequestAsync(HttpListenerContext context)
+        {
+            var path = context.Request.Url.AbsolutePath;
+            var method = context.Request.HttpMethod;
+
+            if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(method))
+            {
+                _logger.Warn("Empty path or method");
+                context.BadRequest();
+                return;
+            }
                 
+            _logger.Trace($"{method}: {path}");
+
+            path = NormalizedPath(path);
+                
+            try
+            {
+                if (_handlers.TryGetValue(path, out var methods))
+                {
+                    if (methods.TryGetValue(new HttpMethod(method), out var handler))
+                    {
+                        await handler.HandleRequestAsync(context);
+                    }
+                    else
+                    {
+                        _logger.Warn($"BadMethod: {method} @ {path}");
+                        context.BadMethod();
+                    }
+                }
+                else
+                {
+                    _logger.Warn($"NotFound: {method} @ {path}");
+                    context.NotFound();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Critical("Exception while handling request");
+                _logger.Critical(e);
+                await context.InternalServerErrorAsync(e);
             }
         }
         

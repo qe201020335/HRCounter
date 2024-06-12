@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using HRCounter.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,14 +24,14 @@ namespace HRCounter.Web
         public Tuple<string, HttpMethod>[] Routes { get; } =
             [new Tuple<string, HttpMethod>("/config", HttpMethod.Get), new Tuple<string, HttpMethod>("/config", HttpMethod.Post)];
 
-        public void HandleRequest(HttpListenerContext context)
+        public async Task HandleRequestAsync(HttpListenerContext context)
         {
             var request = context.Request;
 
             if (request.HttpMethod == HttpMethod.Get.Method)
             {
                 var responseString = JObject.FromObject(_config.GetColdCopy()).ToString();
-                context.SendJsonResponse(responseString);
+                await context.SendJsonResponseAsync(responseString);
             }
             else if (request.HttpMethod == HttpMethod.Post.Method)
             {
@@ -53,12 +54,12 @@ namespace HRCounter.Web
                 {
                     _logger.Critical("Failed to update config");
                     _logger.Critical(e);
-                    context.InternalServerError();
+                    await context.InternalServerErrorAsync(e);
                     return;
                 }
                 
                 var responseString = JObject.FromObject(_config.GetColdCopy()).ToString();
-                context.SendJsonResponse(responseString);
+                await context.SendJsonResponseAsync(responseString);
             }
             else
             {

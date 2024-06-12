@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace HRCounter.Web
 {
@@ -11,6 +12,6 @@ namespace HRCounter.Web
          */
         Tuple<string, HttpMethod>[] Routes { get; }
         
-        void HandleRequest(HttpListenerContext context);
+        Task HandleRequestAsync(HttpListenerContext context);
     }
 }
