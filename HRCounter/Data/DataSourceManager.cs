@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources;
 using HRCounter.Utils;
-using HRCounter.Web;
+using HRCounter.Web.HTTP;
 using IPA.Loader;
 
 #if DEBUG

@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using HRCounter.Data;
 
-namespace HRCounter.Web;
+namespace HRCounter.Web.HTTP.Handlers;
 
 internal class HttpHRHandler : IHttpRouteHandler
 {

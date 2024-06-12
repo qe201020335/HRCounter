@@ -5,10 +5,11 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
+using HRCounter.Web.HTTP.Handlers;
 using SiraUtil.Logging;
 using Zenject;
 
-namespace HRCounter.Web
+namespace HRCounter.Web.HTTP
 {
     internal class SimpleHttpServer: IInitializable, IDisposable
     {

@@ -1,5 +1,7 @@
 ﻿using HRCounter.Configuration;
 using HRCounter.Web;
+using HRCounter.Web.HTTP;
+using HRCounter.Web.HTTP.Handlers;
 using Zenject;
 
 namespace HRCounter.Installers

@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 using SiraUtil.Logging;
 using Zenject;
 
-namespace HRCounter.Web
+namespace HRCounter.Web.HTTP.Handlers
 {
     internal class HttpConfigHandler : IHttpRouteHandler
     {
