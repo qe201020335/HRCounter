@@ -25,8 +25,8 @@
         <tab tab-name="Colorize" tags="tabs">
             <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
                 <bool-setting text="Colorize HR Text" value="Colorize" hover-hint="Colorize the heart rate number." apply-on-change="true" bind-value="true"/>
-                <slider-setting text="Heart Rate Lower Bound" show-buttons="true" value="HRLow" integer-only="true" min="50" max="150" increment="5" apply-on-change="true" bind-value="true"/>
-                <slider-setting text="Heart Rate Upper Bound" show-buttons="true" value="HRHigh" integer-only="true" min="90" max="220" increment="5" apply-on-change="true" bind-value="true"/>
+                <slider-setting text="HR Lower Bound" show-buttons="true" value="HRLow" integer-only="true" min="50" max="150" increment="5" apply-on-change="true" bind-value="true"/>
+                <slider-setting text="HR Upper Bound" show-buttons="true" value="HRHigh" integer-only="true" min="90" max="220" increment="5" apply-on-change="true" bind-value="true"/>
                 <horizontal>
                     <color-setting text="Low Color" value="LowColor" apply-on-change="true" bind-value="true"/>
                     <button text="Reset" on-click="reset-low-color" pad-left="2"/>
