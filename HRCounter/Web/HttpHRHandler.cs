@@ -25,8 +25,10 @@ internal class HttpHRHandler : IHttpRouteHandler
         else if (request.HttpMethod == HttpMethod.Post.Method)
         {
             using var reader = new StreamReader(request.InputStream);
-            var body = reader.ReadToEnd();
-            if (int.TryParse(body, out var number))
+            var buffer = new char[16];
+            var numChars = reader.Read(buffer, 0, 16);
+            var truncated = new string(buffer, 0, numChars);
+            if (int.TryParse(truncated, out var number))
             {
                 Task.Run(() =>
                 {
