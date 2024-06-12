@@ -10,21 +10,10 @@ namespace HRCounter.Data.DataSources.DebugSource
         
         private readonly float _sampleInterval = .5f;
 
-        private void OnEnable()
+        private void Update()
         {
-            StartCoroutine(FrameTimeUpdate());
-        }
-        
-        private IEnumerator FrameTimeUpdate()
-        {
-            while (enabled)
-            {
-                var startFrameCount = Time.frameCount;
-                yield return new WaitForSecondsRealtime(_sampleInterval);
-                var endFrameCount = Time.frameCount;
-                var frames = endFrameCount - startFrameCount;
-                OnHRDataReceived?.Invoke(this, new HRDataReceivedEventArgs( (int)(frames / _sampleInterval)));
-            }
+            var fps = 1 / Time.deltaTime;
+            OnHRDataReceived?.Invoke(this, new HRDataReceivedEventArgs((int) fps));
         }
     }
 }
