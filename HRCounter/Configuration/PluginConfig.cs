@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using HRCounter.Data;
@@ -46,6 +47,10 @@ namespace HRCounter.Configuration
         private bool _debugSpam = false;
         private Vector3 _staticCounterPosition = new Vector3(0f, 1.2f, 7f);
         private bool _enableHttpServer = true;
+        private bool _enableOscServer = true;
+        private IPAddress _oscBindIp = IPAddress.Any;
+        private int _oscPort = 9000;
+        private string _oscAddress = "/hr";
         
         #endregion
 
@@ -195,6 +200,30 @@ namespace HRCounter.Configuration
             get => _enableHttpServer;
             set => _enableHttpServer = value;
         }
+        
+        public virtual bool EnableOscServer
+        {
+            get => _enableOscServer;
+            set => _enableOscServer = value;
+        }
+        
+        [JsonConverter(typeof(WrappedTextValueJsonConverter<IPAddress, IPAddressValueConverter>))]
+        [UseConverter(typeof(IPAddressValueConverter))]
+        public virtual IPAddress OscBindIP
+        {
+            get => _oscBindIp;
+            set => _oscBindIp = value;
+        }
+        public virtual int OscPort
+        {
+            get => _oscPort;
+            set => _oscPort = value;
+        }
+        public virtual string OscAddress
+        {
+            get => _oscAddress;
+            set => _oscAddress = value;
+        }
 
         internal event Action? OnSettingsChanged;
         
@@ -254,7 +283,11 @@ namespace HRCounter.Configuration
                 _ignoreCountersPlus = _ignoreCountersPlus,
                 _debugSpam = _debugSpam,
                 _staticCounterPosition = _staticCounterPosition,
-                _enableHttpServer = _enableHttpServer
+                _enableHttpServer = _enableHttpServer,
+                _enableOscServer = _enableOscServer,
+                _oscBindIp = _oscBindIp,
+                _oscPort = _oscPort,
+                _oscAddress = _oscAddress
             };
         }
 
@@ -283,6 +316,10 @@ namespace HRCounter.Configuration
             _debugSpam = other._debugSpam;
             _staticCounterPosition = other._staticCounterPosition;
             _enableHttpServer = other._enableHttpServer;
+            _enableOscServer = other._enableOscServer;
+            _oscBindIp = other._oscBindIp;
+            _oscPort = other._oscPort;
+            _oscAddress = other._oscAddress;
             Changed();
         }
     }
