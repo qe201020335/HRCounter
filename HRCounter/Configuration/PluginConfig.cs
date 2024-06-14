@@ -136,7 +136,7 @@ namespace HRCounter.Configuration
         }
 
         [UseConverter(typeof(HexColorConverter))]
-        [JsonConverter(typeof(HexColorJsonConverter))]
+        [JsonConverter(typeof(WrappedTextValueJsonConverter<Color, HexColorConverter>))]
         public virtual Color LowColor
         {
             get => _lowColor;
@@ -144,7 +144,7 @@ namespace HRCounter.Configuration
         }
 
         [UseConverter(typeof(HexColorConverter))]
-        [JsonConverter(typeof(HexColorJsonConverter))]
+        [JsonConverter(typeof(WrappedTextValueJsonConverter<Color, HexColorConverter>))]
         public virtual Color MidColor
         {
             get => _midColor;
@@ -152,7 +152,7 @@ namespace HRCounter.Configuration
         }
 
         [UseConverter(typeof(HexColorConverter))]
-        [JsonConverter(typeof(HexColorJsonConverter))]
+        [JsonConverter(typeof(WrappedTextValueJsonConverter<Color, HexColorConverter>))]
         public virtual Color HighColor
         {
             get => _highColor;
