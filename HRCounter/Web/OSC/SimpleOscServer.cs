@@ -112,11 +112,21 @@ internal class SimpleOscServer : IInitializable, IDisposable
             try
             {
                 var message = listener.Receive(ref endPoint);
-                ProcessMessage(message);
+                _ = Task.Run(() => ProcessMessage(message));
             }
             catch (ObjectDisposedException)
             {
-                _logger.Trace("UDP client is disposed.");
+                _logger.Trace("UDP client was disposed.");
+                break;
+            }
+            catch (SocketException e) when(e.SocketErrorCode == SocketError.Interrupted)
+            {
+                //Socket was closed during the receive operation
+                break;
+            }
+            catch (SocketException e)
+            {
+                _logger.Warn($"Socket exception while receiving UDP message: {e.SocketErrorCode}");
                 break;
             }
             catch (Exception e)
