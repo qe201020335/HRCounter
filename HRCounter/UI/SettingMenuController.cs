@@ -4,6 +4,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.ViewControllers;
+using HMUI;
 using HRCounter.Configuration;
 using HRCounter.Data;
 using HRCounter.Utils;
@@ -56,11 +57,11 @@ namespace HRCounter.UI
             var known = DataSourceManager.TryGetFromKey(_config.DataSource, out var source);
             if (!known)
             {
-                _dataSourceInfoText.text = "Unknown Data Source";
+                _dataSourceInfoText.SetText("Unknown Data Source");
                 return;
             }
             
-            _dataSourceInfoText.text = "Loading Data Source Info...";
+            _dataSourceInfoText.SetText("Loading Data Source Info...");
             UnityMainThreadTaskScheduler.Factory.StartNew(async () =>
             {
                 _dataSourceInfoRefreshBtn.interactable = false;
@@ -75,7 +76,7 @@ namespace HRCounter.UI
                     newText = "<color=#FF0000>Failed to load info, check logs for details.</color>";
                 }
 
-                _dataSourceInfoText.text = newText;
+                _dataSourceInfoText.SetText(newText);
                 await Task.Delay(500);  // no spamming the button
                 _dataSourceInfoRefreshBtn.interactable = true;
             });
@@ -204,7 +205,7 @@ namespace HRCounter.UI
         }
         
         [UIComponent("data-source-info-text")]
-        private TextMeshProUGUI _dataSourceInfoText = null!;
+        private TextPageScrollView _dataSourceInfoText = null!;
         
         [UIValue("NoBloom")]
         private bool NoBloom

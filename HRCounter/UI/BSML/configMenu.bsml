@@ -16,10 +16,13 @@
         <tab tab-name="Data" tags="tabs">
             <vertical child-control-height='false' spacing="1" horizontal-fit="PreferredSize" pref-width="~tab-width">
                 <dropdown-list-setting text="Data Source" value="source-list-choice" choices="source-list-options" apply-on-change="true" bind-value="true"/>
-                <button text="Refresh" id="data-source-info-refresh-btn" on-click="data-source-info-refresh-btn-action"/>
+                <horizontal>
+                    <text text="Data Source Info ↓" align="Center" italics="true"/>
+                    <button text="Refresh" id="data-source-info-refresh-btn" on-click="data-source-info-refresh-btn-action"/>
+                </horizontal>
                 <!-- Don't know why it is horizontal but it works! Thank you Aeroluna! :D-->
-                <horizontal pad-top="0" pad-bottom="0">
-                    <text id="data-source-info-text" italics="false" align="Center"/>
+                <horizontal pad-left="3" pref-height="45" background="round-rect-panel">
+                    <text-page id="data-source-info-text" italics="false" />
                 </horizontal>
             </vertical>
         </tab>

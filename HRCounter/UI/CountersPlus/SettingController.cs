@@ -1,5 +1,6 @@
 ﻿using System;
 using BeatSaberMarkupLanguage.Attributes;
+using HMUI;
 using TMPro;
 using HRCounter.Configuration;
 using HRCounter.Data;
@@ -19,7 +20,7 @@ namespace HRCounter.UI.CountersPlus
         private TMP_Text _dataSourceText = null!;
 
         [UIComponent("data-source-info-text")]
-        private TMP_Text _dataSourceInfoText = null!;
+        private TextPageScrollView _dataSourceInfoText = null!;
 
         private bool _parsed = false;
 
@@ -77,16 +78,16 @@ namespace HRCounter.UI.CountersPlus
             var known = DataSourceManager.TryGetFromKey(_config.DataSource, out var source);
             if (!known)
             {
-                _dataSourceInfoText.text = "Unknown Data Source";
+                _dataSourceInfoText.SetText("Unknown Data Source");
                 return;
             }
 
-            _dataSourceInfoText.text = "Loading Data Source Info...";
+            _dataSourceInfoText.SetText("Loading Data Source Info...");
             UnityMainThreadTaskScheduler.Factory.StartNew(async () =>
             {
                 try
                 {
-                    _dataSourceInfoText.text = await source.GetSourceLinkText();
+                    _dataSourceInfoText.SetText(await source.GetSourceLinkText());
                 }
                 catch (Exception e)
                 {

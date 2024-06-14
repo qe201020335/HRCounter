@@ -151,13 +151,26 @@ namespace HRCounter.Data
 #if DEBUG
 
         private const string DEBUG_RANDOM_KEY = "Random Debug";
-        internal static DataSourceInfo Random = RegisterDataSource<RandomHR>(DEBUG_RANDOM_KEY, () => "debug lul", () => true);
+        internal static DataSourceInfo Random = RegisterDataSource<RandomHR>(DEBUG_RANDOM_KEY, () => LoremIpsum, () => true);
 
         private const string DEBUG_SWEEP_KEY = "Sweep Debug";
-        internal static DataSourceInfo Sweep = RegisterDataSource<SweepHR>(DEBUG_SWEEP_KEY, () => "debug lulul", () => true);
+        internal static DataSourceInfo Sweep = RegisterDataSource<SweepHR>(DEBUG_SWEEP_KEY, () => LoremIpsum, () => true);
 
         private const string DEBUG_FPS_KEY = "FPS Debug";
-        internal static DataSourceInfo FrameRate = RegisterDataSource<FrameRateHR>(DEBUG_FPS_KEY, () => "debug lululul", () => true);
+        internal static DataSourceInfo FrameRate = RegisterDataSource<FrameRateHR>(DEBUG_FPS_KEY, () => LoremIpsum, () => true);
+
+        private static string LoremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer tristique posuere libero eu gravida. " +
+                                           "Aenean sed urna ante. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus " +
+                                           "mus. Nam nec nunc enim. Fusce porta condimentum tellus eu hendrerit. Duis semper nisl vitae euismod " +
+                                           "mollis. Nullam nunc ligula, elementum vulputate viverra sed, pretium sed orci. Nullam mattis, diam ac " +
+                                           "malesuada vulputate, justo leo pharetra lorem, eu varius orci augue non leo. Vivamus quis iaculis arcu. " +
+                                           "Nam at est ut risus posuere sodales. Aliquam erat volutpat. Duis quis auctor orci, vel blandit mi. Sed " +
+                                           "semper, lorem quis malesuada lobortis, augue magna consequat dui, sit amet blandit ante diam commodo " +
+                                           "metus. Mauris eu eros at lectus commodo lacinia in vitae nulla. Suspendisse dignissim auctor dui, " +
+                                           "malesuada molestie dolor mollis at.\n\nSuspendisse at lacus rutrum, semper lorem vel, consequat ipsum. " +
+                                           "In hac habitasse platea dictumst. Donec dictum viverra velit, at sollicitudin odio dignissim eu. " +
+                                           "Praesent congue eros turpis. Aliquam vel nisl sit amet mi vestibulum hendrerit eu maximus est. Mauris et " +
+                                           "sapien at ante feugiat congue. Morbi tincidunt sagittis purus, et accumsan odio tincidunt non.";
 
 #endif
 
