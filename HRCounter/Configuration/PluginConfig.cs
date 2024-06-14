@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -50,8 +51,10 @@ namespace HRCounter.Configuration
         private bool _enableOscServer = true;
         private IPAddress _oscBindIp = IPAddress.Any;
         private int _oscPort = 9000;
-        private string _oscAddress = "/hr";
-        
+
+        private List<string> _oscAddress =
+            ["/hr", "/avatar/parameters/HR", "/avatar/parameters/HeartRateInt", "/avatar/parameters/Heartrate3", "/avatar/parameters/HeartRateBPM"];
+
         #endregion
 
         // Must be 'virtual' if you want BSIPA to detect a value change and save the config automatically.
@@ -214,15 +217,26 @@ namespace HRCounter.Configuration
             get => _oscBindIp;
             set => _oscBindIp = value;
         }
+
         public virtual int OscPort
         {
             get => _oscPort;
             set => _oscPort = value;
         }
-        public virtual string OscAddress
+
+        [UseConverter(typeof(ListConverter<string>))]
+        public virtual List<string> OscAddress
         {
             get => _oscAddress;
-            set => _oscAddress = value;
+            set
+            {
+                if (value == null)  // the json value can be null
+                {
+                    value = [];
+                }
+                
+                _oscAddress = value;
+            }
         }
 
         internal event Action? OnSettingsChanged;

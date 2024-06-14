@@ -129,7 +129,7 @@ namespace HRCounter.Data
         
         internal static DataSourceInfo OscServer = RegisterDataSource<OscHR>(OSC_KEY,
             () => Config.EnableOscServer 
-                ? $"Send to port {Config.OscPort}, {Config.OscAddress}" 
+                ? $"OSC server listening on {Config.OscBindIP}:{Config.OscPort}.\nUsing addresses below (one Int32 value only)\n  {string.Join("\n  ", Config.OscAddress)}" 
                 : "<color=#FF0000>OSC Server is NOT enabled!</color>",
             () => true);
         

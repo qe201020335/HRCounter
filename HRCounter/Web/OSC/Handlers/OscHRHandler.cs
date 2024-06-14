@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using Zenject;
@@ -9,7 +10,7 @@ public class OscHRHandler: IOSCMessageHandler
 {
     [Inject]
     private readonly PluginConfig _config;
-    public string Address => _config.OscAddress;
+    public IReadOnlyList<string> Address => _config.OscAddress;
     
     internal event EventHandler<int>? HeartRatePosted;
     

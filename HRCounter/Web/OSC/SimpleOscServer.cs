@@ -32,13 +32,16 @@ internal class SimpleOscServer : IInitializable, IDisposable
         var handlersDict = new Dictionary<string, IOSCMessageHandler>();
         foreach (var handler in handlers)
         {
-            if (handlersDict.ContainsKey(handler.Address))
+            foreach (var address in handler.Address)
             {
-                _logger.Error($"Duplicate OSC handler for address '{handler.Address}'");
-                throw new InvalidOperationException($"Duplicate OSC handler for address '{handler.Address}'");
-            }
+                if (handlersDict.ContainsKey(address))
+                {
+                    _logger.Error($"Duplicate OSC handler for address '{handler.Address}'");
+                    throw new InvalidOperationException($"Duplicate OSC handler for address '{handler.Address}'");
+                }
             
-            handlersDict[handler.Address] = handler;
+                handlersDict[address] = handler;
+            }
         }
 
         _handlers = handlersDict;
