@@ -223,6 +223,13 @@ namespace HRCounter.UI
             set => _config.EnableHttpServer = value;
         }
         
+        [UIValue("EnableOscServer")]
+        private bool EnableOscServer
+        {
+            get => _config.EnableOscServer;
+            set => _config.EnableOscServer = value;
+        }
+        
         [UIValue("LowColor")]
         private Color LowColor
         {
