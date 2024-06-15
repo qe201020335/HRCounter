@@ -1,4 +1,5 @@
 ﻿using HRCounter.Web;
+using HRCounter.Web.HTTP.Handlers;
 using Zenject;
 
 namespace HRCounter.Data.DataSources;

@@ -1,5 +1,7 @@
-﻿<vertical spacing="1.5" horizontal-fit="PreferredSize">
+﻿<vertical spacing="1.5" pad="0" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
     <text text="All configurations are moved to the main menu mods panel!"/>
     <text id="data-source-text" italics="true" align="Center"/>
-    <text id='data-source-info-text' italics="true" align="Center"/>
+    <horizontal pad-left="3" pref-height="35" background="round-rect-panel">
+        <text-page id="data-source-info-text" italics="false" />
+    </horizontal>
 </vertical>
