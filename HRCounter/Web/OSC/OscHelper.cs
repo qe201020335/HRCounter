@@ -17,15 +17,16 @@ public class OSCHelper
             return string.Empty;
         }
 
-        var builder = new StringBuilder(32); // should be enough
+        var end = offset;
         // I want to use strncpy so bad :(
-        for (; offset < data.Length && data[offset] != '\0'; offset++)
+        for (; end < data.Length && data[end] != '\0'; end++)
         {
-            builder.Append((char)data[offset]);
         }
-        
-        offset = (offset / 4 + 1) * 4; // align to the start of next 4 bytes
-        return builder.ToString();
+
+        var count = end - offset;
+        var s = Encoding.ASCII.GetString(data, offset, count);
+        offset = (end / 4 + 1) * 4; // align to the start of next 4 bytes
+        return s;
     }
     
     public static bool TryReadInt32(byte[] data, ref int offset, out int result)

@@ -75,6 +75,7 @@ internal class SimpleOscServer : IInitializable, IDisposable
     {
         lock (_listenerLock)
         {
+            _logger.Debug("Starting OSC Server.");
             if (_isListening)
             {
                 _logger.Warn("OSC server is already listening.");
@@ -99,6 +100,7 @@ internal class SimpleOscServer : IInitializable, IDisposable
     {
         lock (_listenerLock)
         {
+            _logger.Debug("Stopping OSC Server.");
             _isListening = false;
             _listener?.Close();  // will make the Receive operation throw
             _listener = null;
