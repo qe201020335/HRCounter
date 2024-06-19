@@ -1,10 +1,10 @@
-﻿<settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-    <macro.define id="tab-width" value="90"/>
-    <macro.define id="vertical-spacing" value="1.5"/>
-    <vertical child-control-height='false' spacing="2">
+﻿    <vertical child-control-height='false' spacing="2" pad-top="2" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'> 
+        <macro.define id="tab-width" value="90"/>
+        <macro.define id="vertical-spacing" value="1.5"/>
         <tab-selector tab-tag='tabs'/>
+        <horizontal pref-width="100" pref-height="75" child-control-height="false">
         <tab tab-name="General" tags="tabs">
-            <vertical child-control-height='false' spacing="1" horizontal-fit="PreferredSize" pref-width="~tab-width">
+            <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
                 <bool-setting text="Mod Enable" value="ModEnable" apply-on-change="true" bind-value="true"/>
                 <bool-setting text="Hide During Replay" value="HideDuringReplay" hover-hint="Hide this counter while in a replay" apply-on-change="true" bind-value="true"/>
                 <bool-setting text="Counter No Bloom" value="NoBloom" hover-hint="Do you want no bloom on the text?" apply-on-change="true" bind-value="true"/>
@@ -14,13 +14,13 @@
             </vertical>
         </tab>
         <tab tab-name="Data" tags="tabs">
-            <vertical child-control-height='false' spacing="1" horizontal-fit="PreferredSize" pref-width="~tab-width">
+            <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
                 <dropdown-list-setting text="Data Source" value="source-list-choice" choices="source-list-options" apply-on-change="true" bind-value="true"/>
                 <horizontal>
                     <text text="Data Source Info ↓" align="Center" italics="true"/>
                     <button text="Refresh" id="data-source-info-refresh-btn" on-click="data-source-info-refresh-btn-action"/>
                 </horizontal>
-                <!-- Don't know why it is horizontal but it works! Thank you Aeroluna! :D-->
+                <!-- Don't know why it is horizontal but it works! Thank you Aeroluna! :D -->
                 <horizontal pad-left="3" pref-height="45" background="round-rect-panel">
                     <text-page id="data-source-info-text" italics="false" />
                 </horizontal>
@@ -62,5 +62,5 @@
                 <bool-setting text="Log Heart Rate" value="LogHR" hover-hint="Whether the received HR data will be logged." apply-on-change="true" bind-value="true"/>
             </vertical>
         </tab>
+        </horizontal>
     </vertical>
-</settings-container>
