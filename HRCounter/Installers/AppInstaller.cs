@@ -21,6 +21,7 @@ namespace HRCounter.Installers
         {
             Container.BindInstance(_config).AsSingle();
             Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<IconManager>().AsSingle();
             
             // Web stuff
             Container.BindInterfacesTo<SimpleHttpServer>().AsSingle();

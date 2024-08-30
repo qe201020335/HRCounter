@@ -54,6 +54,8 @@ namespace HRCounter.Configuration
 
         private List<string> _oscAddress =
             ["/hr", "/avatar/parameters/HR", "/avatar/parameters/HeartRateInt", "/avatar/parameters/Heartrate3", "/avatar/parameters/HeartRateBPM"];
+        
+        private string _customIcon = "";
 
         #endregion
 
@@ -238,6 +240,12 @@ namespace HRCounter.Configuration
                 _oscAddress = value;
             }
         }
+        
+        public virtual string CustomIcon
+        {
+            get => _customIcon; 
+            set => _customIcon = value;
+        }
 
         internal event Action? OnSettingsChanged;
         
@@ -301,7 +309,8 @@ namespace HRCounter.Configuration
                 _enableOscServer = _enableOscServer,
                 _oscBindIp = _oscBindIp,
                 _oscPort = _oscPort,
-                _oscAddress = _oscAddress
+                _oscAddress = _oscAddress,
+                _customIcon = _customIcon
             };
         }
 
@@ -334,6 +343,7 @@ namespace HRCounter.Configuration
             _oscBindIp = other._oscBindIp;
             _oscPort = other._oscPort;
             _oscAddress = other._oscAddress;
+            _customIcon = other._customIcon;
             Changed();
         }
     }

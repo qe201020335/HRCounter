@@ -3,11 +3,13 @@ using System.Collections;
 using BeatSaberMarkupLanguage.Attributes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using HRCounter.Configuration;
 using HRCounter.Data;
 using HRCounter.Utils;
+using IPA.Utilities;
 using IPA.Utilities.Async;
 using SiraUtil.Logging;
 using TMPro;
@@ -27,8 +29,15 @@ namespace HRCounter.UI
 
         [Inject]
         private readonly SiraLog _logger = null!;
+        
+        [Inject]
+        private readonly IconManager _iconManager = null!;
 
         private string _previousDataSource = "";
+        
+        private string _previousIcon = "";
+        
+        private readonly IList<string> _iconNames = new List<string>();
 
         private void RefreshConfigUi()
         {
@@ -39,6 +48,12 @@ namespace HRCounter.UI
             {
                 _previousDataSource = _config.DataSource;
                 UpdateDataSourceInfoText();
+            }
+            
+            if (_previousIcon != _config.CustomIcon)
+            {
+                _previousIcon = _config.CustomIcon;
+                UpdateCustomIconSelection();
             }
 
             UpdateColorText();
@@ -100,7 +115,9 @@ namespace HRCounter.UI
                 // no point to refresh the ui if it literally just activated and read the config
                 UpdateDataSourceInfoText();
                 _previousDataSource = _config.DataSource;
+                _previousIcon = _config.CustomIcon;
                 UpdateColorText();
+                _ = LoadIconList();
             }
             else
             {
@@ -144,6 +161,50 @@ namespace HRCounter.UI
             }
         }
 
+        private async Task LoadIconList()
+        {
+            if (!UnityGame.OnMainThread)
+                throw new InvalidOperationException("This method can only be called from the main thread.");
+            
+            _logger.Info("Loading custom icons");
+            
+            IsIconListLoaded = false;
+            _iconNames.Clear();
+            var icons = await _iconManager.GetIconsWithSprite();
+            var data = new List<CustomListTableData.CustomCellInfo>(icons.Count + 1);
+            data.Add(new CustomListTableData.CustomCellInfo("Default"));
+            _iconNames.Add("");
+            foreach (var (filename, sprite) in icons)
+            {
+                data.Add(new CustomListTableData.CustomCellInfo(filename, null, sprite));
+                _iconNames.Add(filename);
+            }
+            
+            _iconList.data = data;
+            _iconList.tableView.ReloadData();
+            
+            _logger.Debug($"Loaded {data.Count} custom icon options");
+
+            UpdateCustomIconSelection();
+
+            IsIconListLoaded = true;
+        }
+
+        private void UpdateCustomIconSelection()
+        {
+            var selected = _iconNames.IndexOf(_config.CustomIcon);
+            if (selected < 0)
+            {
+                _iconList.tableView.ClearSelection();
+                _iconList.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
+            }
+            else
+            {
+                _iconList.tableView.SelectCellWithIdx(selected);
+                _iconList.tableView.ScrollToCellWithIdx(selected, TableView.ScrollPositionType.Center, false);
+            }
+        }
+
         #region UIComponents
 
         [UIComponent("color-info-text")]
@@ -154,6 +215,9 @@ namespace HRCounter.UI
 
         [UIComponent("data-source-info-refresh-btn")]
         private Button _dataSourceInfoRefreshBtn = null!;
+
+        [UIComponent("icon-list")]
+        private CustomListTableData _iconList = null!;
 
         #endregion
 
@@ -286,6 +350,19 @@ namespace HRCounter.UI
                 NotifyPropertyChanged();
             }
         }
+        
+        private bool _isIconListLoaded = false;
+
+        [UIValue("is-icon-loaded")]
+        private bool IsIconListLoaded
+        {
+            get => _isIconListLoaded;
+            set
+            {
+                _isIconListLoaded = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         #endregion
 
@@ -332,6 +409,22 @@ namespace HRCounter.UI
                 _colorVisualizerCoroutine = StartCoroutine(VisualizeColorsCoroutine());
                 VisualizeColorsBtnText = "Stop";
             }
+        }
+
+        [UIAction("refresh-counter-icon")]
+        private void RefreshIconOptions()
+        {
+            _ = LoadIconList();
+        }
+        
+        [UIAction("icon-selected")]
+        private void CounterIconSelected(TableView view, int index)
+        {
+            if (view != _iconList.tableView) return;
+            var iconName = _iconNames[index];
+            _previousIcon = iconName;
+            _logger.Debug($"Selected icon {index} ({iconName})");
+            _config.CustomIcon = iconName;
         }
 
         #endregion
