@@ -22,6 +22,15 @@ namespace HRCounter.Data
             _precondition = precondition;
         }
 
+        public static bool operator ==(DataSourceInfo a, DataSourceInfo b)
+        {
+            return a.Equals(b);
+        } 
+        
+        public static bool operator !=(DataSourceInfo a, DataSourceInfo b)
+        {
+            return !a.Equals(b);
+        } 
 
         public override bool Equals(object? obj)
         {
