@@ -29,18 +29,18 @@
         <tab tab-name="Icon" tags="tabs">
             <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
                 <horizontal>
-                    <text text="Put your icons in UserData/HRCounter/Icons/" align="Center" italics="false"/>
-                    <button text="Show in Explorer" on-click="open-icons-folder" pad-left="8"/>
-                </horizontal>
-                <horizontal>
-                    <vertical background="round-rect-panel" pad-top="0">
+                    <vertical background="round-rect-panel" pad="1">
                         <list id='icon-list' select-cell='icon-selected' show-scrollbar="false"/>
                     </vertical>
                     <vertical child-control-height="false" pad-left="0" preferred-width="10" horizontal-fit="PreferredSize">
-                        <button text="Refresh" on-click="refresh-counter-icon" interactable="~is-icon-loaded"/>
+                        <button text="Refresh" on-click="refresh-counter-icon" interactable="~is-icon-loaded" pad-top="4"/>
                         <page-button event-click='icon-list#PageUp' direction='Up' size-delta-y="10" size-delta-x="10"/>
                         <page-button event-click='icon-list#PageDown' direction='Down' size-delta-y="10" size-delta-x="10"/>
                     </vertical>
+                </horizontal>
+                <horizontal>
+                    <text text="Put your icons in UserData/HRCounter/Icons/" align="Center" italics="false"/>
+                    <button text="Show in Explorer" on-click="open-icons-folder" pad-left="8"/>
                 </horizontal>
             </vertical>
         </tab>
