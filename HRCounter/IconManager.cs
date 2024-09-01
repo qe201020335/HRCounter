@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using IPA.Utilities;
@@ -31,6 +32,26 @@ internal class IconManager: IInitializable, IDisposable
     void IInitializable.Initialize()
     {
         _iconDir.Create();
+        try
+        {
+            var hrcIconPath = Path.Combine(IconDirPath, "hrc_white.png");
+            if (!File.Exists(hrcIconPath))
+            {
+                using var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("HRCounter.Resources.hrcounter.png");
+                if (resourceStream != null)
+                {
+                    var iconPath = Path.Combine(IconDirPath, "hrc_white.png");
+                    using var fileStream = new FileStream(iconPath, FileMode.Create, FileAccess.Write);
+                    resourceStream.CopyTo(fileStream);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.Debug("Failed to copy hrc_white.png");
+            _logger.Debug(e);
+        }
+        
         UnityMainThreadTaskScheduler.Factory.StartNew(LoadAllIconsAsync);
     }
     
