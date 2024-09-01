@@ -2,8 +2,10 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using BeatSaberMarkupLanguage;
 using HRCounter.Configuration;
 using HRCounter.Utils;
+using IPA.Utilities;
 using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
@@ -20,6 +22,8 @@ namespace HRCounter
         [Inject] private readonly PluginConfig _config = null!;
 
         [Inject] private readonly SiraLog _logger = null!;
+        
+        [Inject] private readonly IconManager _iconManager = null!;
         
         public void Initialize()
         {
@@ -76,15 +80,14 @@ namespace HRCounter
             var numbers = icon.transform.GetChild(0).GetComponent<TMP_Text>();
             numbers.alignment = TextAlignmentOptions.MidlineLeft;
 
-            icon.GetComponent<Image>().material = RenderUtils.UINoGlow;
-            if (_config.NoBloom)
+            var iconImage = icon.GetComponent<Image>();
+            iconImage.material = RenderUtils.UINoGlow;
+            if (!string.IsNullOrWhiteSpace(_config.CustomIcon) && _iconManager.TryGetIconSprite(_config.CustomIcon, out var sprite))
             {
-                numbers.fontMaterial.shader = RenderUtils.TextNoGlow;
+                iconImage.sprite = sprite;
             }
-            else
-            {
-                numbers.fontMaterial.shader = RenderUtils.TextGlow;
-            }
+
+            numbers.fontMaterial.shader = _config.NoBloom ? RenderUtils.TextNoGlow : RenderUtils.TextGlow;
 
             return new CustomCounter
             {
