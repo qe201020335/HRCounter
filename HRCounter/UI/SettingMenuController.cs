@@ -105,21 +105,22 @@ namespace HRCounter.UI
             UnityMainThreadTaskScheduler.Factory.StartNew(RefreshConfigUi);
         }
 
+        [UIAction("#post-parse")]
+        private async Task PostParse()
+        {
+            UpdateDataSourceInfoText();
+            _previousDataSource = _config.DataSource;
+            _previousIcon = _config.CustomIcon;
+            UpdateColorText();
+            await LoadIconList(false);
+        }
+
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             _logger.Trace("SettingMenuController DidActivate");
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
 
-            if (firstActivation)
-            {
-                // no point to refresh the ui if it literally just activated and read the config
-                UpdateDataSourceInfoText();
-                _previousDataSource = _config.DataSource;
-                _previousIcon = _config.CustomIcon;
-                UpdateColorText();
-                _ = LoadIconList(false);
-            }
-            else
+            if (!firstActivation)
             {
                 // config might have changed while we were inactive
                 RefreshConfigUi();
