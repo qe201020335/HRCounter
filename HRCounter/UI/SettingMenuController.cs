@@ -428,6 +428,19 @@ namespace HRCounter.UI
             _config.CustomIcon = iconName;
         }
 
+        [UIAction("open-icons-folder")]
+        private void OpenIconsFolder()
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = _iconManager.IconDirPath,
+                UseShellExecute = true,
+                Verb = "open"
+            };
+            
+            System.Diagnostics.Process.Start(psi);
+        }
+
         #endregion
     }
 }

@@ -28,7 +28,11 @@
         </tab>
         <tab tab-name="Icon" tags="tabs">
             <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
-                <horizontal pad-top="2">
+                <horizontal>
+                    <text text="Put your icons in UserData/HRCounter/Icons/" align="Center" italics="false"/>
+                    <button text="Show in Explorer" on-click="open-icons-folder" pad-left="8"/>
+                </horizontal>
+                <horizontal>
                     <vertical background="round-rect-panel" pad-top="0">
                         <list id='icon-list' select-cell='icon-selected' show-scrollbar="false"/>
                     </vertical>

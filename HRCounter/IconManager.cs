@@ -25,6 +25,8 @@ internal class IconManager: IInitializable, IDisposable
     private readonly Dictionary<string, Sprite> _loadedIcons = new Dictionary<string, Sprite>();
     
     private readonly HashSet<string> _acceptableExtensions = [".png", ".jpg", ".jpeg", ".gif"];
+
+    internal string IconDirPath => _iconDir.FullName;
     
     void IInitializable.Initialize()
     {
