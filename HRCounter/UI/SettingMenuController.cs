@@ -117,7 +117,7 @@ namespace HRCounter.UI
                 _previousDataSource = _config.DataSource;
                 _previousIcon = _config.CustomIcon;
                 UpdateColorText();
-                _ = LoadIconList();
+                _ = LoadIconList(false);
             }
             else
             {
@@ -161,7 +161,7 @@ namespace HRCounter.UI
             }
         }
 
-        private async Task LoadIconList()
+        private async Task LoadIconList(bool refresh)
         {
             if (!UnityGame.OnMainThread)
                 throw new InvalidOperationException("This method can only be called from the main thread.");
@@ -170,7 +170,7 @@ namespace HRCounter.UI
             
             IsIconListLoaded = false;
             _iconNames.Clear();
-            var icons = await _iconManager.GetIconsWithSprite();
+            var icons = await _iconManager.GetIconsWithSpriteAsync(refresh);
             var data = new List<CustomListTableData.CustomCellInfo>(icons.Count + 1);
             data.Add(new CustomListTableData.CustomCellInfo("Default"));
             _iconNames.Add("");
@@ -414,7 +414,7 @@ namespace HRCounter.UI
         [UIAction("refresh-counter-icon")]
         private void RefreshIconOptions()
         {
-            _ = LoadIconList();
+            _ = LoadIconList(true);
         }
         
         [UIAction("icon-selected")]

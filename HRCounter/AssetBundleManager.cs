@@ -23,7 +23,7 @@ namespace HRCounter
 
         [Inject] private readonly SiraLog _logger = null!;
         
-        private readonly string _iconPathBase = Path.Combine(UnityGame.UserDataPath, "HRCounter", "Icons");
+        [Inject] private readonly IconManager _iconManager = null!;
         
         public void Initialize()
         {
@@ -82,20 +82,9 @@ namespace HRCounter
 
             var iconImage = icon.GetComponent<Image>();
             iconImage.material = RenderUtils.UINoGlow;
-            if (!string.IsNullOrWhiteSpace(_config.CustomIcon))
+            if (!string.IsNullOrWhiteSpace(_config.CustomIcon) && _iconManager.TryGetIconSprite(_config.CustomIcon, out var sprite))
             {
-                var iconPath = Path.Combine(_iconPathBase, _config.CustomIcon);
-                try
-                {
-                    if (File.Exists(iconPath))
-                    {
-                        iconImage.SetImageAsync(iconPath);
-                    }
-                }
-                catch (Exception e)
-                {
-                    _logger.Error($"Failed to load custom icon: {e}");
-                }
+                iconImage.sprite = sprite;
             }
 
             numbers.fontMaterial.shader = _config.NoBloom ? RenderUtils.TextNoGlow : RenderUtils.TextGlow;
