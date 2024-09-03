@@ -1,4 +1,4 @@
-﻿import JSZip from "jszip";
+import JSZip from "jszip";
 import download from "./helpers";
 
 const LATEST_LINK = "https://hrcounter.skyqe.workers.dev/latest"
