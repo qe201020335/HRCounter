@@ -1,4 +1,4 @@
-﻿import {useRef, useState} from "react";
+﻿import {ChangeEvent, useRef, useState} from "react";
 
 import {Box, Button, Card, FormControl, InputLabel, Link, MenuItem, Select, TextField} from "@mui/material";
 import "./Main.css"
@@ -26,7 +26,7 @@ function Main() {
   const [sourceInput, setSourceInput] = useState(queryParameters.current.get("access_token") || "")
 
 
-  function onSourceChange(e) {
+  function onSourceChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const newSource = e.target.value
     sourceInfoMap.current.set(source, sourceInput)
     const input = sourceInfoMap.current.get(newSource) || ""
@@ -34,7 +34,7 @@ function Main() {
     setSourceInput(input)
   }
 
-  function get_info(source) {
+  function get_info(source: string) {
     switch (source) {
       case "Pulsoid":
         return "Pulsoid Token"
@@ -45,7 +45,7 @@ function Main() {
     }
   }
 
-  function get_hint(source) {
+  function get_hint(source: string) {
     switch (source) {
       case "Pulsoid":
         return PULSOID_HINT
@@ -80,7 +80,7 @@ function Main() {
   return (
       <Card id="main" sx={{ minWidth: 500 }}>
 
-        <Box sx={{'& > :not(style)': {m: 1},}} noValidate autoComplete="off">
+        <Box sx={{'& > :not(style)': {m: 1},}}>
           <TextField select label="Data Source" value={source} onChange={onSourceChange} size="small" sx={{ minWidth: 125 }}>
             <MenuItem value="Pulsoid">Pulsoid</MenuItem>
             <MenuItem value="HypeRate">HypeRate</MenuItem>

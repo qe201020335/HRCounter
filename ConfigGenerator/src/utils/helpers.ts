@@ -1,4 +1,4 @@
-function download(content, mimeType, filename){
+function download(content: Blob, mimeType: string, filename: string){
   const a = document.createElement('a') // Create "a" element
   const blob = new Blob([content], {type: mimeType}) // Create a blob (file-like object)
   const url = URL.createObjectURL(blob) // Create an object URL from blob
