@@ -3,7 +3,7 @@ import download from "./helpers";
 
 const LATEST_LINK = "https://hrcounter.skyqe.workers.dev/latest"
 
-async function generate(config) {
+async function generate(config: any) {
   console.log(config)
 
   const zip_get_res = await fetch(LATEST_LINK)
@@ -18,7 +18,7 @@ async function generate(config) {
 
   const zip = await JSZip.loadAsync(atob(data))
   if (config !== null) {
-    await zip.folder("UserData").file("HRCounter.json", JSON.stringify(config), null)
+    zip.folder("UserData")!.file("HRCounter.json", JSON.stringify(config))
   }
   const modified = await zip.generateAsync({type: "blob"})
   download(modified, "application/octet-stream", name)
