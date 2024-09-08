@@ -9,6 +9,7 @@ namespace HRCounter.Web.HTTP
         {
             var response = context.Response;
             response.StatusCode = (int)statusCode;
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
             response.Close();
         }
 
@@ -55,6 +56,7 @@ namespace HRCounter.Web.HTTP
         {
             var response = context.Response;
             response.StatusCode = (int)code;
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
             response.ContentType = contentType;
             response.ContentEncoding = System.Text.Encoding.UTF8;
             var buffer = System.Text.Encoding.UTF8.GetBytes(text);
@@ -67,6 +69,7 @@ namespace HRCounter.Web.HTTP
         {
             var response = context.Response;
             response.StatusCode = (int)code;
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
             response.ContentType = contentType;
             response.ContentEncoding = System.Text.Encoding.UTF8;
             var buffer = System.Text.Encoding.UTF8.GetBytes(text);
