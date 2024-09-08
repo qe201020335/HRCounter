@@ -1,4 +1,4 @@
-import {ChangeEvent, useRef, useState} from "react";
+import {ChangeEvent, useEffect, useRef, useState} from "react";
 
 import {Box, Button, Card, Link, MenuItem, TextField} from "@mui/material";
 import "./Main.css"
@@ -24,11 +24,21 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
   const sourceInfoMap = useRef(new Map<string, string>(
         [[DataSource.Pulsoid, props.gameConfig.PulsoidToken], [DataSource.HypeRate, props.gameConfig.HypeRateSessionID]]
   ))
-  const queryParameters = useRef(new URLSearchParams(window.location.hash.replace("#", "?")))
 
   const [source, setSource] = useState(props.initialSource ?? DataSource.Pulsoid);
-  const [sourceInput, setSourceInput] = useState(queryParameters.current.get("access_token") || "")
+  const [sourceInput, setSourceInput] = useState(props.gameConfig.getConfigForSource(source));
 
+  useEffect(() => {
+    console.debug("Main component mounted, updating state with props")
+    console.debug(`props.initialSource: ${props.initialSource}, props.gameConfig: ${JSON.stringify(props.gameConfig)}`)
+    const source = props.initialSource ?? DataSource.Pulsoid
+    sourceInfoMap.current = new Map<string, string>([
+            [DataSource.Pulsoid, props.gameConfig.PulsoidToken],
+            [DataSource.HypeRate, props.gameConfig.HypeRateSessionID]
+        ])
+    setSource(source)
+    setSourceInput(props.gameConfig.getConfigForSource(source))
+  }, [props.gameConfig, props.initialSource])
 
   function onSourceChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const newSource = e.target.value as DataSource
@@ -85,7 +95,7 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
         </Box>
         <div id="data-source-hint"> {get_hint(source)} </div>
         <Button id="submit" variant="contained" color="primary" onClick={onclick}>Generate!</Button>
-        
+
       </Card>
   );
 }
