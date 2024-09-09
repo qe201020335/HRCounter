@@ -84,7 +84,7 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
   }
 
   return (
-      <Card id="main" sx={{ minWidth: 500 }}>
+      <div>
 
         <Box sx={{'& > :not(style)': {m: 1},}}>
           <TextField select label="Data Source" value={source} onChange={onSourceChange} size="small" sx={{ minWidth: 125 }}>
@@ -96,7 +96,7 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
         <div id="data-source-hint"> {get_hint(source)} </div>
         <Button id="submit" variant="contained" color="primary" onClick={onclick}>Generate!</Button>
 
-      </Card>
+      </div>
   );
 }
 

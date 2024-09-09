@@ -15,14 +15,6 @@
 /*  color: #525c66;*/
 /*}*/
 
-#main {
-    /*background-color: #1f2831;*/
-    padding: 25px;
-    border-radius: 5px;
-    display: inline-block;
-    /*line-height: 200%;*/
-}
-
 #data-source-hint {
     min-height: 1em;
     margin-left: 0.5em;

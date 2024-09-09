@@ -1,6 +1,6 @@
 import './App.css';
 import GeneratorMain from "./Components/Main";
-import {Link} from "@mui/material";
+import {Box, Card, CircularProgress, Link} from "@mui/material";
 import {useEffect, useMemo, useRef, useState} from "react";
 import {GameConfig} from "./models/GameConfig";
 import {DataSource} from "./models/DataSource";
@@ -41,12 +41,13 @@ function App() {
 
     }, [])
 
-    const gameSettingsController = useRef<GameSettingsController | null>((() => {
-        if (gameConnectionFromQuery.address === "" || gameConnectionFromQuery.port === 0) {
-            return null
-        }
-        return new GameSettingsController(gameConnectionFromQuery.address, gameConnectionFromQuery.port)
-    })())
+    const gameSettingsController = useRef<GameSettingsController | null>(
+        (gameConnectionFromQuery.address === "" || gameConnectionFromQuery.port === 0)
+            ? null
+            : new GameSettingsController(gameConnectionFromQuery.address, gameConnectionFromQuery.port)
+    )
+
+    const [isLoadingWithGame, setIsLoadingWithGame] = useState(gameSettingsController.current !== null)
 
     const [gameConfig, setGameConfig] = useState(initialConfigFromQuery)
 
@@ -57,6 +58,7 @@ function App() {
         }
 
         controller.getGameConfig().then((config) => {
+            setIsLoadingWithGame(false)
             if (config === null) {
                 // probably the game is not running or the connection is wrong
                 // TODO: Show error message
@@ -78,8 +80,7 @@ function App() {
         const controller = gameSettingsController.current;
         if (controller === null) {
             await generate(source) // download mod with config
-        }
-        else {
+        } else {
             // push config to game
             try {
                 const config = await controller.pushDataSourceConfig(source)
@@ -92,12 +93,20 @@ function App() {
     }
 
     return (
-        <div className="App" >
+        <div className="App">
             <h1>HRCounter Easy Config Generator</h1>
             <h3>DO NOT USE THIS IF YOU ALREADY HAVE DATA SOURCE CONFIGURED</h3>
-
-            <GeneratorMain gameConfig={gameConfig} initialSource={gameConfig.PulsoidToken === "" ? null : DataSource.Pulsoid} onSubmit={onDataSourceSubmit}/>
-
+            <Card id="main-card" sx={{minWidth: 500}}>
+                {isLoadingWithGame
+                    ? <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150, gap: 4}}>
+                        <CircularProgress/>
+                        <span>Connecting to game at {gameSettingsController.current !== null ? `${gameSettingsController.current.address}:${gameSettingsController.current.port}` : "null"}</span>
+                    </Box>
+                    : <GeneratorMain gameConfig={gameConfig}
+                                     initialSource={gameConfig.PulsoidToken === "" ? null : DataSource.Pulsoid}
+                                     onSubmit={onDataSourceSubmit}/>
+                }
+            </Card>
             <div id="credits">
                 There isn't a lot going on on this page. <Link href="https://github.com/qe201020335" target="_blank" underline="hover">@qe201020335</Link>
             </div>
