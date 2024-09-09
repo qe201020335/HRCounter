@@ -38,7 +38,7 @@
                         <page-button event-click='icon-list#PageDown' direction='Down' size-delta-y="10" size-delta-x="10"/>
                     </vertical>
                 </horizontal>
-                <horizontal>
+                <horizontal horizontal-fit="PreferredSize" pref-width="100">
                     <text text="Put your icons in UserData/HRCounter/Icons/" align="Center" italics="false"/>
                     <button text="Show in Explorer" on-click="open-icons-folder" pad-left="8"/>
                 </horizontal>
