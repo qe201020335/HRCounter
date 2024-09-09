@@ -70,7 +70,9 @@ internal class IconManager: IInitializable, IDisposable
     {
         foreach (var icon in _loadedIcons)
         {
+            var texture = icon.Value.texture;
             UObject.Destroy(icon.Value);
+            UObject.Destroy(texture);
         }
         
         _loadedIcons.Clear();
