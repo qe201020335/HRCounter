@@ -1,6 +1,8 @@
 import {ChangeEvent, useEffect, useRef, useState} from "react";
 
-import {Box, Button, Card, Link, MenuItem, TextField} from "@mui/material";
+import {Box, Button, IconButton, Link, MenuItem, TextField} from "@mui/material";
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import "./Main.css"
 import {GameConfig} from "../models/GameConfig";
 import {DataSource} from "../models/DataSource";
@@ -28,6 +30,8 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
   const [source, setSource] = useState(props.initialSource ?? DataSource.Pulsoid);
   const [sourceInput, setSourceInput] = useState(props.gameConfig.getConfigForSource(source));
 
+  const [showToken, setShowToken] = useState(false);
+
   useEffect(() => {
     console.debug("Main component mounted, updating state with props")
     console.debug(`props.initialSource: ${props.initialSource}, props.gameConfig: ${JSON.stringify(props.gameConfig)}`)
@@ -46,6 +50,10 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
     const input = sourceInfoMap.current.get(newSource) || ""
     setSource(newSource)
     setSourceInput(input)
+  }
+
+  function onShowTokenClicked() {
+    setShowToken(!showToken)
   }
 
   function get_info(source: DataSource) {
@@ -91,7 +99,20 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
             <MenuItem value={DataSource.Pulsoid}>Pulsoid</MenuItem>
             <MenuItem value={DataSource.HypeRate}>HypeRate</MenuItem>
           </TextField>
-          <TextField label={get_info(source)} size="small" value={sourceInput} onChange={(e) => setSourceInput(e.target.value)}/>
+          <TextField
+              label={get_info(source)}
+              size="small"
+              value={sourceInput}
+              onChange={(e) => setSourceInput(e.target.value)}
+              type={showToken ? 'text' : 'password'}
+              autoComplete='off'
+          />
+
+          <IconButton aria-label="toggle token visibility" onClick={onShowTokenClicked} edge="end">
+            {showToken ? <VisibilityOff /> : <Visibility />}
+          </IconButton>
+
+
         </Box>
         <div id="data-source-hint"> {get_hint(source)} </div>
         <Button id="submit" variant="contained" color="primary" onClick={onclick}>Generate!</Button>
