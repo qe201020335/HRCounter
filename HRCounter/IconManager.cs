@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
+using HRCounter.Utils;
 using IPA.Utilities;
 using IPA.Utilities.Async;
 using SiraUtil.Logging;
@@ -116,16 +117,14 @@ internal class IconManager: IInitializable, IDisposable
         try
         {
             _logger.Trace($"Creating texture from {fileName}");
-            // use this so I don't have to read the file into a byte[]
-            var texture = await BeatSaberMarkupLanguage.Utilities.LoadImageAsync(file.FullName);
+            var texture = await RenderUtils.LoadImageAsync(file);
             if (texture == null)
             {
                 _logger.Warn($"Failed to load image from {fileName}");
                 return null;
             }
         
-            texture.name = fileName;
-            var sprite = BeatSaberMarkupLanguage.Utilities.LoadSpriteFromTexture(texture);
+            var sprite = RenderUtils.CreateSprite(texture);
 
             _logger.Trace($"Loaded sprite from {fileName}");
             return sprite;
