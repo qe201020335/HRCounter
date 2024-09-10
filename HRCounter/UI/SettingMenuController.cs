@@ -181,8 +181,8 @@ namespace HRCounter.UI
                 _iconNames.Add(filename);
             }
             
-            _iconList.data = data;
-            _iconList.tableView.ReloadData();
+            _iconList.Data = data;
+            _iconList.TableView.ReloadData();
             
             _logger.Debug($"Loaded {data.Count} custom icon options");
 
@@ -196,13 +196,13 @@ namespace HRCounter.UI
             var selected = _iconNames.IndexOf(_config.CustomIcon);
             if (selected < 0)
             {
-                _iconList.tableView.ClearSelection();
-                _iconList.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
+                _iconList.TableView.ClearSelection();
+                _iconList.TableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
             }
             else
             {
-                _iconList.tableView.SelectCellWithIdx(selected);
-                _iconList.tableView.ScrollToCellWithIdx(selected, TableView.ScrollPositionType.Center, false);
+                _iconList.TableView.SelectCellWithIdx(selected);
+                _iconList.TableView.ScrollToCellWithIdx(selected, TableView.ScrollPositionType.Center, false);
             }
         }
 
@@ -421,7 +421,7 @@ namespace HRCounter.UI
         [UIAction("icon-selected")]
         private void CounterIconSelected(TableView view, int index)
         {
-            if (view != _iconList.tableView) return;
+            if (view != _iconList.TableView) return;
             var iconName = _iconNames[index];
             _previousIcon = iconName;
             _logger.Debug($"Selected icon {index} ({iconName})");
