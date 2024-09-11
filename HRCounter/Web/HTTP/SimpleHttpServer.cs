@@ -140,6 +140,12 @@ namespace HRCounter.Web.HTTP
                     {
                         await handler.HandleRequestAsync(context);
                     }
+                    else if (method == HttpMethod.Options.Method)
+                    {
+                        // allows custom handlers to handle OPTIONS requests
+                        // if they don't, we'll just use the default implementation
+                        await HandleOptionsAsync(context, methods.Keys);
+                    } 
                     else
                     {
                         _logger.Warn($"BadMethod: {method} @ {path}");
@@ -158,6 +164,21 @@ namespace HRCounter.Web.HTTP
                 _logger.Critical(e);
                 await context.InternalServerErrorAsync(e);
             }
+        }
+        
+        private Task HandleOptionsAsync(HttpListenerContext context, IEnumerable<HttpMethod> methods)
+        {
+            var response = context.Response;
+            var methodsStr = string.Join(", ", methods.Append(HttpMethod.Options).Select(m => m.Method).Distinct());
+            _logger.Trace($"OPTIONS: {methodsStr}");
+            response.Headers.Add("Access-Control-Allow-Methods", methodsStr);
+            response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
+            // response.Headers.Add("Access-Control-Expose-Headers", "*");
+            response.Headers.Add("Access-Control-Max-Age", "7200");
+            response.StatusCode = (int) HttpStatusCode.NoContent;
+            response.Close();
+            return Task.CompletedTask;
         }
         
         private string NormalizedPath(string path)

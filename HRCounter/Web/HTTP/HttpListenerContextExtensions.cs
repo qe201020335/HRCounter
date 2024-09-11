@@ -5,11 +5,16 @@ namespace HRCounter.Web.HTTP
 {
     public static class HttpListenerContextExtensions
     {
+        private static void AddCorsHeaders(this HttpListenerResponse response)
+        {
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
+        }
+        
         private static void SimpleStatusCodeResponse(this HttpListenerContext context, HttpStatusCode statusCode)
         {
             var response = context.Response;
             response.StatusCode = (int)statusCode;
-            response.Headers.Add("Access-Control-Allow-Origin", "*");
+            response.AddCorsHeaders();
             response.Close();
         }
 
@@ -56,7 +61,7 @@ namespace HRCounter.Web.HTTP
         {
             var response = context.Response;
             response.StatusCode = (int)code;
-            response.Headers.Add("Access-Control-Allow-Origin", "*");
+            response.AddCorsHeaders();
             response.ContentType = contentType;
             response.ContentEncoding = System.Text.Encoding.UTF8;
             var buffer = System.Text.Encoding.UTF8.GetBytes(text);
@@ -69,7 +74,7 @@ namespace HRCounter.Web.HTTP
         {
             var response = context.Response;
             response.StatusCode = (int)code;
-            response.Headers.Add("Access-Control-Allow-Origin", "*");
+            response.AddCorsHeaders();
             response.ContentType = contentType;
             response.ContentEncoding = System.Text.Encoding.UTF8;
             var buffer = System.Text.Encoding.UTF8.GetBytes(text);
