@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import download from "./helpers";
+import {FileSaver} from "./FileSaver";
 
 const LATEST_LINK = "https://hrcounter.skyqe.workers.dev/latest"
 
@@ -21,7 +21,7 @@ async function generate(config: any) {
     zip.folder("UserData")!.file("HRCounter.json", JSON.stringify(config))
   }
   const modified = await zip.generateAsync({type: "blob"})
-  download(modified, "application/octet-stream", name)
+  FileSaver.saveBinary(modified, "application/octet-stream", name)
 }
 
 export default generate
