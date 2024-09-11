@@ -8,20 +8,9 @@ import {GameConfig} from "../models/GameConfig";
 import {DataSource} from "../models/DataSource";
 import {DataSourceConfig} from "../models/DataSourceConfig";
 
-const PULSOID_TOKEN_LINK = "https://pulsoid.net/oauth2/authorize?response_type=token&client_id=a81a9e16-2960-487d-a741-92e22b757c85&redirect_uri=https://hrcounter.skyqe.net&scope=data:heart_rate:read&state=a52beaeb-c491-4cd3-b915-16fed71e17a8"
 const PULSOID_BRO_TOKEN = "https://pulsoid.net/ui/keys"
-const PULSOID_HINT = (
-    <p>
-      If you don't have a token yet, click authorize to get one. <a href={PULSOID_TOKEN_LINK}><Button>Authorize</Button></a>
-      <br/>
-      Or, you can use a manually generated token <Link href={PULSOID_BRO_TOKEN} target="_blank" underline="hover">here</Link> if you are
-      a <strong>BRO</strong>.
-    </p>
-)
 
-//https://hrcounter.skyqe.net/#token_type=bearer&access_token=xxxxxxxx&expires_in=2522880000&scope=data:heart_rate:read&state=yyyyyyy
-
-function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null, onSubmit: (config: DataSourceConfig) => Promise<any> }) {
+function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null, onSubmit: (config: DataSourceConfig) => Promise<any>, onAuthorize: (source: DataSource) => any }) {
 
   const sourceInfoMap = useRef(new Map<string, string>(
         [[DataSource.Pulsoid, props.gameConfig.PulsoidToken], [DataSource.HypeRate, props.gameConfig.HypeRateSessionID]]
@@ -55,6 +44,9 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
   function onShowTokenClicked() {
     setShowToken(!showToken)
   }
+  function onAuthorizeClicked() {
+    props.onAuthorize(source)
+  }
 
   function get_info(source: DataSource) {
     switch (source) {
@@ -70,7 +62,13 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
   function get_hint(source: DataSource) {
     switch (source) {
       case DataSource.Pulsoid:
-        return PULSOID_HINT
+        return (
+            <p>
+              If you don't have a token yet, click authorize to get one. <Button onClick={onAuthorizeClicked}>Authorize</Button>
+              <br/>
+              Or, you can use a manually generated token <Link href={PULSOID_BRO_TOKEN} target="_blank" underline="hover">here</Link> if you are a <strong>BRO</strong>.
+            </p>
+        )
       default:
         return ""
     }

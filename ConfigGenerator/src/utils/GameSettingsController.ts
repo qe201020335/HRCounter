@@ -1,5 +1,6 @@
 import {GameConfig} from "../models/GameConfig";
 import {DataSourceConfig} from "../models/DataSourceConfig";
+import {GameConnection} from "../models/GameConnection";
 
 export class GameSettingsController {
     readonly address: string;
@@ -8,10 +9,17 @@ export class GameSettingsController {
 
     private readonly link: string;
 
-    constructor(address: string, port: number) {
-        this.address = address;
-        this.port = port;
-        this.link = `http://${address}:${port}/config`;
+    constructor(gameConnection: GameConnection) {
+        this.address = gameConnection.address;
+        this.port = gameConnection.port;
+        this.link = `http://${this.address}:${this.port}/config`;
+    }
+
+    getGameConnectionInfo(): GameConnection {
+        const result = new GameConnection();
+        result.address = this.address;
+        result.port = this.port;
+        return result;
     }
 
     async pushDataSourceConfig(config: DataSourceConfig): Promise<GameConfig> {
