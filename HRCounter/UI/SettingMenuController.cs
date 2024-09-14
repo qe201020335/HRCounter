@@ -70,10 +70,20 @@ namespace HRCounter.UI
         private void UpdateDataSourceInfoText()
         {
             var known = DataSourceManager.TryGetFromKey(_config.DataSource, out var source);
+            if (!known || source != DataSourceManager.Pulsoid)
+            {
+                DataSourceBrowserButtonText = "Open In Browser";
+            }
+            
             if (!known)
             {
                 _dataSourceInfoText.SetText("Unknown Data Source");
                 return;
+            }
+            
+            if (source == DataSourceManager.Pulsoid)
+            {
+                DataSourceBrowserButtonText = "Authorize with Pulsoid";
             }
 
             _dataSourceInfoText.SetText("Loading Data Source Info...");
@@ -365,6 +375,19 @@ namespace HRCounter.UI
             }
         }
 
+        private string _dataSourceBrowserButtonText = "Open In Browser";
+
+        [UIValue("data-source-browser-button-text")]
+        private string DataSourceBrowserButtonText
+        {
+            get => _dataSourceBrowserButtonText;
+            set
+            {
+                _dataSourceBrowserButtonText = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region UIActions
@@ -439,6 +462,12 @@ namespace HRCounter.UI
             };
             
             System.Diagnostics.Process.Start(psi);
+        }
+        
+        [UIAction("open-data-source-browser")]
+        private void OpenDataSourceInBrowser()
+        {
+            // TODO pop up an informative model
         }
 
         #endregion

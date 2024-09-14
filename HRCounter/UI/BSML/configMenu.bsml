@@ -18,6 +18,7 @@
                 <dropdown-list-setting text="Data Source" value="source-list-choice" choices="source-list-options" apply-on-change="true" bind-value="true"/>
                 <horizontal>
                     <text text="Data Source Info ↓" align="Center" italics="true"/>
+                    <button text="~data-source-browser-button-text" on-click="open-data-source-browser"/>
                     <button text="Refresh" id="data-source-info-refresh-btn" on-click="data-source-info-refresh-btn-action"/>
                 </horizontal>
                 <!-- Don't know why it is horizontal but it works! Thank you Aeroluna! :D -->
