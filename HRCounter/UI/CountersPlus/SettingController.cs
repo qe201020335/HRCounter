@@ -6,11 +6,13 @@ using HRCounter.Configuration;
 using HRCounter.Data;
 using IPA.Utilities.Async;
 using SiraUtil.Logging;
+using UnityEngine;
+using Zenject;
 
 namespace HRCounter.UI.CountersPlus
 {
     // setting controller for Counters+ counter configuration page
-    internal class SettingController
+    internal class SettingController: MonoBehaviour
     {
         private PluginConfig _config = null!;
 
@@ -26,22 +28,28 @@ namespace HRCounter.UI.CountersPlus
 
         private string _previousDataSource = "";
 
-        private SettingController(PluginConfig config, SiraLog logger)
+        [Inject]
+        private void Init(PluginConfig config, SiraLog logger)
         {
             _config = config;
             _logger = logger;
-            _config.OnSettingsChanged += SettingsChangedHandler;
-            _logger.Trace("SettingController constructed");
+            _logger.Trace("SettingController injection init");
         }
-
-        // Due to an really old issue in Counters+ https://github.com/NuggoDEV/CountersPlus/pull/141
-        // MonoBehaviour settings menu will not work, though we should use MonoBehaviour to sync up 
-        // our menu lifecycle with the UI components'
-        // A workaround here using a de-constructor.
-        ~SettingController()
+        
+        private void OnEnable()
+        {
+            _config.OnSettingsChanged += SettingsChangedHandler;
+            _logger.Trace("SettingController OnEnable");
+            if (_parsed)
+            {
+                UpdateText();
+            }
+        }
+        
+        private void OnDisable()
         {
             _config.OnSettingsChanged -= SettingsChangedHandler;
-            _logger.Trace("SettingController destructed");
+            _logger.Trace("SettingController OnDisable");
         }
 
         [UIAction("#post-parse")]
@@ -54,15 +62,6 @@ namespace HRCounter.UI.CountersPlus
 
         private void SettingsChangedHandler()
         {
-            if (!_parsed || _dataSourceText == null || _dataSourceInfoText == null)
-            {
-                // the game soft restarted so the components were destroyed
-                _parsed = false;
-                _dataSourceText = null!;
-                _dataSourceInfoText = null!;
-                return;
-            }
-
             if (_parsed && _previousDataSource != _config.DataSource)
             {
                 // the event is not broadcast on main thread
