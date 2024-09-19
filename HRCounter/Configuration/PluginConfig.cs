@@ -55,6 +55,9 @@ namespace HRCounter.Configuration
         private List<string> _oscAddress =
             ["/hr", "/avatar/parameters/HR", "/avatar/parameters/HeartRateInt", "/avatar/parameters/Heartrate3", "/avatar/parameters/HeartRateBPM"];
         
+        private bool _httpLocalOnly = true;
+        private int _httpPort = 65302;
+        
         private string _customIcon = "";
 
         #endregion
@@ -240,6 +243,18 @@ namespace HRCounter.Configuration
                 _oscAddress = value;
             }
         }
+
+        public virtual bool HttpLocalOnly
+        {
+            get => _httpLocalOnly;
+            set => _httpLocalOnly = value;
+        }
+
+        public virtual int HttpPort
+        {
+            get => _httpPort;
+            set => _httpPort = value;
+        }
         
         public virtual string CustomIcon
         {
@@ -310,6 +325,8 @@ namespace HRCounter.Configuration
                 _oscBindIp = _oscBindIp,
                 _oscPort = _oscPort,
                 _oscAddress = _oscAddress,
+                _httpLocalOnly = _httpLocalOnly,
+                _httpPort = _httpPort,
                 _customIcon = _customIcon
             };
         }
@@ -343,6 +360,8 @@ namespace HRCounter.Configuration
             _oscBindIp = other._oscBindIp;
             _oscPort = other._oscPort;
             _oscAddress = other._oscAddress;
+            _httpLocalOnly = other._httpLocalOnly;
+            _httpPort = other._httpPort;
             _customIcon = other._customIcon;
             Changed();
         }

@@ -135,7 +135,7 @@ namespace HRCounter.Data
         
         internal static DataSourceInfo HttpServer = RegisterDataSource<HttpServerDataSource>(HTTP_SERVER_KEY,
             () => Config.EnableHttpServer 
-                ? $"POST to: {SimpleHttpServer.PREFIX}/hr" 
+                ? "POST to the <color=#00FF00>/hr</color> endpoint" 
                 : "<color=#FF0000>HTTP Server is NOT enabled!</color>",
             () => true
         );

@@ -13,7 +13,6 @@ namespace HRCounter.Web.HTTP
 {
     internal class SimpleHttpServer: IInitializable, IDisposable
     {
-        internal const string PREFIX = "http://localhost:65302/";  // TODO: make it configurable?
         
         private readonly PluginConfig _config;
         private readonly SiraLog _logger;
@@ -22,14 +21,22 @@ namespace HRCounter.Web.HTTP
          * Path -> Method -> Handler
          */
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<HttpMethod, IHttpRouteHandler>> _handlers;
-        
-        private bool _isListening = false;
+
+        public bool IsLocalOnly { get; }
+        public int Port { get; }
+
+        public bool IsListening { get; private set; } = false;
         
         internal SimpleHttpServer(PluginConfig config, SiraLog logger, IHttpRouteHandler[] handlers)
         {
             _config = config;
             _logger = logger;
-            _listener.Prefixes.Add(PREFIX);
+            IsLocalOnly = config.HttpLocalOnly;
+            Port = config.HttpPort;
+
+            var domain = IsLocalOnly ? "localhost" : "+";
+            var url =  $"http://{domain}:{Port}/";
+            _listener.Prefixes.Add(url);
             
             var handlersDict = new Dictionary<string, Dictionary<HttpMethod, IHttpRouteHandler>>();
             foreach (var handler in handlers)
@@ -66,11 +73,11 @@ namespace HRCounter.Web.HTTP
         
         private void UpdateListener()
         {
-            if (_config.EnableHttpServer && !_isListening)
+            if (_config.EnableHttpServer && !IsListening)
             {
                 StartListener();
             }
-            else if (!_config.EnableHttpServer && _isListening)
+            else if (!_config.EnableHttpServer && IsListening)
             {
                 StopListener();
             }
@@ -79,13 +86,13 @@ namespace HRCounter.Web.HTTP
         private void StartListener()
         {
             _logger.Debug("Starting listener");
-            if (_isListening)
+            if (IsListening)
             {
                 _logger.Warn("Listener already started");
                 return;
             }
             
-            _isListening = true;
+            IsListening = true;
             _listener.Start();
             Task.Run(GetAndProcessRequestsAsync);
         }
@@ -93,7 +100,7 @@ namespace HRCounter.Web.HTTP
         private void StopListener()
         {
             _logger.Debug("Stopping listener");
-            _isListening = false;
+            IsListening = false;
             _listener.Stop();
         }
         
