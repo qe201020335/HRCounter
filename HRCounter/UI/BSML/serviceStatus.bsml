@@ -1,0 +1,13 @@
+﻿<vertical child-control-height='false' spacing="2" pad-top="2" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+          xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+    <bool-setting text="Enable HTTP Server" value="EnableHttpServer"
+                  hover-hint="Enable the built-in HTTP server for runtime config updates and http server hr data source" apply-on-change="true"
+                  bind-value="true"/>
+    <horizontal pref-height="20" background="round-rect-panel">
+        <text-page id="http_status_text" italics="false"/>
+    </horizontal>
+    <bool-setting text="Enable OSC Server" value="EnableOscServer" apply-on-change="true" bind-value="true"/>
+    <horizontal pref-height="20" background="round-rect-panel">
+        <text-page id="osc_status_text" italics="false"/>
+    </horizontal>
+</vertical>

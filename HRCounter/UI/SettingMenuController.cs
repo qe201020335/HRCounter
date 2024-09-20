@@ -308,20 +308,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
         set => _config.NoBloom = value;
     }
 
-    [UIValue("EnableHttpServer")]
-    private bool EnableHttpServer
-    {
-        get => _config.EnableHttpServer;
-        set => _config.EnableHttpServer = value;
-    }
-
-    [UIValue("EnableOscServer")]
-    private bool EnableOscServer
-    {
-        get => _config.EnableOscServer;
-        set => _config.EnableOscServer = value;
-    }
-
     [UIValue("LowColor")]
     private Color LowColor
     {

@@ -10,6 +10,9 @@ public class ConfigViewFlowCoordinator : FlowCoordinator
 
     [Inject]
     private readonly SettingMenuController _mainPanel = null!;
+    
+    [Inject]
+    private readonly ServiceStatusViewController _serviceStatusView = null!;
 
     protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
@@ -17,7 +20,7 @@ public class ConfigViewFlowCoordinator : FlowCoordinator
         {
             SetTitle("HR Counter");
             showBackButton = true;
-            ProvideInitialViewControllers(_mainPanel);
+            ProvideInitialViewControllers(_mainPanel, _serviceStatusView);
         }
     }
 
