@@ -13,13 +13,16 @@ namespace HRCounter.UI
         [Inject]
         private readonly SettingMenuController _mainPanel = null!;
 
+        [Inject]
+        private readonly ServiceStatusViewController _serviceStatusView = null!;
+
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             if (firstActivation)
             {
                 SetTitle("HR Counter");
                 showBackButton = true;
-                ProvideInitialViewControllers(_mainPanel);
+                ProvideInitialViewControllers(_mainPanel, _serviceStatusView);
             }
         }
         
