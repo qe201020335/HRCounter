@@ -13,6 +13,7 @@ namespace HRCounter.Installers
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<SettingMenuController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<ServiceStatusViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<ConfigViewFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesTo<MenuButtonManager>().AsSingle();
         }
