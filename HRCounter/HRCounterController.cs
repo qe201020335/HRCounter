@@ -16,12 +16,13 @@ namespace HRCounter
 {
     internal class HRCounterController : IInitializable, IDisposable
     {
+        [InjectOptional] private readonly GameplayCoreSceneSetupData? _sceneSetupData = null;
         [InjectOptional] private readonly FlyingGameHUDRotation? _flyingGameHUDRotation = null;
         [Inject] private readonly AssetBundleManager _assetBundleManager = null!;
         [Inject] private readonly PluginConfig _config = null!;
         [Inject] private readonly SiraLog _logger = null!;
         [InjectOptional] private readonly HRDataManager? _hrDataManager;
-        [InjectOptional] private CoreGameHUDController.InitData? _hudInitData = null;
+
         private bool _needs360Move;
 
         private GameObject _currentCanvas = null!;
@@ -33,16 +34,10 @@ namespace HRCounter
             {
                 return;
             }
-            
-            if (_hudInitData == null)
+
+            if (_sceneSetupData == null)
             {
-                _logger.Warn("CoreGameHUDController.InitData is null, not creating HRCounter");
-                return;
-            }
-            
-            if (_hudInitData.hide)
-            {
-                _logger.Info("CoreGameHUDController.InitData says to hide the HUD, not creating HRCounter");
+                Plugin.Log.Warn("GameplayCoreSceneSetupData is null");
                 return;
             }
 
@@ -58,7 +53,7 @@ namespace HRCounter
                 return;
             }
 
-            _needs360Move = _flyingGameHUDRotation != null;
+            _needs360Move = _sceneSetupData.beatmapKey.beatmapCharacteristic.requires360Movement && _flyingGameHUDRotation != null;
             Plugin.Log.Info($"360/90?: {_needs360Move}");
 
             if (!CreateCounter())
