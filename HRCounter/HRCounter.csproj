@@ -127,8 +127,8 @@
       <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="YUR.fit-BeatSaber-Mod">
-      <HintPath>$(BeatSaberDir)\Plugins\YUR.fit-BeatSaber-Mod.dll</HintPath>
+    <Reference Include="YUR.Fit.Unity">
+      <HintPath>U:\SteamLibrary\steamapps\common\Beat Saber\Libs\YUR.Fit.Unity.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
