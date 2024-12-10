@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Threading.Tasks;
 using HRCounter.Configuration;
+using IPA.Utilities.Async;
 using SiraUtil.Logging;
 using Zenject;
 
@@ -18,12 +18,7 @@ namespace HRCounter.Data.DataSources
 
         protected void OnHeartRateDataReceived(int hr, string? receivedAt = null)
         {
-            // if (Config.LogHR)
-            // {
-            //     Logger.Info(BPM.Str);
-            // }
-            
-            Task.Factory.StartNew(() =>
+            UnityMainThreadTaskScheduler.Factory.StartNew(() =>
             {
                 try
                 {

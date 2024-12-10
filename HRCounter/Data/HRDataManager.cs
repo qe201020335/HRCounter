@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using IPA.Utilities.Async;
 using SiraUtil.Logging;
 using Zenject;
 
@@ -42,7 +43,7 @@ namespace HRCounter.Data
         {
             BPM.Set(args.HR, args.ReceivedAt);
             
-            Task.Factory.StartNew(() =>
+            UnityMainThreadTaskScheduler.Factory.StartNew(() =>
             {
                 try
                 {
