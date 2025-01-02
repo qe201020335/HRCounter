@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using IPALogger = IPA.Logging.Logger;
 using System.Reflection;
@@ -8,24 +9,58 @@ namespace HRCounter.Utils
 {
     public static class Utils
     {
+        #region replay check
+        private static readonly Lazy<MethodBase?> ScoreSaber_playbackEnabled = new Lazy<MethodBase?>(() =>
+        {
+            var meta = Plugin.ScoreSaberMeta;
+            if (meta == null)
+            {
+                Plugin.Log.Info("ScoreSaber is not installed or disabled");
+                return null;
+            }
 
-        // copied from Camera2
-        private static readonly MethodBase? ScoreSaber_playbackEnabled =
-            AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
+            var method = meta.Assembly.GetType("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted")
+                ?.GetMethod("Prefix", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 
-        private static readonly MethodBase? GetBeatLeaderIsStartedAsReplay =
-            AccessTools.Property(AccessTools.TypeByName("BeatLeader.Replayer.ReplayerLauncher"), "IsStartedAsReplay")?.GetGetMethod(false);
+            if (method == null)
+            {
+                Plugin.Log.Warn("ScoreSaber replay check method not found");
+                return null;
+            }
 
+            return method;
+        });
+
+        private static readonly Lazy<MethodBase?> GetBeatLeaderIsStartedAsReplay = new Lazy<MethodBase?>(() =>
+        {
+            var meta = Plugin.BeatLeaderMeta;
+            if (meta == null)
+            {
+                Plugin.Log.Info("BeatLeader is not installed or disabled");
+                return null;
+            }
+
+            var method = meta.Assembly.GetType("BeatLeader.Replayer.ReplayerLauncher")
+                ?.GetProperty("IsStartedAsReplay", BindingFlags.Static | BindingFlags.Public)?.GetGetMethod(false);
+
+            if (method == null)
+            {
+                Plugin.Log.Warn("BeatLeader ReplayerLauncher.IsStartedAsReplay not found");
+                return null;
+            }
+
+            return method;
+        });
         
         internal static bool IsInReplay()
         {
-            // copied from Camera2
-            var ssReplay = ScoreSaber_playbackEnabled != null && (bool) ScoreSaber_playbackEnabled.Invoke(null, null) == false;
+            var ssReplay = ScoreSaber_playbackEnabled.Value != null && (bool) ScoreSaber_playbackEnabled.Value.Invoke(null, null) == false;
 
-            var blReplay = GetBeatLeaderIsStartedAsReplay != null && (bool) GetBeatLeaderIsStartedAsReplay.Invoke(null, null);
+            var blReplay = GetBeatLeaderIsStartedAsReplay.Value != null && (bool) GetBeatLeaderIsStartedAsReplay.Value.Invoke(null, null);
             
             return ssReplay || blReplay;
         }
+        #endregion
 
         internal static bool IsModEnabled(string id)
         {

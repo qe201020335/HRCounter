@@ -17,8 +17,12 @@ namespace HRCounter
         // private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
         
         internal static PluginMetadata? BSMLMeta { get; private set; } = null;
+        internal static PluginMetadata? ScoreSaberMeta { get; private set; } = null;
+        internal static PluginMetadata? BeatLeaderMeta { get; private set; } = null;
         
         private const string BSMLId = "BeatSaberMarkupLanguage";
+        private const string ScoreSaberId = "ScoreSaber";
+        private const string BeatLeaderId = "BeatLeader";
 
 
         [Init]
@@ -49,6 +53,8 @@ namespace HRCounter
         public void OnEnable()
         {
             BSMLMeta = Utils.Utils.FindEnabledPluginMetadata(BSMLId);
+            ScoreSaberMeta = Utils.Utils.FindEnabledPluginMetadata(ScoreSaberId);
+            BeatLeaderMeta = Utils.Utils.FindEnabledPluginMetadata(BeatLeaderId);
         }
     }
 }
