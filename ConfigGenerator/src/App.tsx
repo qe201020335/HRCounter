@@ -1,6 +1,5 @@
 import './App.css';
 import GeneratorMain from "./Components/Main";
-import {Box, Card, CircularProgress, Link} from "@mui/material";
 import {useEffect, useMemo, useRef, useState} from "react";
 import {GameConfig} from "./models/GameConfig";
 import {DataSource} from "./models/DataSource";
@@ -12,6 +11,7 @@ import {GeneratorState} from "./models/GeneratorState";
 import {GameConnection} from "./models/GameConnection";
 import {EncodingHelper} from "./utils/EncodingHelper";
 import {PulsoidOAuthResponse} from "./models/PulsoidOAuthResponse";
+import {Card, Link, Spinner} from "@fluentui/react-components";
 
 const PULSOID_OAUTH_LINK_BASE = "https://pulsoid.net/oauth2/authorize?response_type=token&client_id=a81a9e16-2960-487d-a741-92e22b757c85&redirect_uri=https://hrcounter.skyqe.net&scope=data:heart_rate:read&state="
 
@@ -197,12 +197,11 @@ function App() {
         <div className="App">
             <h1>HRCounter Easy Config Generator</h1>
             <h3>DO NOT USE THIS IF YOU ALREADY HAVE DATA SOURCE CONFIGURED</h3>
-            <Card id="main-card" sx={{minWidth: 500}}>
+            <Card id="main-card" size="large" appearance="filled-alternative">
                 {isLoadingWithGame
-                    ? <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150, gap: 4}}>
-                        <CircularProgress/>
-                        <span>Connecting to game at {`${gameConnection.address}:${gameConnection.port}`}</span>
-                    </Box>
+                    ? <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150, gap: 4}}>
+                        <Spinner labelPosition="after" label={gameConnection.isValid() ? `Connecting to game at ${gameConnection.address}:${gameConnection.port}` : `Loading...`}/>
+                    </div>
                     : <GeneratorMain gameConfig={gameConfig}
                                      initialSource={gameConfig.PulsoidToken === "" ? null : DataSource.Pulsoid}
                                      onSubmit={onDataSourceSubmit}
@@ -210,7 +209,7 @@ function App() {
                 }
             </Card>
             <div id="credits">
-                There isn't a lot going on on this page. <Link href="https://github.com/qe201020335" target="_blank" underline="hover">@qe201020335</Link>
+                There isn't a lot going on on this page. <Link href="https://github.com/qe201020335" target="_blank">@qe201020335</Link>
             </div>
         </div>
     )

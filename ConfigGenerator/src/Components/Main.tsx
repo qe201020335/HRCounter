@@ -1,12 +1,11 @@
-import {ChangeEvent, useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
-import {Box, Button, IconButton, Link, MenuItem, TextField} from "@mui/material";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import "./Main.css"
 import {GameConfig} from "../models/GameConfig";
 import {DataSource} from "../models/DataSource";
 import {DataSourceConfig} from "../models/DataSourceConfig";
+import {Button, Dropdown, Input, Link, Option, OptionOnSelectData, SelectionEvents} from "@fluentui/react-components";
+import { EyeRegular, EyeOffRegular } from "@fluentui/react-icons";
 
 const PULSOID_BRO_TOKEN = "https://pulsoid.net/ui/keys"
 
@@ -33,8 +32,8 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
     setSourceInput(props.gameConfig.getConfigForSource(source))
   }, [props.gameConfig, props.initialSource])
 
-  function onSourceChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    const newSource = e.target.value as DataSource
+  function onSourceChange(event: SelectionEvents, data: OptionOnSelectData) {
+    const newSource = data.selectedOptions[0] as DataSource
     sourceInfoMap.current.set(source, sourceInput)
     const input = sourceInfoMap.current.get(newSource) || ""
     setSource(newSource)
@@ -64,9 +63,9 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
       case DataSource.Pulsoid:
         return (
             <p>
-              If you don't have a token yet, click authorize to get one. <Button onClick={onAuthorizeClicked}>Authorize</Button>
+              If you don't have a token yet, click authorize to get one. <Button appearance="subtle" onClick={onAuthorizeClicked}>Authorize</Button>
               <br/>
-              Or, you can use a manually generated token <Link href={PULSOID_BRO_TOKEN} target="_blank" underline="hover">here</Link> if you are a <strong>BRO</strong>.
+              Or, you can use a manually generated token <Link href={PULSOID_BRO_TOKEN} target="_blank">here</Link> if you are a <strong>BRO</strong>.
             </p>
         )
       default:
@@ -92,28 +91,32 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
   return (
       <div>
 
-        <Box sx={{'& > :not(style)': {m: 1},}}>
-          <TextField select label="Data Source" value={source} onChange={onSourceChange} size="small" sx={{ minWidth: 125 }}>
-            <MenuItem value={DataSource.Pulsoid}>Pulsoid</MenuItem>
-            <MenuItem value={DataSource.HypeRate}>HypeRate</MenuItem>
-          </TextField>
-          <TextField
-              label={get_info(source)}
-              size="small"
-              value={sourceInput}
-              onChange={(e) => setSourceInput(e.target.value)}
-              type={showToken ? 'text' : 'password'}
-              autoComplete='off'
+        <div style={{margin: 4}}>
+          <Dropdown aria-label="Data Source" value={source} onOptionSelect={onSourceChange} size="large" style={{ minWidth: 125 }}>
+            <Option value={DataSource.Pulsoid}>Pulsoid</Option>
+            <Option value={DataSource.HypeRate}>HypeRate</Option>
+          </Dropdown>
+
+          <Input aria-label={get_info(source)} placeholder={get_info(source)} value={sourceInput} size="large"
+                 type={showToken ? "text" : "password"}
+                 style={{marginLeft: 8, minWidth: 280}}
+                 contentAfter={
+                   sourceInput === "" ? null :
+                   <Button
+                       icon={showToken ? <EyeOffRegular /> : <EyeRegular />}
+                       aria-label={showToken ? "Hide token" : "Show token"}
+                       onClick={onShowTokenClicked}
+                       shape="circular"
+                       appearance="transparent"
+                   />
+                 }
+                 onChange={(e) => setSourceInput(e.target.value)}
           />
 
-          <IconButton aria-label="toggle token visibility" onClick={onShowTokenClicked} edge="end">
-            {showToken ? <VisibilityOff /> : <Visibility />}
-          </IconButton>
 
-
-        </Box>
+        </div>
         <div id="data-source-hint"> {get_hint(source)} </div>
-        <Button id="submit" variant="contained" color="primary" onClick={onclick}>Generate!</Button>
+        <Button id="submit" size="large" appearance="primary" onClick={onclick}>Generate!</Button>
 
       </div>
   );

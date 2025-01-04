@@ -10,8 +10,8 @@
 
 #main-card {
   /*background-color: #1f2831;*/
+  min-width: 500px;
   padding: 25px;
-  border-radius: 5px;
   display: inline-block;
   /*line-height: 200%;*/
 }

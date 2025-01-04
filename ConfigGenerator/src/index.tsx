@@ -2,21 +2,40 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import {CssBaseline} from "@mui/material";
-import {ThemeProvider} from '@mui/material/styles';
-import {theme} from "./theme";
 import reportWebVitals from "./reportWebVitals";
+import {FluentProvider, useThemeClassName} from "@fluentui/react-components";
+import {darkTheme} from "./theme";
 
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
+
+/**
+ * Apply the theme class to the body element.
+ * This is a workaround for the Fluent UI issue where
+ * it doesn't have an equivalent to MUI's CssBaseline
+ * https://github.com/microsoft/fluentui/issues/23626
+ */
+function ApplyThemeToBody() {
+    const classes = useThemeClassName();
+
+    React.useEffect(() => {
+        const classList = classes.split(" ");
+        document.body.classList.add(...classList);
+
+        return () => document.body.classList.remove(...classList);
+    }, [classes]);
+
+    return null;
+}
+
 root.render(
     <React.StrictMode>
-      <ThemeProvider theme={theme}>
-        <CssBaseline/>
-        <App/>
-      </ThemeProvider>
+        <FluentProvider theme={darkTheme}>
+            <ApplyThemeToBody/>
+            <App/>
+        </FluentProvider>
     </React.StrictMode>
 );
 
