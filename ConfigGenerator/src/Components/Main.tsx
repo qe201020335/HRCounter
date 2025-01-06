@@ -130,14 +130,13 @@ function Main(props: { gameConfig: GameConfig, gameConnected: boolean, onSubmit:
         </div>
         <div id="data-source-hint"> {get_hint(source)} </div>
 
-        <div>
-          <Tooltip relationship="description" positioning="above-end"
-                   content={props.gameConnected ? "Config will be sent to game directly." : "If checked, only the config file will be downloaded. Useful for manual installation."}>
-            <Checkbox id="show" label="Download config file only" disabled={props.gameConnected}
-                      checked={downloadConfigOnly}
-                      onChange={(_, data) => setDownloadConfigOnly(data.checked === true)}/>
-          </Tooltip>
-        </div>
+        <Tooltip relationship="description" positioning="above-end"
+                 content={props.gameConnected ? "Config will be sent to game directly." : "If checked, only the config file will be downloaded. Useful for manual installation."}>
+          <Checkbox id="show" label="Download config file only" disabled={props.gameConnected}
+                    checked={downloadConfigOnly}
+                    style={{marginBottom: 16}}
+                    onChange={(_, data) => setDownloadConfigOnly(data.checked === true)}/>
+        </Tooltip>
 
         <div style={{display: "flex", alignItems: "flex-end", gap: 8}}>
           <Button id="submit" size="large" appearance="primary" onClick={onclick} disabled={isSaving}

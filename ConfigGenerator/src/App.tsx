@@ -10,9 +10,15 @@ import {GeneratorState} from "./models/GeneratorState";
 import {GameConnection} from "./models/GameConnection";
 import {EncodingHelper} from "./utils/EncodingHelper";
 import {PulsoidOAuthResponse} from "./models/PulsoidOAuthResponse";
-import {Card, Link, Spinner} from "@fluentui/react-components";
+import {
+    Button,
+    Card,
+    Link,
+    MessageBar, MessageBarActions, MessageBarBody, MessageBarGroup, MessageBarIntent,
+    Spinner
+} from "@fluentui/react-components";
 import MessageBox from "./Components/MessageBox";
-import {CheckmarkCircle48Regular, Warning48Regular} from '@fluentui/react-icons';
+import {CheckmarkCircle48Regular, DismissRegular, Warning48Regular} from '@fluentui/react-icons';
 
 const PULSOID_OAUTH_LINK_BASE = "https://pulsoid.net/oauth2/authorize?response_type=token&client_id=a81a9e16-2960-487d-a741-92e22b757c85&redirect_uri=https://hrcounter.skyqe.net&scope=data:heart_rate:read&state="
 
@@ -86,6 +92,8 @@ function App() {
     const [gameConfig, setGameConfig] = useState(new GameConfig())
 
     const [gameConnection, setGameConnection] = useState(gameConnectionFromQuery)
+
+    const [messageBar, setMessageBar] = useState<[MessageBarIntent, string] | null>(null)
 
     useEffect(() => {
         const processInitData = async (): Promise<[LoadingState, GameConfig | null]> => {
@@ -176,19 +184,24 @@ function App() {
 
     async function onDataSourceSubmit(config: GameConfig, configOnly: boolean) {
         console.log(config)
+        setMessageBar(null);
         const controller = gameSettingsController.current;
         if (controller === null) {
-            await generate(config, configOnly) // download mod with config
-            // TODO show error message when zip generation fails and only config is downloaded
+            const modFailed = !await generate(config, configOnly); // download mod with config
+            if (modFailed)
+            {
+                console.log("Failed to download mod, config file is downloaded instead.")
+                setMessageBar(["warning", "Failed to download Mod, config file is downloaded instead."]);
+            }
         } else {
             // push config to game
             try {
                 config = await controller.pushDataSourceConfig(config)
             } catch (e) {
-                //TODO Show error message
                 console.error("Failed to push config to game")
                 console.error(e)
                 await generate(config, true)  // download config file
+                setMessageBar(["warning", "Failed to send config, config file is downloaded instead."]);
             }
         }
         setGameConfig(config)
@@ -247,6 +260,20 @@ function App() {
             <h3>DO NOT USE THIS IF YOU ALREADY HAVE DATA SOURCE CONFIGURED</h3>
             <Card id="main-card" size="large" appearance="filled-alternative">
                 {switchContentForLoadingState(loadingState)}
+
+                {messageBar &&
+                <MessageBarGroup as="div" animate="both" style={{width: "100%", display: "flex", placeContent: "center", marginTop: 12}}>
+                    <MessageBar intent={messageBar[0]} layout="singleline">
+                        <MessageBarBody>
+                            {messageBar[1]}
+                        </MessageBarBody>
+                        <MessageBarActions containerAction={
+                            <Button aria-label="dismiss" appearance="transparent"
+                                    icon={<DismissRegular/>}
+                                    onClick={() => setMessageBar(null)}/>
+                        }/>
+                    </MessageBar>
+                </MessageBarGroup>}
             </Card>
             <div id="credits">
                 There isn't a lot going on on this page. <Link href="https://github.com/qe201020335" target="_blank">@qe201020335</Link>
