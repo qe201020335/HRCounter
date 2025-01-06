@@ -4,12 +4,24 @@ import "./Main.css"
 import {GameConfig} from "../models/GameConfig";
 import {DataSource} from "../models/DataSource";
 import {DataSourceConfig} from "../models/DataSourceConfig";
-import {Button, Dropdown, Input, Link, Option, OptionOnSelectData, SelectionEvents} from "@fluentui/react-components";
+import {
+  Button,
+  Caption1,
+  Checkbox,
+  Dropdown,
+  Input,
+  Link,
+  Option,
+  OptionOnSelectData,
+  SelectionEvents,
+  Spinner,
+  Tooltip
+} from "@fluentui/react-components";
 import { EyeRegular, EyeOffRegular } from "@fluentui/react-icons";
 
 const PULSOID_BRO_TOKEN = "https://pulsoid.net/ui/keys"
 
-function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null, onSubmit: (config: DataSourceConfig) => Promise<any>, onAuthorize: (source: DataSource) => any }) {
+function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null, gameConnected: boolean, onSubmit: (config: DataSourceConfig, configOnly: boolean) => Promise<any>, onAuthorize: (source: DataSource) => any }) {
 
   const sourceInfoMap = useRef(new Map<string, string>(
         [[DataSource.Pulsoid, props.gameConfig.PulsoidToken], [DataSource.HypeRate, props.gameConfig.HypeRateSessionID]]
@@ -19,6 +31,8 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
   const [sourceInput, setSourceInput] = useState(props.gameConfig.getConfigForSource(source));
 
   const [showToken, setShowToken] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [downloadConfigOnly, setDownloadConfigOnly] = useState(false);
 
   useEffect(() => {
     console.debug("Main component mounted, updating state with props")
@@ -74,6 +88,7 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
   }
 
   const onclick = async () => {
+    setIsSaving(true);
     const config = new DataSourceConfig();
     config.DataSource = source
     switch (source) {
@@ -85,7 +100,8 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
         break
     }
 
-    await props.onSubmit(config)
+    await Promise.all([props.onSubmit(config, downloadConfigOnly), new Promise(r => setTimeout(r, 500))])
+    setIsSaving(false);
   }
 
   return (
@@ -116,8 +132,26 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
 
         </div>
         <div id="data-source-hint"> {get_hint(source)} </div>
-        <Button id="submit" size="large" appearance="primary" onClick={onclick}>Generate!</Button>
 
+        <div>
+          <Tooltip relationship="description" positioning="above-end"
+                   content={props.gameConnected ? "Config will be sent to game directly." : "If checked, only the config file will be downloaded. Useful for manual installation."}>
+            <Checkbox id="show" label="Download config file only" disabled={props.gameConnected}
+                      checked={downloadConfigOnly}
+                      onChange={(_, data) => setDownloadConfigOnly(data.checked === true)}/>
+          </Tooltip>
+        </div>
+
+        <div style={{display: "flex", alignItems: "flex-end", gap: 8}}>
+          <Button id="submit" size="large" appearance="primary" onClick={onclick} disabled={isSaving}
+                  icon={isSaving ? <Spinner size="tiny"/> : null}>
+            {props.gameConnected ? "Save" : "Generate!"}
+          </Button>
+          {
+              props.gameConnected &&
+              <Caption1>Config will be sent to game directly.</Caption1>
+          }
+        </div>
       </div>
   );
 }

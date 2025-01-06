@@ -179,11 +179,11 @@ function App() {
         return state
     }
 
-    async function onDataSourceSubmit(source: DataSourceConfig) {
+    async function onDataSourceSubmit(source: DataSourceConfig, configOnly: boolean) {
         console.log(source)
         const controller = gameSettingsController.current;
         if (controller === null) {
-            await generate(source) // download mod with config
+            await generate(source, configOnly) // download mod with config
         } else {
             // push config to game
             try {
@@ -221,6 +221,7 @@ function App() {
             case LoadingState.Loaded:
                 return <GeneratorMain gameConfig={gameConfig}
                                       initialSource={gameConfig.PulsoidToken === "" ? null : DataSource.Pulsoid}
+                                      gameConnected={gameSettingsController.current !== null}
                                       onSubmit={onDataSourceSubmit}
                                       onAuthorize={onAuthorizeThirdParty}/>
             case LoadingState.CannotConnectGame:

@@ -7,4 +7,11 @@ export class FileSaver {
         a.setAttribute('download', filename) // Set download filename
         a.click() // Start downloading
     }
+
+    static saveText(content: string, filename: string) {
+        const a = document.createElement('a')
+        a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+        a.setAttribute('download', filename)
+        a.click()
+    }
 }
