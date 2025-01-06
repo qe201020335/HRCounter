@@ -12,10 +12,13 @@ import {GameConnection} from "./models/GameConnection";
 import {EncodingHelper} from "./utils/EncodingHelper";
 import {PulsoidOAuthResponse} from "./models/PulsoidOAuthResponse";
 import {Card, Link, Spinner} from "@fluentui/react-components";
+import MessageBox from "./Components/MessageBox";
+import {CheckmarkCircle48Regular, Warning48Regular} from '@fluentui/react-icons';
 
 const PULSOID_OAUTH_LINK_BASE = "https://pulsoid.net/oauth2/authorize?response_type=token&client_id=a81a9e16-2960-487d-a741-92e22b757c85&redirect_uri=https://hrcounter.skyqe.net&scope=data:heart_rate:read&state="
 
 //example state: eyJub25jZSI6IjY4VWlCZ1FYaU5lZE9nQXNNemFpMkE9PSIsImdhbWUiOnsiYWRkcmVzcyI6ImxvY2FsaG9zdCIsInBvcnQiOjY1MzAyfX0=
+//example game params: game_ip=localhost&game_port=65302
 //https://hrcounter.skyqe.net/#token_type=bearer&access_token=xxxxxxxx&expires_in=2522880000&scope=data:heart_rate:read&state=yyyyyyy
 function getPulsoidOAuthResponse(queryParameters: URLSearchParams): PulsoidOAuthResponse | null {
     const token = queryParameters.get("access_token")
@@ -53,6 +56,14 @@ function getGameConnectionFromQuery(query: URLSearchParams): GameConnection {
 //     return gameConfig
 // }
 
+enum LoadingState {
+    Loading,
+    CannotConnectGame,
+    FailedToPushToken,
+    TokenPushed,
+    Loaded
+}
+
 
 
 function App() {
@@ -71,20 +82,20 @@ function App() {
 
     const gameSettingsController = useRef<GameSettingsController | null>(null)
 
-    const [isLoadingWithGame, setIsLoadingWithGame] = useState(true)
+    const [loadingState, setLoadingState] = useState(LoadingState.Loading)
 
     const [gameConfig, setGameConfig] = useState(new GameConfig())
 
     const [gameConnection, setGameConnection] = useState(gameConnectionFromQuery)
 
     useEffect(() => {
-        const processInitData = async (): Promise<GameConfig | null> => {
+        const processInitData = async (): Promise<[LoadingState, GameConfig | null]> => {
             console.log("Processing init data")
             const hasPulsoidOAuth = pulsoidOAuthResponse !== null && pulsoidOAuthResponse.accessToken !== "";
 
             if (!hasPulsoidOAuth && !gameConnectionFromQuery.isValid()) {
                 //nothing to do here
-                return null;
+                return [LoadingState.Loaded, null];
             }
 
             const gameConfig = new GameConfig();
@@ -107,12 +118,13 @@ function App() {
             }
 
             if (!gameConnection.isValid()) {
-                return gameConfig;
+                return [LoadingState.Loaded, gameConfig];
             }
 
             const settingsController = new GameSettingsController(gameConnection);
             setGameConnection(gameConnection);
-            let succeeded = false;
+            let gameConnected = false;
+            let loadingState: LoadingState;
             if (gameConfig.PulsoidToken !== "") {
                 // Try sending the token to game
                 console.log("Trying to push pulsoid token to game")
@@ -121,12 +133,12 @@ function App() {
                     dataSourceConfig.DataSource = DataSource.Pulsoid;
                     dataSourceConfig.PulsoidToken = gameConfig.PulsoidToken;
                     const config = await settingsController.pushDataSourceConfig(dataSourceConfig);
-                    // TODO show we successfully pushed the token
                     gameConfig.PulsoidToken = config.PulsoidToken;
                     gameConfig.HypeRateSessionID = config.HypeRateSessionID;
-                    succeeded = true;
+                    gameConnected = true;
+                    loadingState = LoadingState.TokenPushed;
                 } catch (e) {
-                    // TODO: Show error message
+                    loadingState = LoadingState.FailedToPushToken;
                     console.error("Failed to push pulsoid token to game")
                     console.error(e)
                 }
@@ -136,20 +148,22 @@ function App() {
                 const config = await settingsController.getGameConfig();
                 if (config === null) {
                     // probably the game is not running or the connection is wrong
-                    // TODO: Show error message
+                    loadingState = LoadingState.CannotConnectGame;
                 } else {
                     gameConfig.PulsoidToken = config.PulsoidToken;
                     gameConfig.HypeRateSessionID = config.HypeRateSessionID;
-                    succeeded = true;
+                    gameConnected = true;
+                    loadingState = LoadingState.Loaded;
                 }
             }
 
-            gameSettingsController.current = succeeded ? settingsController : null;
-            return gameConfig;
+            gameSettingsController.current = gameConnected ? settingsController : null;
+            return [loadingState, gameConfig];
         }
-        processInitData().then((gameConfig: GameConfig | null) => {
+        processInitData().then((value: [LoadingState, GameConfig | null]) => {
+            const [loadingState, gameConfig] = value;
             console.log("Init data processed");
-            setIsLoadingWithGame(false);
+            setLoadingState(loadingState);
             if (gameConfig !== null) {
                 setGameConfig(gameConfig);
             }
@@ -193,20 +207,48 @@ function App() {
         }
     }
 
+    function switchContentForLoadingState(state: LoadingState) {
+        switch (state) {
+            case LoadingState.Loading:
+                const text = gameConnection.isValid()
+                    ? `Connecting to game at ${gameConnection.address}:${gameConnection.port}`
+                    : `Loading...`
+                return <div
+                    style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150, gap: 4}}>
+                    <Spinner labelPosition="after"
+                             label={text}/>
+                </div>
+            case LoadingState.Loaded:
+                return <GeneratorMain gameConfig={gameConfig}
+                                      initialSource={gameConfig.PulsoidToken === "" ? null : DataSource.Pulsoid}
+                                      onSubmit={onDataSourceSubmit}
+                                      onAuthorize={onAuthorizeThirdParty}/>
+            case LoadingState.CannotConnectGame:
+                return <MessageBox message={`Cannot connect to game at ${gameConnection.address}:${gameConnection.port}`}
+                                   buttonText="OK"
+                                   icon={<Warning48Regular color="#ff9966"/>}
+                                   action={() => setLoadingState(LoadingState.Loaded)}/>
+            case LoadingState.FailedToPushToken:
+                return <MessageBox message={`Failed to push the token to game at ${gameConnection.address}:${gameConnection.port}`}
+                                   buttonText="OK"
+                                   icon={<Warning48Regular color="#ff9966"/>}
+                                   action={() => setLoadingState(LoadingState.Loaded)}/>
+            case LoadingState.TokenPushed:
+                return <MessageBox message={"Game config updated. You can close this page now."}
+                                   buttonText={null}
+                                   icon={<CheckmarkCircle48Regular color="#339900"/>}
+                                   action={() => setLoadingState(LoadingState.Loaded)}/>
+            default:
+                return <div>Place Holder</div>
+        }
+    }
+
     return (
         <div className="App">
             <h1>HRCounter Easy Config Generator</h1>
             <h3>DO NOT USE THIS IF YOU ALREADY HAVE DATA SOURCE CONFIGURED</h3>
             <Card id="main-card" size="large" appearance="filled-alternative">
-                {isLoadingWithGame
-                    ? <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150, gap: 4}}>
-                        <Spinner labelPosition="after" label={gameConnection.isValid() ? `Connecting to game at ${gameConnection.address}:${gameConnection.port}` : `Loading...`}/>
-                    </div>
-                    : <GeneratorMain gameConfig={gameConfig}
-                                     initialSource={gameConfig.PulsoidToken === "" ? null : DataSource.Pulsoid}
-                                     onSubmit={onDataSourceSubmit}
-                                     onAuthorize={onAuthorizeThirdParty}/>
-                }
+                {switchContentForLoadingState(loadingState)}
             </Card>
             <div id="credits">
                 There isn't a lot going on on this page. <Link href="https://github.com/qe201020335" target="_blank">@qe201020335</Link>
