@@ -40,7 +40,7 @@ function Main(props: { gameConfig: GameConfig, gameConnected: boolean, onSubmit:
             [DataSource.Pulsoid, props.gameConfig.PulsoidToken],
             [DataSource.HypeRate, props.gameConfig.HypeRateSessionID]
         ])
-    setSourceInput(props.gameConfig.getConfigForSource(source))
+    setSourceInput(props.gameConfig.getConfigForSource(props.gameConfig.DataSource))
   }, [props.gameConfig])
 
   function onSourceChange(event: SelectionEvents, data: OptionOnSelectData) {
