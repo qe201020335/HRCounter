@@ -8,3 +8,10 @@
   color: pink;
 }
 
+#main-card {
+  /*background-color: #1f2831;*/
+  min-width: 500px;
+  padding: 25px;
+  display: inline-block;
+  /*line-height: 200%;*/
+}

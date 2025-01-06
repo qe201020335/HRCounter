@@ -1,96 +1,154 @@
-﻿import {ChangeEvent, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
-import {Box, Button, Card, FormControl, InputLabel, Link, MenuItem, Select, TextField} from "@mui/material";
 import "./Main.css"
-import generate from "../utils/Generator";
+import {GameConfig} from "../models/GameConfig";
+import {DataSource} from "../models/DataSource";
+import {
+  Button,
+  Caption1,
+  Checkbox,
+  Dropdown,
+  Input,
+  Link,
+  Option,
+  OptionOnSelectData,
+  SelectionEvents,
+  Spinner,
+  Tooltip
+} from "@fluentui/react-components";
+import { EyeRegular, EyeOffRegular } from "@fluentui/react-icons";
 
-const PULSOID_TOKEN_LINK = "https://pulsoid.net/oauth2/authorize?response_type=token&client_id=a81a9e16-2960-487d-a741-92e22b757c85&redirect_uri=https://hrcounter.skyqe.net&scope=data:heart_rate:read&state=a52beaeb-c491-4cd3-b915-16fed71e17a8"
 const PULSOID_BRO_TOKEN = "https://pulsoid.net/ui/keys"
-const PULSOID_HINT = (
-    <p>
-      If you don't have a token yet, click authorize to get one. <a href={PULSOID_TOKEN_LINK}><Button>Authorize</Button></a>
-      <br/>
-      Or, you can use a manually generated token <Link href={PULSOID_BRO_TOKEN} target="_blank" underline="hover">here</Link> if you are
-      a <strong>BRO</strong>.
-    </p>
-)
 
-//https://hrcounter.skyqe.net/#token_type=bearer&access_token=xxxxxxxx&expires_in=2522880000&scope=data:heart_rate:read&state=yyyyyyy
+function Main(props: { gameConfig: GameConfig, gameConnected: boolean, onSubmit: (config: GameConfig, configOnly: boolean) => Promise<any>, onAuthorize: (source: DataSource) => any }) {
 
-function Main() {
+  const sourceInfoMap = useRef(new Map<string, string>(
+        [[DataSource.Pulsoid, props.gameConfig.PulsoidToken], [DataSource.HypeRate, props.gameConfig.HypeRateSessionID]]
+  ))
 
-  const sourceInfoMap = useRef(new Map())
-  const queryParameters = useRef(new URLSearchParams(window.location.hash.replace("#", "?")))
+  const [source, setSource] = useState(props.gameConfig.DataSource);
+  const [sourceInput, setSourceInput] = useState(props.gameConfig.getConfigForSource(source));
 
-  const [source, setSource] = useState("Pulsoid");
-  const [sourceInput, setSourceInput] = useState(queryParameters.current.get("access_token") || "")
+  const [showToken, setShowToken] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [downloadConfigOnly, setDownloadConfigOnly] = useState(false);
 
+  useEffect(() => {
+    console.debug("Main component mounted, updating state with props")
+    console.debug(`props.gameConfig: ${JSON.stringify(props.gameConfig)}`)
+    sourceInfoMap.current = new Map<string, string>([
+            [DataSource.Pulsoid, props.gameConfig.PulsoidToken],
+            [DataSource.HypeRate, props.gameConfig.HypeRateSessionID]
+        ])
+    setSourceInput(props.gameConfig.getConfigForSource(props.gameConfig.DataSource))
+  }, [props.gameConfig])
 
-  function onSourceChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    const newSource = e.target.value
+  function onSourceChange(event: SelectionEvents, data: OptionOnSelectData) {
+    const newSource = data.selectedOptions[0] as DataSource
     sourceInfoMap.current.set(source, sourceInput)
     const input = sourceInfoMap.current.get(newSource) || ""
     setSource(newSource)
     setSourceInput(input)
   }
 
-  function get_info(source: string) {
+  function onShowTokenClicked() {
+    setShowToken(!showToken)
+  }
+  function onAuthorizeClicked() {
+    props.onAuthorize(source)
+  }
+
+  function get_info(source: DataSource) {
     switch (source) {
-      case "Pulsoid":
+      case DataSource.Pulsoid:
         return "Pulsoid Token"
-      case "HypeRate":
+      case DataSource.HypeRate:
         return "HypeRate Session ID"
       default:
         return ""
     }
   }
 
-  function get_hint(source: string) {
+  function get_hint(source: DataSource) {
     switch (source) {
-      case "Pulsoid":
-        return PULSOID_HINT
+      case DataSource.Pulsoid:
+        return (
+            <p>
+              If you don't have a token yet, click authorize to get one. <Button appearance="subtle" onClick={onAuthorizeClicked}>Authorize</Button>
+              <br/>
+              Or, you can use a manually generated token <Link href={PULSOID_BRO_TOKEN} target="_blank">here</Link> if you are a <strong>BRO</strong>.
+            </p>
+        )
       default:
         return ""
     }
   }
 
   const onclick = async () => {
-    let config;
+    setIsSaving(true);
+    const config = new GameConfig();
+    config.DataSource = source
     switch (source) {
-      case "Pulsoid":
-        config = {
-          "DataSource": "Pulsoid", "PulsoidToken": sourceInput
-        }
+      case DataSource.Pulsoid:
+        config.PulsoidToken = sourceInput
         break
-      case "HypeRate":
-        config = {
-          "DataSource": "HypeRate", "HypeRateSessionID": sourceInput
-        }
+      case DataSource.HypeRate:
+        config.HypeRateSessionID = sourceInput
         break
-      default:
-        config = null
-    }
-    if (sourceInput === "") {
-      config = null
     }
 
-    await generate(config)
+    await Promise.all([props.onSubmit(config, downloadConfigOnly), new Promise(r => setTimeout(r, 500))])
+    setIsSaving(false);
   }
 
   return (
-      <Card id="main" sx={{ minWidth: 500 }}>
+      <div>
 
-        <Box sx={{'& > :not(style)': {m: 1},}}>
-          <TextField select label="Data Source" value={source} onChange={onSourceChange} size="small" sx={{ minWidth: 125 }}>
-            <MenuItem value="Pulsoid">Pulsoid</MenuItem>
-            <MenuItem value="HypeRate">HypeRate</MenuItem>
-          </TextField>
-          <TextField label={get_info(source)} size="small" value={sourceInput} onChange={(e) => setSourceInput(e.target.value)}/>
-        </Box>
+        <div style={{margin: 4}}>
+          <Dropdown aria-label="Data Source" value={source} onOptionSelect={onSourceChange} size="large" style={{ minWidth: 125 }}>
+            <Option value={DataSource.Pulsoid}>Pulsoid</Option>
+            <Option value={DataSource.HypeRate}>HypeRate</Option>
+          </Dropdown>
+
+          <Input aria-label={get_info(source)} placeholder={get_info(source)} value={sourceInput} size="large"
+                 type={showToken ? "text" : "password"}
+                 style={{marginLeft: 8, minWidth: 280}}
+                 contentAfter={
+                   sourceInput === "" ? null :
+                   <Button
+                       icon={showToken ? <EyeOffRegular /> : <EyeRegular />}
+                       aria-label={showToken ? "Hide token" : "Show token"}
+                       onClick={onShowTokenClicked}
+                       shape="circular"
+                       appearance="transparent"
+                   />
+                 }
+                 onChange={(e) => setSourceInput(e.target.value)}
+          />
+
+
+        </div>
         <div id="data-source-hint"> {get_hint(source)} </div>
-        <Button id="submit" variant="contained" color="primary" onClick={onclick}>Generate!</Button>
-        
-      </Card>
+
+        <Tooltip relationship="description" positioning="above-end"
+                 content={props.gameConnected ? "Config will be sent to game directly." : "If checked, only the config file will be downloaded. Useful for manual installation."}>
+          <Checkbox id="show" label="Download config file only" disabled={props.gameConnected}
+                    checked={downloadConfigOnly}
+                    style={{marginBottom: 16}}
+                    onChange={(_, data) => setDownloadConfigOnly(data.checked === true)}/>
+        </Tooltip>
+
+        <div style={{display: "flex", alignItems: "flex-end", gap: 8}}>
+          <Button id="submit" size="large" appearance="primary" onClick={onclick} disabled={isSaving}
+                  icon={isSaving ? <Spinner size="tiny"/> : null}>
+            {props.gameConnected ? "Save" : "Generate!"}
+          </Button>
+          {
+              props.gameConnected &&
+              <Caption1>Config will be sent to game directly.</Caption1>
+          }
+        </div>
+      </div>
   );
 }
 
