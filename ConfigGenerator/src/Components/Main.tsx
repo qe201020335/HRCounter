@@ -3,7 +3,6 @@ import {useEffect, useRef, useState} from "react";
 import "./Main.css"
 import {GameConfig} from "../models/GameConfig";
 import {DataSource} from "../models/DataSource";
-import {DataSourceConfig} from "../models/DataSourceConfig";
 import {
   Button,
   Caption1,
@@ -21,13 +20,13 @@ import { EyeRegular, EyeOffRegular } from "@fluentui/react-icons";
 
 const PULSOID_BRO_TOKEN = "https://pulsoid.net/ui/keys"
 
-function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null, gameConnected: boolean, onSubmit: (config: DataSourceConfig, configOnly: boolean) => Promise<any>, onAuthorize: (source: DataSource) => any }) {
+function Main(props: { gameConfig: GameConfig, gameConnected: boolean, onSubmit: (config: GameConfig, configOnly: boolean) => Promise<any>, onAuthorize: (source: DataSource) => any }) {
 
   const sourceInfoMap = useRef(new Map<string, string>(
         [[DataSource.Pulsoid, props.gameConfig.PulsoidToken], [DataSource.HypeRate, props.gameConfig.HypeRateSessionID]]
   ))
 
-  const [source, setSource] = useState(props.initialSource ?? DataSource.Pulsoid);
+  const [source, setSource] = useState(props.gameConfig.DataSource);
   const [sourceInput, setSourceInput] = useState(props.gameConfig.getConfigForSource(source));
 
   const [showToken, setShowToken] = useState(false);
@@ -36,15 +35,13 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
 
   useEffect(() => {
     console.debug("Main component mounted, updating state with props")
-    console.debug(`props.initialSource: ${props.initialSource}, props.gameConfig: ${JSON.stringify(props.gameConfig)}`)
-    const source = props.initialSource ?? DataSource.Pulsoid
+    console.debug(`props.gameConfig: ${JSON.stringify(props.gameConfig)}`)
     sourceInfoMap.current = new Map<string, string>([
             [DataSource.Pulsoid, props.gameConfig.PulsoidToken],
             [DataSource.HypeRate, props.gameConfig.HypeRateSessionID]
         ])
-    setSource(source)
     setSourceInput(props.gameConfig.getConfigForSource(source))
-  }, [props.gameConfig, props.initialSource])
+  }, [props.gameConfig])
 
   function onSourceChange(event: SelectionEvents, data: OptionOnSelectData) {
     const newSource = data.selectedOptions[0] as DataSource
@@ -89,7 +86,7 @@ function Main(props: { gameConfig: GameConfig, initialSource: DataSource | null,
 
   const onclick = async () => {
     setIsSaving(true);
-    const config = new DataSourceConfig();
+    const config = new GameConfig();
     config.DataSource = source
     switch (source) {
       case DataSource.Pulsoid:

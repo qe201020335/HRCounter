@@ -1,5 +1,5 @@
 import {GameConfig} from "../models/GameConfig";
-import {DataSourceConfig} from "../models/DataSourceConfig";
+import {DataSourceSetting} from "../models/gameApi/DataSourceSetting";
 import {GameConnection} from "../models/GameConnection";
 
 export class GameSettingsController {
@@ -22,8 +22,8 @@ export class GameSettingsController {
         return result;
     }
 
-    async pushDataSourceConfig(config: DataSourceConfig): Promise<GameConfig> {
-        const body = JSON.stringify(config);
+    async pushDataSourceConfig(config: GameConfig): Promise<GameConfig> {
+        const body = JSON.stringify(DataSourceSetting.fromGameConfig(config));
         console.log(`pushing config: ${body}`);
         const res = await fetch(this.link, {
             method: "POST",

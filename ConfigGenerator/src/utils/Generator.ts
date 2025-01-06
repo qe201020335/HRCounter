@@ -1,14 +1,19 @@
 import JSZip from "jszip";
 import {FileSaver} from "./FileSaver";
+import {GameConfig} from "../models/GameConfig";
+import {DataSourceSetting} from "../models/gameApi/DataSourceSetting";
 
 const LATEST_LINK = "https://hrcounter.skyqe.workers.dev/latest"
 const CONFIG_NAME = "HRCounter.json"
 const CONFIG_DIR = "UserData"
 
-async function generate(config: any, configOnly: boolean): Promise<boolean> {
-  console.log(config)
+async function generate(configData: GameConfig, configOnly: boolean): Promise<boolean> {
+  if (configData === null) return true;
 
-  const configJson = JSON.stringify(config)
+  const setting = DataSourceSetting.fromGameConfig(configData)
+  console.log(setting)
+
+  const configJson = JSON.stringify(setting)
 
   if (configOnly)
   {
@@ -28,9 +33,7 @@ async function generate(config: any, configOnly: boolean): Promise<boolean> {
   console.log(data.length)
 
   const zip = await JSZip.loadAsync(atob(data))
-  if (config !== null) {
-    zip.folder(CONFIG_DIR)!.file(CONFIG_NAME, configJson)
-  }
+  zip.folder(CONFIG_DIR)!.file(CONFIG_NAME, configJson)
   const modified = await zip.generateAsync({type: "blob"})
   FileSaver.saveBinary(modified, "application/octet-stream", name)
   return true;

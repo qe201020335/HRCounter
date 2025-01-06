@@ -3,7 +3,6 @@ import GeneratorMain from "./Components/Main";
 import {useEffect, useMemo, useRef, useState} from "react";
 import {GameConfig} from "./models/GameConfig";
 import {DataSource} from "./models/DataSource";
-import {DataSourceConfig} from "./models/DataSourceConfig";
 import generate from "./utils/Generator";
 import {GameSettingsController} from "./utils/GameSettingsController";
 import {CryptHelper} from "./utils/CryptHelper";
@@ -106,6 +105,7 @@ function App() {
             if (hasPulsoidOAuth) {
                 // deal with pulsoid oauth response and fill in our data
                 gameConfig.PulsoidToken = pulsoidOAuthResponse.accessToken;
+                gameConfig.DataSource = DataSource.Pulsoid;
                 const state = pulsoidOAuthResponse.state;
                 // do we need to care about csrf?
                 if (state !== null && state.nonce !== "" && state.game !== null && state.game.isValid()) {
@@ -129,12 +129,8 @@ function App() {
                 // Try sending the token to game
                 console.log("Trying to push pulsoid token to game")
                 try {
-                    const dataSourceConfig = new DataSourceConfig();
-                    dataSourceConfig.DataSource = DataSource.Pulsoid;
-                    dataSourceConfig.PulsoidToken = gameConfig.PulsoidToken;
-                    const config = await settingsController.pushDataSourceConfig(dataSourceConfig);
-                    gameConfig.PulsoidToken = config.PulsoidToken;
-                    gameConfig.HypeRateSessionID = config.HypeRateSessionID;
+                    const config = await settingsController.pushDataSourceConfig(gameConfig);
+                    gameConfig.copyFrom(config);
                     gameConnected = true;
                     loadingState = LoadingState.TokenPushed;
                 } catch (e) {
@@ -150,8 +146,7 @@ function App() {
                     // probably the game is not running or the connection is wrong
                     loadingState = LoadingState.CannotConnectGame;
                 } else {
-                    gameConfig.PulsoidToken = config.PulsoidToken;
-                    gameConfig.HypeRateSessionID = config.HypeRateSessionID;
+                    gameConfig.copyFrom(config);
                     gameConnected = true;
                     loadingState = LoadingState.Loaded;
                 }
@@ -179,21 +174,24 @@ function App() {
         return state
     }
 
-    async function onDataSourceSubmit(source: DataSourceConfig, configOnly: boolean) {
-        console.log(source)
+    async function onDataSourceSubmit(config: GameConfig, configOnly: boolean) {
+        console.log(config)
         const controller = gameSettingsController.current;
         if (controller === null) {
-            await generate(source, configOnly) // download mod with config
+            await generate(config, configOnly) // download mod with config
+            // TODO show error message when zip generation fails and only config is downloaded
         } else {
             // push config to game
             try {
-                const config = await controller.pushDataSourceConfig(source)
-                setGameConfig(config)
+                config = await controller.pushDataSourceConfig(config)
             } catch (e) {
                 //TODO Show error message
+                console.error("Failed to push config to game")
                 console.error(e)
+                await generate(config, true)  // download config file
             }
         }
+        setGameConfig(config)
     }
 
     function onAuthorizeThirdParty(source: DataSource) {
@@ -220,7 +218,6 @@ function App() {
                 </div>
             case LoadingState.Loaded:
                 return <GeneratorMain gameConfig={gameConfig}
-                                      initialSource={gameConfig.PulsoidToken === "" ? null : DataSource.Pulsoid}
                                       gameConnected={gameSettingsController.current !== null}
                                       onSubmit={onDataSourceSubmit}
                                       onAuthorize={onAuthorizeThirdParty}/>
