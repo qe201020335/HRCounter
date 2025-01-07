@@ -112,6 +112,7 @@ function Main(props: { gameConfig: GameConfig, gameConnected: boolean, onSubmit:
 
           <Input aria-label={get_info(source)} placeholder={get_info(source)} value={sourceInput} size="large"
                  type={showToken ? "text" : "password"}
+                 autoComplete="off"
                  style={{marginLeft: 8, minWidth: 280}}
                  contentAfter={
                    sourceInput === "" ? null :
