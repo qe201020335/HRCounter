@@ -25,9 +25,8 @@ public class Plugin
     private const string ScoreSaberId = "ScoreSaber";
     private const string BeatLeaderId = "BeatLeader";
 
-
     [Init]
-    public void InitWithConfig(IPALogger logger, IPA.Config.Config conf, PluginMetadata metadata, Zenjector zenject)
+    public Plugin(IPALogger logger, IPA.Config.Config conf, PluginMetadata metadata, Zenjector zenject)
     {
         Instance = this;
         Logger = logger;
