@@ -15,7 +15,7 @@ namespace HRCounter.Utils
             var meta = Plugin.ScoreSaberMeta;
             if (meta == null)
             {
-                Plugin.Log.Info("ScoreSaber is not installed or disabled");
+                Plugin.Logger.Info("ScoreSaber is not installed or disabled");
                 return null;
             }
 
@@ -24,7 +24,7 @@ namespace HRCounter.Utils
 
             if (method == null)
             {
-                Plugin.Log.Warn("ScoreSaber replay check method not found");
+                Plugin.Logger.Warn("ScoreSaber replay check method not found");
                 return null;
             }
 
@@ -36,7 +36,7 @@ namespace HRCounter.Utils
             var meta = Plugin.BeatLeaderMeta;
             if (meta == null)
             {
-                Plugin.Log.Info("BeatLeader is not installed or disabled");
+                Plugin.Logger.Info("BeatLeader is not installed or disabled");
                 return null;
             }
 
@@ -45,7 +45,7 @@ namespace HRCounter.Utils
 
             if (method == null)
             {
-                Plugin.Log.Warn("BeatLeader ReplayerLauncher.IsStartedAsReplay not found");
+                Plugin.Logger.Warn("BeatLeader ReplayerLauncher.IsStartedAsReplay not found");
                 return null;
             }
 

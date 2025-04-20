@@ -266,7 +266,7 @@ namespace HRCounter.Configuration
         
         private void RaiseSettingsChanged()
         {
-            Log.Logger.Trace("HRCounter Settings Changed!");
+            Plugin.Logger.Trace("HRCounter Settings Changed!");
             Task.Factory.StartNew(() =>
             {
                 try
@@ -276,8 +276,8 @@ namespace HRCounter.Configuration
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
-                    Log.Logger.Critical(e);
+                    Plugin.Logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
+                    Plugin.Logger.Critical(e);
                 }
             });
         }

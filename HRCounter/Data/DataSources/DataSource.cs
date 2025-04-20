@@ -27,8 +27,8 @@ namespace HRCounter.Data.DataSources
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.Critical($"Exception Caught while broadcasting hr update event: {e.Message}");
-                    Log.Logger.Critical(e);
+                    Plugin.Logger.Critical($"Exception Caught while broadcasting hr update event: {e.Message}");
+                    Plugin.Logger.Critical(e);
                 }
             });
         }

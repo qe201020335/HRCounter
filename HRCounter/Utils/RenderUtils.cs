@@ -47,7 +47,7 @@ namespace HRCounter.Utils
                 return color;
             }
 
-            Plugin.Log.Warn("Cannot determine color, please check hr boundaries and color codes.");
+            Plugin.Logger.Warn("Cannot determine color, please check hr boundaries and color codes.");
             return Color.white;
         }
 
@@ -68,7 +68,7 @@ namespace HRCounter.Utils
 
 #if DEBUG
             stopwatch.Stop();
-            Log.Logger.Trace($"LoadImageAsync tool {stopwatch.ElapsedMilliseconds}ms to load {file.Name}");
+            Plugin.Logger.Trace($"LoadImageAsync tool {stopwatch.ElapsedMilliseconds}ms to load {file.Name}");
 #endif
             texture.name = file.Name;
             return texture;

@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using HRCounter.Configuration;
 using IPA;
 using IPA.Config.Stores;
 using SiraUtil.Zenject;
@@ -12,7 +14,7 @@ namespace HRCounter
     public class Plugin
     {
         internal static Plugin Instance { get; private set; } = null!;
-        internal static IPALogger Log { get; private set; } = null!;
+        internal static IPALogger Logger { get; private set; } = null!;
         
         // private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
         
@@ -29,11 +31,10 @@ namespace HRCounter
         public void InitWithConfig(IPALogger logger, IPA.Config.Config conf, Zenjector zenject)
         {
             Instance = this;
-            global::HRCounter.Log.Logger = logger;
-            Log = logger;
-            var config = conf.Generated<Configuration.PluginConfig>();
-            Configuration.PluginConfig.Instance = config;
-            Log.Debug("Config loaded");
+            Logger = logger;
+            var config = conf.Generated<PluginConfig>();
+            PluginConfig.Instance = config;
+            Logger.Debug("Config loaded");
             zenject.UseLogger(logger);
             zenject.UseMetadataBinder<Plugin>();
             
@@ -46,7 +47,7 @@ namespace HRCounter
             
             zenject.Expose<FlyingGameHUDRotation>("Environment");
             
-            Log.Info("HRCounter initialized.");
+            Logger.Info("HRCounter initialized.");
         }
         
         [OnStart]
@@ -55,6 +56,15 @@ namespace HRCounter
             BSMLMeta = Utils.Utils.FindEnabledPluginMetadata(BSMLId);
             ScoreSaberMeta = Utils.Utils.FindEnabledPluginMetadata(ScoreSaberId);
             BeatLeaderMeta = Utils.Utils.FindEnabledPluginMetadata(BeatLeaderId);
+        }
+        
+        [Conditional("DEBUG")]
+        internal static void DebugSpam(string s)
+        {
+            if (PluginConfig.Instance.DebugSpam)
+            {
+                Logger.Trace(s);
+            }
         }
     }
 }

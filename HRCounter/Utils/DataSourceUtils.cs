@@ -51,7 +51,7 @@ namespace HRCounter.Utils
             }
             catch (Exception e)
             {
-                Log.Logger.Error(e);
+                Plugin.Logger.Error(e);
                 return "Error validating token";
             }
         }

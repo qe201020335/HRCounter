@@ -37,7 +37,7 @@ namespace HRCounter
 
             if (_sceneSetupData == null)
             {
-                Plugin.Log.Warn("GameplayCoreSceneSetupData is null");
+                _logger.Warn("GameplayCoreSceneSetupData is null");
                 return;
             }
 
@@ -49,12 +49,12 @@ namespace HRCounter
 
             if (_hrDataManager == null)
             {
-                Plugin.Log.Warn("HRDataManager is null");
+                _logger.Warn("HRDataManager is null");
                 return;
             }
 
             _needs360Move = _sceneSetupData.beatmapKey.beatmapCharacteristic.requires360Movement && _flyingGameHUDRotation != null;
-            Plugin.Log.Info($"360/90?: {_needs360Move}");
+            _logger.Info($"360/90?: {_needs360Move}");
 
             if (!CreateCounter())
             {
@@ -150,7 +150,7 @@ namespace HRCounter
                 Object.Destroy(_currentCanvas);
             }
 
-            Plugin.Log.Info("HRCounter Disposed");
+            _logger.Info("HRCounter Disposed");
         }
     }
 }

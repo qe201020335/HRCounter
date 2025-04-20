@@ -41,7 +41,7 @@ namespace HRCounter
 
             if (_hrDataManager == null)
             {
-                Plugin.Log.Warn("HRDataManager is null");
+                _logger.Warn("HRDataManager is null");
                 return;
             }
             

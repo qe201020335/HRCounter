@@ -153,7 +153,7 @@ namespace HRCounter.Data.DataSources
                 return;
             }
             
-            Log.DebugSpam(e.Data);
+            Plugin.DebugSpam(e.Data);
 
             try
             {
