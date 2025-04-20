@@ -10,7 +10,7 @@ const PULSOID_HINT = (
     <p>
       If you don't have a token yet, click authorize to get one. <a href={PULSOID_TOKEN_LINK}><button>Authorize</button></a>
       <br/>
-      Or, you can use a manually generated token <a href={PULSOID_BRO_TOKEN} target="_blank">here</a> if you are
+      Or, you can use a manually generated token <a href={PULSOID_BRO_TOKEN} target="_blank" rel="noreferrer">here</a> if you are
       a <strong>BRO</strong> .
     </p>
 )
@@ -120,7 +120,7 @@ function App() {
             There isn't a lot going on on this page. It doesn't even look good.
             <br/>
             <strong>But most importantly it gets the works done.</strong>
-            <a href="https://github.com/qe201020335" target="_blank">@qe201020335</a>
+            <a href="https://github.com/qe201020335" target="_blank" rel="noreferrer">@qe201020335</a>
           </p>
         </div>
       </div>
