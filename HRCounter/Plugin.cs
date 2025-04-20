@@ -28,7 +28,7 @@ namespace HRCounter
 
 
         [Init]
-        public void InitWithConfig(IPALogger logger, IPA.Config.Config conf, Zenjector zenject)
+        public void InitWithConfig(IPALogger logger, IPA.Config.Config conf, PluginMetadata metadata, Zenjector zenject)
         {
             Instance = this;
             Logger = logger;
@@ -38,7 +38,7 @@ namespace HRCounter
             zenject.UseLogger(logger);
             zenject.UseMetadataBinder<Plugin>();
             
-            zenject.Install<AppInstaller>(Location.App, config);
+            zenject.Install<AppInstaller>(Location.App, config, logger, metadata);
             zenject.Install<MenuInstaller>(Location.Menu);
             zenject.Install<GameplayHearRateInstaller>(Location.Player);
             zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);

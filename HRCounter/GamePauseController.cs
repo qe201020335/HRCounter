@@ -2,17 +2,17 @@
 using System.Collections;
 using HRCounter.Configuration;
 using HRCounter.Data;
-using SiraUtil.Logging;
 using SiraUtil.Tools.SongControl;
 using UnityEngine;
 using Zenject;
+using Logger = IPA.Logging.Logger;
 
 namespace HRCounter
 {
     internal class GamePauseController : MonoBehaviour, IInitializable, IDisposable 
     {
         [Inject] private readonly PluginConfig _config = null!;
-        [Inject] private readonly SiraLog _logger = null!;
+        [Inject] private readonly Logger _logger = null!;
         [InjectOptional] private readonly ISongControl? _songControl = null;
         [InjectOptional] private readonly HRDataManager? _hrDataManager = null;
 

@@ -4,7 +4,6 @@ using HRCounter.Configuration;
 using HRCounter.Data;
 using HRCounter.Utils;
 using JetBrains.Annotations;
-using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,7 +19,7 @@ namespace HRCounter
         [InjectOptional] private readonly FlyingGameHUDRotation? _flyingGameHUDRotation = null;
         [Inject] private readonly AssetBundleManager _assetBundleManager = null!;
         [Inject] private readonly PluginConfig _config = null!;
-        [Inject] private readonly SiraLog _logger = null!;
+        [Inject] private readonly IPALogger _logger = null!;
         [InjectOptional] private readonly HRDataManager? _hrDataManager;
 
         private bool _needs360Move;

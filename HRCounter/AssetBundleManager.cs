@@ -6,11 +6,11 @@ using BeatSaberMarkupLanguage;
 using HRCounter.Configuration;
 using HRCounter.Utils;
 using IPA.Utilities;
-using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using Logger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;
 
 namespace HRCounter
@@ -21,7 +21,7 @@ namespace HRCounter
 
         [Inject] private readonly PluginConfig _config = null!;
 
-        [Inject] private readonly SiraLog _logger = null!;
+        [Inject] private readonly Logger _logger = null!;
         
         [Inject] private readonly IconManager _iconManager = null!;
         

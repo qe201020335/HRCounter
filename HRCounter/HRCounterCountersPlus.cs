@@ -17,7 +17,7 @@ namespace HRCounter
 
         [Inject] private readonly PluginConfig _config = null!;
 
-        [Inject] private readonly SiraLog _logger = null!;
+        [Inject] private readonly IPALogger _logger = null!;
 
         [InjectOptional] private readonly HRDataManager? _hrDataManager;
 

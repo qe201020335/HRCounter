@@ -8,10 +8,10 @@ using HRCounter.Configuration;
 using HRCounter.Utils;
 using IPA.Utilities;
 using IPA.Utilities.Async;
-using SiraUtil.Logging;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using Logger = IPA.Logging.Logger;
 using UObject = UnityEngine.Object;
 
 namespace HRCounter;
@@ -20,7 +20,7 @@ internal class IconManager: IInitializable, IDisposable
 {
     [Inject] private readonly PluginConfig _config = null!;
 
-    [Inject] private readonly SiraLog _logger = null!;
+    [Inject] private readonly Logger _logger = null!;
     
     private readonly DirectoryInfo _iconDir = new DirectoryInfo(Path.Combine(UnityGame.UserDataPath, "HRCounter", "Icons"));
     

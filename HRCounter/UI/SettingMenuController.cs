@@ -11,11 +11,11 @@ using HRCounter.Data;
 using HRCounter.Utils;
 using IPA.Utilities;
 using IPA.Utilities.Async;
-using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using Logger = IPA.Logging.Logger;
 
 namespace HRCounter.UI
 {
@@ -28,7 +28,7 @@ namespace HRCounter.UI
         private readonly PluginConfig _config = null!;
 
         [Inject]
-        private readonly SiraLog _logger = null!;
+        private readonly Logger _logger = null!;
         
         [Inject]
         private readonly IconManager _iconManager = null!;
