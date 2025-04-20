@@ -5,20 +5,20 @@ using Newtonsoft.Json;
 
 namespace HRCounter.Utils.Converters;
 
-public class WrappedTextValueJsonConverter<TValue, TValueConverter>: JsonConverter<TValue> where TValueConverter: ValueConverter<TValue>, new()
+public class WrappedTextValueJsonConverter<TValue, TValueConverter> : JsonConverter<TValue> where TValueConverter : ValueConverter<TValue>, new()
 {
-    private readonly TValueConverter _converter = new TValueConverter();
-    
+    private readonly TValueConverter _converter = new();
+
     public override void WriteJson(JsonWriter writer, TValue? value, JsonSerializer serializer)
     {
-        var textValue = (Text?) _converter.ToValue(value, null!);
-        
+        var textValue = (Text?)_converter.ToValue(value, null!);
+
         if (textValue == null)
         {
             writer.WriteNull();
             return;
         }
-        
+
         writer.WriteValue(textValue.Value);
     }
 

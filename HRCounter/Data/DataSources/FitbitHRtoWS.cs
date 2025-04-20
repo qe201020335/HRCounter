@@ -2,120 +2,153 @@ using System;
 using System.Threading;
 using WebSocketSharp;
 
-namespace HRCounter.Data.DataSources
+namespace HRCounter.Data.DataSources;
+
+internal sealed class FitbitHRtoWS : DataSource
 {
-    internal sealed class FitbitHRtoWS : DataSource
+    private Thread? _worker;
+
+    private WebSocket? _webSocket;
+    private string _url = string.Empty;
+    private bool _updating;
+
+    private int _lastHR;
+    private bool isDeviceConnected;
+
+    internal FitbitHRtoWS()
     {
-        private Thread? _worker;
+        RefreshSettings();
+    }
 
-        private WebSocket? _webSocket;
-        private string _url = string.Empty;
-        private bool _updating;
-        
-        private int _lastHR;
-        private bool isDeviceConnected;
-
-        internal FitbitHRtoWS() => RefreshSettings();
-
-        private bool IsSocketSecure(string url)
+    private bool IsSocketSecure(string url)
+    {
+        var btr = false;
+        try
         {
-            bool btr = false;
-            try
-            {
-                string[] colonSplit = url.Split(':');
-                btr = colonSplit[0] == "wss";
-            }
-            catch(Exception)
-            {
-                Logger.Warn("WebSocket URI is not valid! Assuming insecure.");
-            }
-
-            return btr;
+            string[] colonSplit = url.Split(':');
+            btr = colonSplit[0] == "wss";
+        }
+        catch (Exception)
+        {
+            Logger.Warn("WebSocket URI is not valid! Assuming insecure.");
         }
 
-        private void VerifyDeadThread()
+        return btr;
+    }
+
+    private void VerifyDeadThread()
+    {
+        if (_worker != null)
         {
-            if (_worker != null)
-                if (_worker.IsAlive)
-                    _worker.Abort();
-            _worker = null;
+            if (_worker.IsAlive)
+            {
+                _worker.Abort();
+            }
         }
 
-        protected override void Start()
+        _worker = null;
+    }
+
+    protected override void Start()
+    {
+        // Start Thread
+        VerifyDeadThread();
+        _worker = new Thread(() =>
         {
-            // Start Thread
-            VerifyDeadThread();
-            _worker = new Thread(() =>
+            if (_webSocket != null)
+            {
+                // WebSocket is listening. Stopping it then continue.
+                Stop();
+            }
+
+            _webSocket = new WebSocket(_url);
+            if (IsSocketSecure(_url))
+            {
+                _webSocket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+            }
+
+            _webSocket.OnClose += WebSocket_OnClose;
+            _webSocket.OnMessage += WebSocket_OnMessage;
+            _webSocket.Connect();
+            _updating = true;
+            while (_updating)
             {
                 if (_webSocket != null)
                 {
-                    // WebSocket is listening. Stopping it then continue.
-                    Stop();
-                }
-                _webSocket = new WebSocket(_url);
-                if (IsSocketSecure(_url))
-                    _webSocket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
-                _webSocket.OnClose += WebSocket_OnClose;
-                _webSocket.OnMessage += WebSocket_OnMessage;
-                _webSocket.Connect();
-                _updating = true;
-                while (_updating)
-                {
-                    if (_webSocket != null)
-                        if (_webSocket.ReadyState == WebSocketState.Open)
-                        {
-                            _webSocket.Send("getHR");
-                            _webSocket.Send("checkFitbitConnection");
-                        }
-                        else
-                            Logger.Warn("Failed to connect to WebSocket. Is it running?");
+                    if (_webSocket.ReadyState == WebSocketState.Open)
+                    {
+                        _webSocket.Send("getHR");
+                        _webSocket.Send("checkFitbitConnection");
+                    }
                     else
-                        Logger.Error("WebSocket is null!");
-                    Thread.Sleep(1000);
+                    {
+                        Logger.Warn("Failed to connect to WebSocket. Is it running?");
+                    }
                 }
-            });
-            _worker.Start();
-        }
+                else
+                {
+                    Logger.Error("WebSocket is null!");
+                }
 
-        private void RefreshSettings()
-        {
-            _url = Config.FitbitWebSocket;
-        }
-
-        private void WebSocket_OnClose(object sender, CloseEventArgs e) => Stop();
-
-        private void WebSocket_OnMessage(object sender, MessageEventArgs e)
-        {
-            switch (e.Data)
-            {
-                case "yes":
-                    // This means the Fitbit is connected to the WebSocket
-                    // You are free to do whatever you want with this here if you want
-                    isDeviceConnected = true;
-                    break;
-                case "no":
-                    // This means the Fitbit is not connected to the WebSocket
-                    // You are free to do whatever you want with this here if you want
-                    isDeviceConnected = false;
-                    break;
-                default:
-                    // Assume it's the HeartRate
-                    try { _lastHR = Convert.ToInt32(e.Data); } catch (Exception) { }
-                    break;
+                Thread.Sleep(1000);
             }
-            OnHeartRateDataReceived(_lastHR);
+        });
+        _worker.Start();
+    }
+
+    private void RefreshSettings()
+    {
+        _url = Config.FitbitWebSocket;
+    }
+
+    private void WebSocket_OnClose(object sender, CloseEventArgs e)
+    {
+        Stop();
+    }
+
+    private void WebSocket_OnMessage(object sender, MessageEventArgs e)
+    {
+        switch (e.Data)
+        {
+            case "yes":
+                // This means the Fitbit is connected to the WebSocket
+                // You are free to do whatever you want with this here if you want
+                isDeviceConnected = true;
+                break;
+            case "no":
+                // This means the Fitbit is not connected to the WebSocket
+                // You are free to do whatever you want with this here if you want
+                isDeviceConnected = false;
+                break;
+            default:
+                // Assume it's the HeartRate
+                try
+                {
+                    _lastHR = Convert.ToInt32(e.Data);
+                }
+                catch (Exception)
+                {
+                }
+
+                break;
         }
 
-        protected override void Stop()
+        OnHeartRateDataReceived(_lastHR);
+    }
+
+    protected override void Stop()
+    {
+        if (_webSocket != null)
         {
-            if(_webSocket != null)
+            if (_webSocket.ReadyState == WebSocketState.Open)
             {
-                if (_webSocket.ReadyState == WebSocketState.Open)
-                    _webSocket.Close();
-                _webSocket = null;
+                _webSocket.Close();
             }
-            _updating = false;
-            VerifyDeadThread();
+
+            _webSocket = null;
         }
+
+        _updating = false;
+        VerifyDeadThread();
     }
 }

@@ -9,27 +9,28 @@ using HRCounter.Utils;
 using IPA.Utilities;
 using IPA.Utilities.Async;
 using UnityEngine;
-using UnityEngine.UI;
 using Zenject;
 using Logger = IPA.Logging.Logger;
 using UObject = UnityEngine.Object;
 
 namespace HRCounter;
 
-internal class IconManager: IInitializable, IDisposable
+internal class IconManager : IInitializable, IDisposable
 {
-    [Inject] private readonly PluginConfig _config = null!;
+    [Inject]
+    private readonly PluginConfig _config = null!;
 
-    [Inject] private readonly Logger _logger = null!;
-    
-    private readonly DirectoryInfo _iconDir = new DirectoryInfo(Path.Combine(UnityGame.UserDataPath, "HRCounter", "Icons"));
-    
-    private readonly Dictionary<string, Sprite> _loadedIcons = new Dictionary<string, Sprite>();
-    
+    [Inject]
+    private readonly Logger _logger = null!;
+
+    private readonly DirectoryInfo _iconDir = new(Path.Combine(UnityGame.UserDataPath, "HRCounter", "Icons"));
+
+    private readonly Dictionary<string, Sprite> _loadedIcons = new();
+
     private readonly HashSet<string> _acceptableExtensions = [".png", ".jpg", ".jpeg", ".gif"];
 
     internal string IconDirPath => _iconDir.FullName;
-    
+
     void IInitializable.Initialize()
     {
         _iconDir.Create();
@@ -52,10 +53,10 @@ internal class IconManager: IInitializable, IDisposable
             _logger.Debug("Failed to copy hrc_white.png");
             _logger.Debug(e);
         }
-        
+
         UnityMainThreadTaskScheduler.Factory.StartNew(LoadAllIconsAsync);
     }
-    
+
     void IDisposable.Dispose()
     {
         ClearIconCache();
@@ -65,7 +66,7 @@ internal class IconManager: IInitializable, IDisposable
     {
         return _loadedIcons.TryGetValue(name, out sprite);
     }
-    
+
     private void ClearIconCache()
     {
         foreach (var icon in _loadedIcons)
@@ -74,14 +75,16 @@ internal class IconManager: IInitializable, IDisposable
             UObject.Destroy(icon.Value);
             UObject.Destroy(texture);
         }
-        
+
         _loadedIcons.Clear();
     }
-    
+
     internal async Task<IList<Tuple<string, Sprite>>> GetIconsWithSpriteAsync(bool refresh)
     {
         if (!UnityGame.OnMainThread)
+        {
             throw new InvalidOperationException("This method can only be called from the main thread.");
+        }
 
         if (refresh)
         {
@@ -96,18 +99,16 @@ internal class IconManager: IInitializable, IDisposable
         _logger.Debug("Loading all icons");
         ClearIconCache();
         foreach (var file in _iconDir.EnumerateFiles())
-        {
             if (file.Exists && _acceptableExtensions.Contains(file.Extension))
             {
                 var name = file.Name;
                 var sprite = await LoadIconSpriteAsync(file);
                 if (sprite != null && !string.IsNullOrWhiteSpace(name))
                 {
-                    _loadedIcons[name] = sprite; 
+                    _loadedIcons[name] = sprite;
                 }
             }
-        }
-        
+
         _logger.Debug($"Loaded {_loadedIcons.Count} icons");
     }
 
@@ -115,7 +116,7 @@ internal class IconManager: IInitializable, IDisposable
     {
         var fileName = file.Name;
         _logger.Trace($"Loading icon {fileName}");
-        
+
         try
         {
             _logger.Trace($"Creating texture from {fileName}");
@@ -125,7 +126,7 @@ internal class IconManager: IInitializable, IDisposable
                 _logger.Warn($"Failed to load image from {fileName}");
                 return null;
             }
-        
+
             var sprite = RenderUtils.CreateSprite(texture);
 
             _logger.Trace($"Loaded sprite from {fileName}");

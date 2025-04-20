@@ -6,14 +6,15 @@ using Zenject;
 
 namespace HRCounter.Web.OSC.Handlers;
 
-public class OscHRHandler: IOSCMessageHandler
+public class OscHRHandler : IOSCMessageHandler
 {
     [Inject]
     private readonly PluginConfig _config;
+
     public IReadOnlyList<string> Address => _config.OscAddress;
-    
+
     internal event EventHandler<int>? HeartRatePosted;
-    
+
     public void HandleMessage(char[] arguments, byte[] data, int offset)
     {
         if (arguments.Length != 1 || arguments[0] != 'i')

@@ -10,8 +10,8 @@ namespace HRCounter.Web.HTTP.Handlers;
 internal class HttpHRHandler : IHttpRouteHandler
 {
     public Tuple<string, HttpMethod>[] Routes { get; } =
-        [new Tuple<string, HttpMethod>("/hr", HttpMethod.Get), new Tuple<string, HttpMethod>("/hr", HttpMethod.Post)];
-    
+        [new("/hr", HttpMethod.Get), new("/hr", HttpMethod.Post)];
+
     internal event EventHandler<int>? HeartRatePosted;
 
     public async Task HandleRequestAsync(HttpListenerContext context)
@@ -35,7 +35,7 @@ internal class HttpHRHandler : IHttpRouteHandler
                     var e = HeartRatePosted;
                     e?.Invoke(this, number);
                 });
-                
+
                 await context.SendResponseAsync("OK");
             }
             else

@@ -1,31 +1,32 @@
 ﻿using HRCounter.Configuration;
-using HRCounter.Utils;
 using SiraUtil.Logging;
 using Zenject;
 
-namespace HRCounter.Installers
+namespace HRCounter.Installers;
+
+public class GamePauseInstaller : Installer<GamePauseInstaller>
 {
-    public class GamePauseInstaller : Installer<GamePauseInstaller>
+    [Inject]
+    private readonly PluginConfig _config = null!;
+
+    [Inject]
+    private readonly SiraLog _logger = null!;
+
+    public override void InstallBindings()
     {
-        [Inject] private readonly PluginConfig _config = null!;
-        [Inject] private readonly SiraLog _logger = null!;
-
-        public override void InstallBindings()
+        if (!_config.ModEnable)
         {
-            if (!_config.ModEnable)
-            {
-                return;
-            }
+            return;
+        }
 
-            if (_config.AutoPause)
-            {
-                _logger.Debug("Binging game pause");
-                Container
-                    .BindInterfacesAndSelfTo<GamePauseController>()
-                    .FromNewComponentOnNewGameObject()
-                    .WithGameObjectName($"HRCounter {nameof(GamePauseController)}")
-                    .AsSingle();
-            }
+        if (_config.AutoPause)
+        {
+            _logger.Debug("Binging game pause");
+            Container
+                .BindInterfacesAndSelfTo<GamePauseController>()
+                .FromNewComponentOnNewGameObject()
+                .WithGameObjectName($"HRCounter {nameof(GamePauseController)}")
+                .AsSingle();
         }
     }
 }

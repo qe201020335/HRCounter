@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Web.OSC.Handlers;
@@ -18,41 +15,39 @@ internal class SimpleOscServer : IInitializable, IDisposable
 {
     private readonly PluginConfig _config;
     private readonly SiraLog _logger;
-    private readonly object _listenerLock = new object();
+    private readonly object _listenerLock = new();
     private readonly IReadOnlyDictionary<string, IOSCMessageHandler> _handlers;
-    
+
     private UdpClient? _listener;
     private bool _isListening = false;
-    
+
     public SimpleOscServer(PluginConfig config, SiraLog logger, IOSCMessageHandler[] handlers)
     {
         _config = config;
         _logger = logger;
-        
+
         var handlersDict = new Dictionary<string, IOSCMessageHandler>();
         foreach (var handler in handlers)
+        foreach (var address in handler.Address)
         {
-            foreach (var address in handler.Address)
+            if (handlersDict.ContainsKey(address))
             {
-                if (handlersDict.ContainsKey(address))
-                {
-                    _logger.Error($"Duplicate OSC handler for address '{handler.Address}'");
-                    throw new InvalidOperationException($"Duplicate OSC handler for address '{handler.Address}'");
-                }
-            
-                handlersDict[address] = handler;
+                _logger.Error($"Duplicate OSC handler for address '{handler.Address}'");
+                throw new InvalidOperationException($"Duplicate OSC handler for address '{handler.Address}'");
             }
+
+            handlersDict[address] = handler;
         }
 
         _handlers = handlersDict;
     }
-    
+
     public void Initialize()
     {
         UpdateListener();
         _config.OnSettingsChanged += UpdateListener;
     }
-    
+
     public void Dispose()
     {
         _config.OnSettingsChanged -= UpdateListener;
@@ -70,7 +65,7 @@ internal class SimpleOscServer : IInitializable, IDisposable
             StopAndDisposeListener();
         }
     }
-    
+
     private void StartListener()
     {
         lock (_listenerLock)
@@ -81,28 +76,28 @@ internal class SimpleOscServer : IInitializable, IDisposable
                 _logger.Warn("OSC server is already listening.");
                 return;
             }
-        
+
             var endPoint = new IPEndPoint(_config.OscBindIP, _config.OscPort);
             var listener = new UdpClient(endPoint.Port, endPoint.AddressFamily)
             {
-                EnableBroadcast = true,  // TODO: make it configurable?
+                EnableBroadcast = true, // TODO: make it configurable?
                 MulticastLoopback = false
             };
-            
+
             _listener = listener;
             _isListening = true;
 
             Task.Run(() => ReceiveAndProcessMessages(listener, endPoint));
         }
     }
-    
+
     private void StopAndDisposeListener()
     {
         lock (_listenerLock)
         {
             _logger.Debug("Stopping OSC Server.");
             _isListening = false;
-            _listener?.Close();  // will make the Receive operation throw
+            _listener?.Close(); // will make the Receive operation throw
             _listener = null;
         }
     }
@@ -110,7 +105,6 @@ internal class SimpleOscServer : IInitializable, IDisposable
     private void ReceiveAndProcessMessages(UdpClient listener, IPEndPoint endPoint)
     {
         while (_isListening)
-        {
             try
             {
                 var message = listener.Receive(ref endPoint);
@@ -121,7 +115,7 @@ internal class SimpleOscServer : IInitializable, IDisposable
                 _logger.Trace("UDP client was disposed.");
                 break;
             }
-            catch (SocketException e) when(e.SocketErrorCode == SocketError.Interrupted)
+            catch (SocketException e) when (e.SocketErrorCode == SocketError.Interrupted)
             {
                 //Socket was closed during the receive operation
                 break;
@@ -136,7 +130,6 @@ internal class SimpleOscServer : IInitializable, IDisposable
                 _logger.Critical("Failed to receive UDP message.");
                 _logger.Critical(e);
             }
-        }
     }
 
     private void ProcessMessage(byte[] message)
@@ -146,8 +139,8 @@ internal class SimpleOscServer : IInitializable, IDisposable
             _logger.Warn("Received invalid OSC message. Message length is 0 or not a multiple of 4 bytes.");
             return;
         }
-        
-        if (message[0] == '#') return;  // We don't support bundles in this simple osc server
+
+        if (message[0] == '#') return; // We don't support bundles in this simple osc server
 
         var offset = 0;
         var address = ReadAddress(message, ref offset);
@@ -177,7 +170,7 @@ internal class SimpleOscServer : IInitializable, IDisposable
             _logger.Warn("OSC message with arguments but no data.");
             return;
         }
-        
+
         _logger.Trace($"Received OSC message at '{address}' with arguments '{new string(arguments)}'");
 
         if (_handlers.TryGetValue(address!, out var handler))
@@ -193,14 +186,14 @@ internal class SimpleOscServer : IInitializable, IDisposable
             }
         }
     }
-    
+
     private string? ReadAddress(byte[] message, ref int offset)
     {
         if (offset >= message.Length)
         {
             return null;
         }
-        
+
         if (message[offset] != '/')
         {
             return null;

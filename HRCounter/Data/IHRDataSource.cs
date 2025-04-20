@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace HRCounter.Data
+namespace HRCounter.Data;
+
+public interface IHRDataSource
 {
-    public interface IHRDataSource
-    {
-        event EventHandler<HRDataReceivedEventArgs>? OnHRDataReceived;
-    }
+    event EventHandler<HRDataReceivedEventArgs>? OnHRDataReceived;
 }

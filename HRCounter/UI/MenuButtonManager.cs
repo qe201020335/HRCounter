@@ -1,57 +1,56 @@
 ﻿using System;
 using BeatSaberMarkupLanguage.MenuButtons;
-using BeatSaberMarkupLanguage;
 using SiraUtil.Logging;
 using Zenject;
 
-namespace HRCounter.UI
+namespace HRCounter.UI;
+
+public class MenuButtonManager : IInitializable, IDisposable
 {
-    public class MenuButtonManager : IInitializable, IDisposable
+    private readonly MenuButton _menuButton;
+    private readonly MainFlowCoordinator _mainFlowCoordinator;
+    private readonly ConfigViewFlowCoordinator _configViewFlowCoordinator;
+    private readonly MenuButtons? _menuButtons;
+
+    [Inject]
+    private readonly SiraLog _logger = null!;
+
+    public MenuButtonManager(MainFlowCoordinator mainFlowCoordinator, ConfigViewFlowCoordinator configViewFlowCoordinator,
+        [InjectOptional] MenuButtons? menuButtons)
     {
-        private readonly MenuButton _menuButton;
-        private readonly MainFlowCoordinator _mainFlowCoordinator;
-        private readonly ConfigViewFlowCoordinator _configViewFlowCoordinator;
-        private readonly MenuButtons? _menuButtons;
-        
-        [Inject]
-        private readonly SiraLog _logger = null!;
+        _mainFlowCoordinator = mainFlowCoordinator;
+        _configViewFlowCoordinator = configViewFlowCoordinator;
+        _menuButtons = menuButtons;
 
-        public MenuButtonManager(MainFlowCoordinator mainFlowCoordinator, ConfigViewFlowCoordinator configViewFlowCoordinator, [InjectOptional] MenuButtons? menuButtons)
-        {
-            _mainFlowCoordinator = mainFlowCoordinator;
-            _configViewFlowCoordinator = configViewFlowCoordinator;
-            _menuButtons = menuButtons;
-            
-            _menuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick);
-        }
+        _menuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick);
+    }
 
-        public void Initialize()
+    public void Initialize()
+    {
+        if (_menuButtons != null)
         {
-            if (_menuButtons != null)
-            {
-                _menuButtons.RegisterButton(_menuButton);
-            }
-            else
-            {
-                _logger.Warn("BSML MenuButtons is null");
-            }
+            _menuButtons.RegisterButton(_menuButton);
         }
+        else
+        {
+            _logger.Warn("BSML MenuButtons is null");
+        }
+    }
 
-        public void Dispose()
+    public void Dispose()
+    {
+        if (_menuButtons != null)
         {
-            if (_menuButtons != null)
-            {
-                _menuButtons.UnregisterButton(_menuButton);
-            }
-            else
-            {
-                _logger.Warn("BSML MenuButtons is null");
-            }
+            _menuButtons.UnregisterButton(_menuButton);
         }
+        else
+        {
+            _logger.Warn("BSML MenuButtons is null");
+        }
+    }
 
-        private void OnMenuButtonClick()
-        {
-            _mainFlowCoordinator.PresentFlowCoordinator(_configViewFlowCoordinator);
-        }
+    private void OnMenuButtonClick()
+    {
+        _mainFlowCoordinator.PresentFlowCoordinator(_configViewFlowCoordinator);
     }
 }

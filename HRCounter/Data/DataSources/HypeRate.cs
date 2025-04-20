@@ -1,8 +1,7 @@
-﻿namespace HRCounter.Data.DataSources
+﻿namespace HRCounter.Data.DataSources;
+
+internal class HypeRate : HRProxyBase
 {
-    internal class HypeRate: HRProxyBase
-    {
-        protected override string ReaderName => "hyperate";
-        protected override string EventIdentifier => Config.HypeRateSessionID;
-    }
+    protected override string ReaderName => "hyperate";
+    protected override string EventIdentifier => Config.HypeRateSessionID;
 }

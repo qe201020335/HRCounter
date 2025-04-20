@@ -5,101 +5,100 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace HRCounter.Data.DataSources
+namespace HRCounter.Data.DataSources;
+
+internal sealed class WebRequest : DataSource
 {
-    internal sealed class WebRequest : DataSource
+    private string FeedLink => Config.FeedLink;
+    private bool _updating;
+
+    private readonly Regex _regex = new("^\\d+$");
+
+    private static readonly HttpClient HttpClient = new();
+
+    protected override void Start()
     {
-        private string FeedLink => Config.FeedLink;
-        private bool _updating;
-
-        private readonly Regex _regex = new Regex("^\\d+$");
-        
-        private static readonly HttpClient HttpClient = new HttpClient();
-
-        protected override void Start()
+        Logger.Info("Starts updating HR");
+        _updating = true;
+        Task.Factory.StartNew(async () =>
         {
-            Logger.Info("Starts updating HR");
-            _updating = true;
-            Task.Factory.StartNew(async () =>
-            {
-                Logger.Debug("Requesting HR data");
+            Logger.Debug("Requesting HR data");
 
-                while (_updating)
+            while (_updating)
+            {
+                await UpdateHR();
+                await Task.Delay(250);
+            }
+        });
+    }
+
+    protected override void Stop()
+    {
+        _updating = false;
+    }
+
+    private async Task UpdateHR()
+    {
+        try
+        {
+            var res = await HttpClient.GetStringAsync(FeedLink);
+            if (_regex.IsMatch(res))
+            {
+                var hr = int.Parse(res);
+                if (_updating)
                 {
-                    await UpdateHR();
-                    await Task.Delay(250);
+                    OnHeartRateDataReceived(hr);
                 }
-            });
-        }
-
-        protected override void Stop()
-        {
-            _updating = false;
-        }
-
-        private async Task UpdateHR()
-        {
-            try
+            }
+            else
             {
-                var res = await HttpClient.GetStringAsync(FeedLink);
-                if (_regex.IsMatch(res))
+                // pulsoid: {"bpm":0,"measured_at":"2021-06-21T01:34:39.320Z"}
+                try
                 {
-                    var hr = int.Parse(res);
-                    if (_updating)
+                    var json = JObject.Parse(res);
+                    if (json["bpm"] == null)
                     {
-                        OnHeartRateDataReceived(hr);
+                        Logger.Warn("Json received does not contain necessary field");
+                        Logger.Warn(res);
                     }
-                }
-                else
-                {
-                    // pulsoid: {"bpm":0,"measured_at":"2021-06-21T01:34:39.320Z"}
-                    try
+                    else
                     {
-                        var json = JObject.Parse(res);
-                        if (json["bpm"] == null)
+                        var hr = json["bpm"].ToObject<int>();
+                        var timestamp = json["measured_at"]?.ToObject<string>();
+                        if (_updating)
                         {
-                            Logger.Warn("Json received does not contain necessary field");
-                            Logger.Warn(res);
-                        }
-                        else
-                        {
-                            var hr = json["bpm"].ToObject<int>();
-                            var timestamp = json["measured_at"]?.ToObject<string>();
-                            if (_updating)
+                            if (timestamp == null)
                             {
-                                if (timestamp == null)
-                                {
-                                    OnHeartRateDataReceived(hr);
-                                }
-                                else
-                                {
-                                    OnHeartRateDataReceived(hr, timestamp);
-                                }
+                                OnHeartRateDataReceived(hr);
+                            }
+                            else
+                            {
+                                OnHeartRateDataReceived(hr, timestamp);
                             }
                         }
                     }
-                    catch (JsonReaderException)
-                    {
-                        Logger.Critical($"Invalid json received: {res}");
-                    }
+                }
+                catch (JsonReaderException)
+                {
+                    Logger.Critical($"Invalid json received: {res}");
                 }
             }
-            catch (InvalidOperationException e)
-            {
-                Logger.Error($"Invalid request URI: {FeedLink}");
-                Logger.Info("Stopping hr update");
-                Stop();
-            }
-            catch (HttpRequestException e)
-            {
-                Logger.Critical($"Failed to request HR: {e.Message}");
-                Logger.Debug(e);
-            }
-            catch (Exception e)
-            {
-                Logger.Warn($"Error Requesting HR data: {e.Message}");
-                Logger.Warn(e);
-            }
+        }
+        catch (InvalidOperationException e)
+        {
+            Logger.Error($"Invalid request URI: {FeedLink}");
+            Logger.Info("Stopping hr update");
+            Stop();
+        }
+        catch (HttpRequestException e)
+        {
+            Logger.Critical($"Failed to request HR: {e.Message}");
+            Logger.Debug(e);
+        }
+        catch (Exception e)
+        {
+            Logger.Warn($"Error Requesting HR data: {e.Message}");
+            Logger.Warn(e);
         }
     }
 }

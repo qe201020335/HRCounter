@@ -1,10 +1,7 @@
-﻿using System;
+﻿namespace HRCounter.Data.DataSources;
 
-namespace HRCounter.Data.DataSources
+internal class PulsoidWidget : HRProxyBase
 {
-    internal class PulsoidWidget: HRProxyBase
-    {
-        protected override string ReaderName => "pulsoid";
-        protected override string EventIdentifier => Config.PulsoidWidgetID;
-    }
+    protected override string ReaderName => "pulsoid";
+    protected override string EventIdentifier => Config.PulsoidWidgetID;
 }
