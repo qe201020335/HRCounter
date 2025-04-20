@@ -22,6 +22,9 @@ internal class IconManager : IInitializable, IDisposable
 
     [Inject]
     private readonly Logger _logger = null!;
+    
+    [Inject]
+    private readonly AssetBundleManager _assetBundleManager = null!;
 
     private readonly DirectoryInfo _iconDir = new(Path.Combine(UnityGame.UserDataPath, "HRCounter", "Icons"));
 
@@ -30,10 +33,17 @@ internal class IconManager : IInitializable, IDisposable
     private readonly HashSet<string> _acceptableExtensions = [".png", ".jpg", ".jpeg", ".gif"];
 
     internal string IconDirPath => _iconDir.FullName;
+    
+    internal Sprite? DefaultIcon { get; private set; }
+
+    internal IconManager()
+    {
+        _iconDir.Create();
+    }
 
     void IInitializable.Initialize()
     {
-        _iconDir.Create();
+        DefaultIcon = _assetBundleManager.DefaultIconSprite;
         try
         {
             var hrcIconPath = Path.Combine(IconDirPath, "hrc_white.png");

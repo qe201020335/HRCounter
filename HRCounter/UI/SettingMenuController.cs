@@ -174,8 +174,10 @@ internal class SettingMenuController : BSMLAutomaticViewController
         IsIconListLoaded = false;
         _iconNames.Clear();
         var icons = await _iconManager.GetIconsWithSpriteAsync(refresh);
-        var data = new List<CustomListTableData.CustomCellInfo>(icons.Count + 1);
-        data.Add(new CustomListTableData.CustomCellInfo("Default"));
+        var data = new List<CustomListTableData.CustomCellInfo>(icons.Count + 1)
+        {
+            new("Default", null, _iconManager.DefaultIcon)
+        };
         _iconNames.Add("");
         foreach (var (filename, sprite) in icons)
         {

@@ -23,6 +23,8 @@ internal class AssetBundleManager : IInitializable, IDisposable
 
     [Inject]
     private readonly IconManager _iconManager = null!;
+    
+    internal Sprite? DefaultIconSprite { get; private set; }
 
     public void Initialize()
     {
@@ -44,6 +46,7 @@ internal class AssetBundleManager : IInitializable, IDisposable
                 throw new NullReferenceException("The counter prefab is null!");
             }
 
+            DefaultIconSprite = CounterPrefab.GetComponentInChildren<Image>().sprite;
             _logger.Info("AssetBundle Loaded!");
         }
         catch (Exception e)
