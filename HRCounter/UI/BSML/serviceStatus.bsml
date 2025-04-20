@@ -1,13 +1,32 @@
-﻿<vertical child-control-height='false' spacing="2" pad-top="2" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+﻿<vertical child-control-height='false' child-expand-height="false" spacing="2" pad-top="-11" pref-width="100"
+          xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
           xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-    <bool-setting text="Enable HTTP Server" value="EnableHttpServer"
-                  hover-hint="Enable the built-in HTTP server for runtime config updates and http server hr data source" apply-on-change="true"
-                  bind-value="true"/>
-    <horizontal pref-height="20" background="round-rect-panel">
-        <text-page id="http_status_text" italics="false"/>
+    <horizontal background="panel-fade-gradient" pref-height="9" bg-color="#00bfff" child-align='MiddleRight' child-control-width='false'>
+        <horizontal ignore-layout='true' pad-top='1'>
+            <text text='Built-in Services' align='Center' font-size='6' italics='true'/>
+        </horizontal>
+        <horizontal horizontal-fit='PreferredSize' spacing='2' pad-right='1'>
+            <button id="refresh" text='Refresh'/>
+        </horizontal>
     </horizontal>
-    <bool-setting text="Enable OSC Server" value="EnableOscServer" apply-on-change="true" bind-value="true"/>
-    <horizontal pref-height="20" background="round-rect-panel">
-        <text-page id="osc_status_text" italics="false"/>
-    </horizontal>
+    <tab-selector tab-tag='tabs'/>
+    <tab tab-name="HTTP" tags="tabs">
+        <vertical child-control-height="false" spacing="1">
+            <bool-setting text="Enable HTTP Server" value="EnableHttpServer"
+                          hover-hint="Enable the built-in HTTP server for runtime config updates and http server hr data source"
+                          apply-on-change="true"
+                          bind-value="true"/>
+            <horizontal pref-height="25" background="round-rect-panel" pad-top="-1" pad-left="3" pad-right="3" pad-bottom="-1">
+                <text-page id="http_status_text" italics="false"/>
+            </horizontal>
+        </vertical>
+    </tab>
+    <tab tab-name="OSC" tags="tabs">
+        <vertical child-control-height="false" spacing="1">
+            <bool-setting text="Enable OSC Server" value="EnableOscServer" apply-on-change="true" bind-value="true"/>
+            <horizontal pref-height="25" background="round-rect-panel" pad-top="-1" pad-left="3" pad-right="3" pad-bottom="-1">
+                <text-page id="osc_status_text" italics="false"/>
+            </horizontal>
+        </vertical>
+    </tab>
 </vertical>
