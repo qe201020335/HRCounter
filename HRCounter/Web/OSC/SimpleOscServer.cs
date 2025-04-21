@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Web.OSC.Handlers;
+using IPA.Utilities.Async;
 using SiraUtil.Logging;
 using Zenject;
 
@@ -19,7 +20,14 @@ internal class SimpleOscServer : IInitializable, IDisposable
     private readonly IReadOnlyDictionary<string, IOSCMessageHandler> _handlers;
 
     private UdpClient? _listener;
+    private IPEndPoint? _endPoint;
     private bool _isListening = false;
+
+    public event Action? StatusChanged;
+
+    public bool IsListening => _isListening;
+    internal IPEndPoint? EndPoint => _endPoint;
+    public string? ErrorMessage { get; private set; }
 
     public SimpleOscServer(PluginConfig config, SiraLog logger, IOSCMessageHandler[] handlers)
     {
@@ -77,34 +85,77 @@ internal class SimpleOscServer : IInitializable, IDisposable
                 return;
             }
 
-            var endPoint = new IPEndPoint(_config.OscBindIP, _config.OscPort);
-            var listener = new UdpClient(endPoint.Port, endPoint.AddressFamily)
+            try
             {
-                EnableBroadcast = true, // TODO: make it configurable?
-                MulticastLoopback = false
-            };
+                _endPoint = new IPEndPoint(_config.OscBindIP, _config.OscPort);
+                var listener = new UdpClient(_endPoint)
+                {
+                    EnableBroadcast = true, // TODO: make it configurable?
+                    MulticastLoopback = false
+                };
 
-            _listener = listener;
-            _isListening = true;
+                _listener = listener;
+                _isListening = true;
+                ErrorMessage = null;
 
-            Task.Run(() => ReceiveAndProcessMessages(listener, endPoint));
+                Task.Run(() => ReceiveAndProcessMessages(listener, _endPoint));
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Failed to start OSC server: " + e.Message);
+                _logger.Error(e);
+                _isListening = false;
+                ErrorMessage = e.Message;
+                CleanUpListener();
+            }
+            finally
+            {
+                InvokeStatusChanged();
+            }
         }
     }
 
-    private void StopAndDisposeListener()
+    private void StopAndDisposeListener(string? reason = null)
     {
         lock (_listenerLock)
         {
             _logger.Debug("Stopping OSC Server.");
             _isListening = false;
-            _listener?.Close(); // will make the Receive operation throw
-            _listener = null;
+            ErrorMessage = reason;
+            CleanUpListener();
+            InvokeStatusChanged();
         }
+    }
+
+    private void InvokeStatusChanged()
+    {
+        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+        {
+            var action = StatusChanged;
+            try
+            {
+                action?.Invoke();
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Failed to invoke OSC server status changed event.");
+                _logger.Error(e);
+            }
+        });
+    }
+
+    private void CleanUpListener()
+    {
+        _endPoint = null;
+        _listener?.Close(); // will make the Receive operation throw
+        _listener = null;
     }
 
     private void ReceiveAndProcessMessages(UdpClient listener, IPEndPoint endPoint)
     {
+        Exception? exception = null;
         while (_isListening)
+        {
             try
             {
                 var message = listener.Receive(ref endPoint);
@@ -113,23 +164,33 @@ internal class SimpleOscServer : IInitializable, IDisposable
             catch (ObjectDisposedException)
             {
                 _logger.Trace("UDP client was disposed.");
-                break;
+                return;
             }
             catch (SocketException e) when (e.SocketErrorCode == SocketError.Interrupted)
             {
                 //Socket was closed during the receive operation
-                break;
+                return;
             }
             catch (SocketException e)
             {
-                _logger.Warn($"Socket exception while receiving UDP message: {e.SocketErrorCode}");
+                _logger.Critical($"Socket exception while receiving UDP message: {e.SocketErrorCode}");
+                exception = e;
                 break;
             }
             catch (Exception e)
             {
-                _logger.Critical("Failed to receive UDP message.");
-                _logger.Critical(e);
+                _logger.Error("Failed to receive UDP message.");
+                _logger.Error(e);
+                exception = e;
+                break;
             }
+        }
+
+        if (_isListening)
+        {
+            _logger.Warn("UDP Socket was exceptionally interrupted, disposing.");
+            StopAndDisposeListener(exception?.Message ?? "Unknown error");
+        }
     }
 
     private void ProcessMessage(byte[] message)

@@ -31,11 +31,11 @@ public class AppInstaller : Installer<AppInstaller>
         Container.BindInterfacesAndSelfTo<IconManager>().AsSingle();
 
         // Web stuff
-        Container.BindInterfacesTo<SimpleHttpServer>().AsSingle();
+        Container.BindInterfacesAndSelfTo<SimpleHttpServer>().AsSingle();
         Container.BindInterfacesTo<HttpConfigHandler>().AsSingle();
         Container.BindInterfacesAndSelfTo<HttpHRHandler>().AsSingle();
 
-        Container.BindInterfacesTo<SimpleOscServer>().AsSingle();
+        Container.BindInterfacesAndSelfTo<SimpleOscServer>().AsSingle();
         Container.BindInterfacesAndSelfTo<OscHRHandler>().AsSingle();
     }
 

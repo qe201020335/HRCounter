@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Web.HTTP.Handlers;
+using IPA.Utilities.Async;
 using SiraUtil.Logging;
 using Zenject;
 
@@ -21,6 +22,8 @@ internal class SimpleHttpServer : IInitializable, IDisposable
      * Path -> Method -> Handler
      */
     private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<HttpMethod, IHttpRouteHandler>> _handlers;
+
+    public event Action? StatusChanged;
 
     public bool IsLocalOnly { get; }
     public int Port { get; }
@@ -93,6 +96,7 @@ internal class SimpleHttpServer : IInitializable, IDisposable
         IsListening = true;
         _listener.Start();
         Task.Run(GetAndProcessRequestsAsync);
+        InvokeStatusChanged();
     }
 
     private void StopListener()
@@ -100,6 +104,24 @@ internal class SimpleHttpServer : IInitializable, IDisposable
         _logger.Debug("Stopping listener");
         IsListening = false;
         _listener.Stop();
+        InvokeStatusChanged();
+    }
+
+    private void InvokeStatusChanged()
+    {
+        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+        {
+            var action = StatusChanged;
+            try
+            {
+                action?.Invoke();
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Failed to invoke OSC server status changed event.");
+                _logger.Error(e);
+            }
+        });
     }
 
     private async Task GetAndProcessRequestsAsync()
