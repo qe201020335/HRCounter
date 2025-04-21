@@ -120,7 +120,7 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
                    $"Requests must be sent to http://<ip>:{_httpServer.Port}";
         }
 
-        return "HTTP server is enabled but <color=red>NOT listening</color>\nCheck logs for details.";
+        return $"HTTP server is enabled but <color=red>NOT listening</color>. Check logs for details.\n\n{_httpServer.ErrorMessage}";
     }
 
     private string GetOscStatusText()
@@ -131,6 +131,6 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
             return $"OSC server is <color=green>listening</color> on {_oscServer.EndPoint}";
         }
 
-        return $"OSC server is enabled but <color=red>NOT listening</color>\n{_oscServer.ErrorMessage}\nCheck logs for details.";
+        return $"OSC server is enabled but <color=red>NOT listening</color>. Check logs for details.\n\n{_oscServer.ErrorMessage}";
     }
 }

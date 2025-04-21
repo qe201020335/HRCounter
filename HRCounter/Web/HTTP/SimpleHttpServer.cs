@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Web.HTTP.Handlers;
+using IPA.Logging;
 using IPA.Utilities.Async;
-using SiraUtil.Logging;
 using Zenject;
 
 namespace HRCounter.Web.HTTP;
@@ -15,7 +16,7 @@ namespace HRCounter.Web.HTTP;
 internal class SimpleHttpServer : IInitializable, IDisposable
 {
     private readonly PluginConfig _config;
-    private readonly SiraLog _logger;
+    private readonly Logger _logger;
     private readonly HttpListener _listener = new();
 
     /**
@@ -27,10 +28,10 @@ internal class SimpleHttpServer : IInitializable, IDisposable
 
     public bool IsLocalOnly { get; }
     public int Port { get; }
-
     public bool IsListening { get; private set; } = false;
+    public string? ErrorMessage { get; private set; }
 
-    internal SimpleHttpServer(PluginConfig config, SiraLog logger, IHttpRouteHandler[] handlers)
+    internal SimpleHttpServer(PluginConfig config, Logger logger, IHttpRouteHandler[] handlers)
     {
         _config = config;
         _logger = logger;
@@ -61,8 +62,8 @@ internal class SimpleHttpServer : IInitializable, IDisposable
 
     public void Initialize()
     {
-        _config.OnSettingsChanged += UpdateListener;
         UpdateListener();
+        _config.OnSettingsChanged += UpdateListener;
     }
 
     public void Dispose()
@@ -93,17 +94,42 @@ internal class SimpleHttpServer : IInitializable, IDisposable
             return;
         }
 
-        IsListening = true;
-        _listener.Start();
-        Task.Run(GetAndProcessRequestsAsync);
-        InvokeStatusChanged();
+        try
+        {
+            _listener.Start();
+            IsListening = true;
+            Task.Run(GetAndProcessRequestsAsync);
+            InvokeStatusChanged();
+        }
+        catch (SocketException e)
+        {
+            if (e.SocketErrorCode == SocketError.AddressAlreadyInUse)
+            {
+                _logger.Error("The HTTP port is already in use.");
+                _logger.Debug(e);
+                StopListener("The HTTP port is already in use.");
+            }
+            else
+            {
+                _logger.Critical($"SocketException while trying to start HTTP listener:  ({e.SocketErrorCode})");
+                _logger.Critical(e);
+                StopListener(e.SocketErrorCode + "\n" + e.Message);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Failed to start HTTP listener: " + e.Message);
+            _logger.Error(e);
+            StopListener(e.Message);
+        }
     }
 
-    private void StopListener()
+    private void StopListener(string? reason = null)
     {
         _logger.Debug("Stopping listener");
         IsListening = false;
-        _listener.Stop();
+        if (_listener.IsListening) _listener.Stop();
+        ErrorMessage = reason;
         InvokeStatusChanged();
     }
 
