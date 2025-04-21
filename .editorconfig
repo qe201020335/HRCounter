@@ -85,7 +85,10 @@ dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggest
 
 # ReSharper properties
 resharper_autodetect_indent_settings = true
+resharper_braces_for_for = required_for_multiline_statement
+resharper_braces_for_foreach = required_for_multiline_statement
 resharper_braces_for_ifelse = required_for_multiline_statement
+resharper_braces_for_while = required_for_multiline_statement
 resharper_enforce_line_ending_style = true
 resharper_formatter_off_tag = @formatter:off
 resharper_formatter_on_tag = @formatter:on
