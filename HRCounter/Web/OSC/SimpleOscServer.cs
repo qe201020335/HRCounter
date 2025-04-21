@@ -100,6 +100,24 @@ internal class SimpleOscServer : IInitializable, IDisposable
 
                 Task.Run(() => ReceiveAndProcessMessages(listener, _endPoint));
             }
+            catch (SocketException e)
+            {
+                if (e.SocketErrorCode == SocketError.AddressAlreadyInUse)
+                {
+                    _logger.Error("The OSC (UDP) port is already in use.");
+                    _logger.Debug(e);
+                    ErrorMessage = "The OSC (UDP) port is already in use.";
+                }
+                else
+                {
+                    _logger.Critical($"SocketException while trying to create UDP Client:  ({e.SocketErrorCode})");
+                    _logger.Critical(e);
+                    ErrorMessage = e.SocketErrorCode + "\n" + e.Message;
+                }
+
+                _isListening = false;
+                CleanUpListener();
+            }
             catch (Exception e)
             {
                 _logger.Error("Failed to start OSC server: " + e.Message);
