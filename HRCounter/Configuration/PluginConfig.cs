@@ -27,7 +27,7 @@ internal class PluginConfig
 
     private bool _modEnable = true;
     private bool _logHR = false;
-    private string _dataSource = DataSourceManager.YURMod.Key;
+    private string _dataSource = DataSourceManager.OscServer.Key;
     private string _pulsoidToken = "";
     private string _hypeRateSessionID = "";
     private string _pulsoidWidgetID = "";
