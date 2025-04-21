@@ -126,7 +126,7 @@ public class DataSourceManager
 
     internal static DataSourceInfo OscServer = RegisterDataSource<OscHR>(OSC_KEY,
         () => Config.EnableOscServer
-            ? $"OSC server listening on {Config.OscBindIP}:{Config.OscPort}.\nUsing addresses below (one Int32 value only)\n  {string.Join("\n  ", Config.OscAddress)}"
+            ? $"Use addresses below (one Int32 value only)\n  {string.Join("\n  ", Config.OscAddress)}"
             : "<color=#FF0000>OSC Server is NOT enabled!</color>",
         () => true);
 
