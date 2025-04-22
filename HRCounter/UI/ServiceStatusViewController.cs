@@ -1,4 +1,5 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
+﻿using System.ComponentModel;
+using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
 using HRCounter.Web.HTTP;
@@ -65,7 +66,7 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
             RefreshStatus();
         }
 
-        _config.OnSettingsChanged += RequestSettingRefresh;
+        _config.PropertyChanged += OnConfigChanged;
         _httpServer.StatusChanged += RefreshHttpStatus;
         _oscServer.StatusChanged += RefreshOscStatus;
     }
@@ -75,14 +76,27 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
         _logger.Trace("ServiceStatusViewController DidDeactivate");
         base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
 
-        _config.OnSettingsChanged -= RequestSettingRefresh;
+        _config.PropertyChanged -= OnConfigChanged;
         _httpServer.StatusChanged -= RefreshHttpStatus;
         _oscServer.StatusChanged -= RefreshOscStatus;
     }
 
-    private void RequestSettingRefresh()
+    private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {
-        UnityMainThreadTaskScheduler.Factory.StartNew(() => { NotifyPropertyChanged(null); });
+        // TODO Update only needed values
+        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+        {
+            NotifyPropertyChanged(null);
+            switch (args.PropertyName)
+            {
+                case nameof(_config.EnableHttpServer):
+                    RefreshHttpStatus();
+                    break;
+                case nameof(_config.EnableOscServer):
+                    RefreshOscStatus();
+                    break;
+            }
+        });
     }
 
     [UIAction("RefreshStatus")]

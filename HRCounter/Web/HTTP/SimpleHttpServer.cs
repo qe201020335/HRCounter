@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -63,14 +64,22 @@ internal class SimpleHttpServer : IInitializable, IDisposable
     public void Initialize()
     {
         UpdateListener();
-        _config.OnSettingsChanged += UpdateListener;
+        _config.PropertyChanged += OnConfigChanged;
     }
 
     public void Dispose()
     {
-        _config.OnSettingsChanged -= UpdateListener;
+        _config.PropertyChanged -= OnConfigChanged;
         StopListener();
         _listener.Close();
+    }
+
+    private void OnConfigChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(PluginConfig.EnableHttpServer))
+        {
+            UpdateListener();
+        }
     }
 
     private void UpdateListener()

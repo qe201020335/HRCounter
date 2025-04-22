@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
@@ -97,11 +98,9 @@ internal class SettingMenuController : BSMLAutomaticViewController
         });
     }
 
-    /**
-     * Request a UI refresh from other threads
-     */
-    private void RequestUiRefresh()
+    private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {
+        // TODO change only needed values
         UnityMainThreadTaskScheduler.Factory.StartNew(RefreshConfigUi);
     }
 
@@ -126,13 +125,13 @@ internal class SettingMenuController : BSMLAutomaticViewController
             RefreshConfigUi();
         }
 
-        _config.OnSettingsChanged += RequestUiRefresh;
+        _config.PropertyChanged += OnConfigChanged;
     }
 
     protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
         _logger.Trace("SettingMenuController DidDeactivate");
-        _config.OnSettingsChanged -= RequestUiRefresh;
+        _config.PropertyChanged -= OnConfigChanged;
         _previousDataSource = ""; // force a refresh next time we activate
         if (_colorVisualizerCoroutine != null)
         {

@@ -4,6 +4,7 @@ using HRCounter.Installers;
 using IPA;
 using IPA.Config.Stores;
 using IPA.Loader;
+using IPA.Logging;
 using SiraUtil.Zenject;
 using IPALogger = IPA.Logging.Logger;
 
@@ -30,6 +31,7 @@ public class Plugin
     {
         Instance = this;
         Logger = logger;
+        PluginConfig.Logger = logger.GetChildLogger(nameof(PluginConfig));
         var config = conf.Generated<PluginConfig>();
         PluginConfig.Instance = config;
         Logger.Debug("Config loaded");

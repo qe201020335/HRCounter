@@ -1,27 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using HRCounter.Data;
 using HRCounter.Utils.Converters;
+using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using IPA.Config.Stores.Converters;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
+using Logger = IPA.Logging.Logger;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 
 namespace HRCounter.Configuration;
 
-internal class PluginConfig
+internal class PluginConfig : INotifyPropertyChanged
 {
     [Obsolete("Try using DI instead.")]
-    public static PluginConfig Instance { get; set; }
+    public static PluginConfig Instance { get; set; } = null!;
+
+    internal static Logger Logger { private get; set; } = null!;
 
     public static PluginConfig DefaultValues { get; } = new();
+
+    private readonly bool _isGenerateStore;
+
+    public PluginConfig()
+    {
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        // BSIPA generated config store has this interface
+        _isGenerateStore = this is IConfigStore;
+        if (_isGenerateStore)
+        {
+            Logger.Trace("Hot Config ctor");
+        }
+    }
 
     #region private backing fields
 
@@ -262,76 +280,62 @@ internal class PluginConfig
         set => _customIcon = value;
     }
 
-    internal event Action? OnSettingsChanged;
-
-    private void RaiseSettingsChanged()
+    protected virtual void Changed()
     {
-        Plugin.Logger.Trace("HRCounter Settings Changed!");
-        Task.Factory.StartNew(() =>
+        Logger.Trace("Changed");
+        // generated config will raise property changed events
+        if (!_isGenerateStore) RaisePropertyChanged(null);
+    }
+
+    [UsedImplicitly]
+    protected virtual void OnReload()
+    {
+        Logger.Trace("OnReload");
+        // generated config will raise property changed events
+        if (!_isGenerateStore) RaisePropertyChanged(null);
+    }
+
+    protected internal virtual void CopyFrom(PluginConfig other)
+    {
+        Logger.Trace("CopyFrom");
+        // generated config has generated copy logic, and will raise property changed events
+        if (!_isGenerateStore) CopyFromInternal(other, true);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    [UsedImplicitly]
+    protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+#if DEBUG
+        Logger.Trace($"Property Changed: {propertyName}");
+#else
+        Logger.Trace("Property Changed");
+#endif
+
+        Task.Run(() =>
         {
             try
             {
-                var e = OnSettingsChanged;
-                e?.Invoke();
+                var e = PropertyChanged;
+                e?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
             catch (Exception e)
             {
-                Plugin.Logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
-                Plugin.Logger.Critical(e);
+                Logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
+                Logger.Critical(e);
             }
         });
     }
 
-    [UsedImplicitly]
-    public virtual void Changed()
-    {
-        RaiseSettingsChanged();
-    }
-
-    [UsedImplicitly]
-    public virtual void OnReload()
-    {
-        RaiseSettingsChanged();
-    }
-
     internal PluginConfig GetColdCopy()
     {
-        return new PluginConfig
-        {
-            _modEnable = _modEnable,
-            _logHR = _logHR,
-            _dataSource = _dataSource,
-            _pulsoidToken = _pulsoidToken,
-            _hypeRateSessionID = _hypeRateSessionID,
-            _pulsoidWidgetID = _pulsoidWidgetID,
-            _fitbitWebSocket = _fitbitWebSocket,
-            _hrProxyID = _hrProxyID,
-            _feedLink = _feedLink,
-            _noBloom = _noBloom,
-            _colorize = _colorize,
-            _hideDuringReplay = _hideDuringReplay,
-            _hrLow = _hrLow,
-            _hrHigh = _hrHigh,
-            _lowColor = _lowColor,
-            _midColor = _midColor,
-            _highColor = _highColor,
-            _pauseHR = _pauseHR,
-            _autoPause = _autoPause,
-            _ignoreCountersPlus = _ignoreCountersPlus,
-            _debugSpam = _debugSpam,
-            _staticCounterPosition = _staticCounterPosition,
-            _enableHttpServer = _enableHttpServer,
-            _enableOscServer = _enableOscServer,
-            _oscBindIp = _oscBindIp,
-            _oscPort = _oscPort,
-            _oscAddress = _oscAddress,
-            _httpLocalOnly = _httpLocalOnly,
-            _httpPort = _httpPort,
-            _customIcon = _customIcon
-        };
+        var copy = new PluginConfig();
+        copy.CopyFromInternal(this, false);
+        return copy;
     }
 
-    internal void CopyFrom(PluginConfig other)
+    private void CopyFromInternal(PluginConfig other, bool notify)
     {
         _modEnable = other._modEnable;
         _logHR = other._logHR;
@@ -363,6 +367,6 @@ internal class PluginConfig
         _httpLocalOnly = other._httpLocalOnly;
         _httpPort = other._httpPort;
         _customIcon = other._customIcon;
-        Changed();
+        if (notify) Changed();
     }
 }

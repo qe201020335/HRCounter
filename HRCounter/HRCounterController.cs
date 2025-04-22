@@ -1,7 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
 using HRCounter.Configuration;
 using HRCounter.Data;
 using HRCounter.Utils;
+using IPA.Utilities.Async;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -71,7 +73,7 @@ internal class HRCounterController : IInitializable, IDisposable
 
         _hrDataManager.OnHRUpdate -= OnHRUpdate;
         _hrDataManager.OnHRUpdate += OnHRUpdate;
-        _config.OnSettingsChanged += OnSettingChange;
+        _config.PropertyChanged += OnSettingChange;
 
         _logger.Info("HRCounter Initialized");
     }
@@ -126,22 +128,12 @@ internal class HRCounterController : IInitializable, IDisposable
         _numbersText.text = bpm.ToString();
     }
 
-    private void OnSettingChange()
+    private void OnSettingChange(object? sender, PropertyChangedEventArgs args)
     {
+        if (args.PropertyName != nameof(PluginConfig.StaticCounterPosition) || _needs360Move) return;
         _logger.Info("Settings changed, updating counter location.");
-        try
-        {
-            if (!_needs360Move)
-            {
-                var location = _config.StaticCounterPosition;
-                _currentCanvas.transform.position = new Vector3(location.x, location.y, location.z);
-            }
-        }
-        catch (Exception exception)
-        {
-            _logger.Warn($"Exception Caught during counter location update");
-            _logger.Warn(exception);
-        }
+
+        UnityMainThreadTaskScheduler.Factory.StartNew(() => { _currentCanvas.transform.position = _config.StaticCounterPosition; });
     }
 
     public void Dispose()
@@ -151,7 +143,7 @@ internal class HRCounterController : IInitializable, IDisposable
             _hrDataManager.OnHRUpdate -= OnHRUpdate;
         }
 
-        _config.OnSettingsChanged -= OnSettingChange;
+        _config.PropertyChanged -= OnSettingChange;
 
         if (_currentCanvas != null)
         {

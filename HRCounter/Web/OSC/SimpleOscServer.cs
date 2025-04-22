@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -53,13 +54,21 @@ internal class SimpleOscServer : IInitializable, IDisposable
     public void Initialize()
     {
         UpdateListener();
-        _config.OnSettingsChanged += UpdateListener;
+        _config.PropertyChanged += OnConfigChanged;
     }
 
     public void Dispose()
     {
-        _config.OnSettingsChanged -= UpdateListener;
+        _config.PropertyChanged -= OnConfigChanged;
         StopAndDisposeListener();
+    }
+
+    private void OnConfigChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(PluginConfig.EnableOscServer))
+        {
+            UpdateListener();
+        }
     }
 
     private void UpdateListener()

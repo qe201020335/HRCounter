@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using HRCounter.Configuration;
@@ -38,7 +39,7 @@ internal class SettingController : MonoBehaviour
 
     private void OnEnable()
     {
-        _config.OnSettingsChanged += SettingsChangedHandler;
+        _config.PropertyChanged += SettingsChangedHandler;
         _logger.Trace("SettingController OnEnable");
         if (_parsed)
         {
@@ -48,7 +49,7 @@ internal class SettingController : MonoBehaviour
 
     private void OnDisable()
     {
-        _config.OnSettingsChanged -= SettingsChangedHandler;
+        _config.PropertyChanged -= SettingsChangedHandler;
         _logger.Trace("SettingController OnDisable");
     }
 
@@ -60,7 +61,7 @@ internal class SettingController : MonoBehaviour
         UpdateText();
     }
 
-    private void SettingsChangedHandler()
+    private void SettingsChangedHandler(object? sender, PropertyChangedEventArgs args)
     {
         if (_parsed && _previousDataSource != _config.DataSource)
         {
