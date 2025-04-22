@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using HRCounter.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
@@ -156,7 +157,7 @@ internal abstract class HRProxyBase : DataSource
             return;
         }
 
-        Plugin.DebugSpam(e.Data);
+        Logger.Logger!.Spam(e.Data);
 
         try
         {

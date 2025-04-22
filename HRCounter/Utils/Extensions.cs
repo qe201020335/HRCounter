@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
+using HRCounter.Configuration;
+using IPA.Logging;
 
 namespace HRCounter.Utils;
 
@@ -17,5 +20,14 @@ public static class Extensions
         using var stream = file.OpenRead();
         await stream.CopyToAsync(ms);
         return ms.ToArray();
+    }
+
+    [Conditional("DEBUG")]
+    internal static void Spam(this Logger logger, string s)
+    {
+        if (PluginConfig.Instance.DebugSpam)
+        {
+            logger.Trace(s);
+        }
     }
 }

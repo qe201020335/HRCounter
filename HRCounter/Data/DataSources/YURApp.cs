@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using HRCounter.Utils;
 using Newtonsoft.Json.Linq;
 
 namespace HRCounter.Data.DataSources;
@@ -96,7 +97,7 @@ internal sealed class YURApp : DataSource
                 if (type[0] == 1)
                 {
                     // ping message
-                    Plugin.DebugSpam("Ping!");
+                    Logger.Logger!.Spam("Ping!");
                     await Pong();
                 }
                 else if (type[0] == 20)
@@ -170,7 +171,7 @@ internal sealed class YURApp : DataSource
 
     private void HandleData(string data)
     {
-        Plugin.DebugSpam(data);
+        Logger.Logger!.Spam(data);
 
         try
         {
@@ -187,7 +188,7 @@ internal sealed class YURApp : DataSource
 
             var osu = JObject.Parse(json["jsonData"]?.ToString());
 
-            Plugin.DebugSpam(osu.ToString());
+            Logger.Logger!.Spam(osu.ToString());
 
             var hrToken = osu["status"]?["heartRate"]?.Type != JTokenType.Null
                 ? osu["status"]?["heartRate"]
@@ -209,7 +210,7 @@ internal sealed class YURApp : DataSource
 
     private async Task Pong()
     {
-        Plugin.DebugSpam("Pong!");
+        Logger.Logger!.Spam("Pong!");
         await SendMessage(2, null);
     }
 

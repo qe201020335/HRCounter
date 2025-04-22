@@ -5,6 +5,7 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using HRCounter.Data;
+using HRCounter.Utils;
 using HRCounter.Utils.Converters;
 using IPA.Config;
 using IPA.Config.Stores;
@@ -307,12 +308,7 @@ internal class PluginConfig : INotifyPropertyChanged
     [UsedImplicitly]
     protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
     {
-#if DEBUG
-        Logger.Trace($"Property Changed: {propertyName}");
-#else
-        Logger.Trace("Property Changed");
-#endif
-
+        Logger.Spam($"Property Changed: {propertyName}");
         Task.Run(() =>
         {
             try

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using HRCounter.Configuration;
 using HRCounter.Installers;
 using IPA;
@@ -56,14 +55,5 @@ public class Plugin
         BSMLMeta = Utils.Utils.FindEnabledPluginMetadata(BSMLId);
         ScoreSaberMeta = Utils.Utils.FindEnabledPluginMetadata(ScoreSaberId);
         BeatLeaderMeta = Utils.Utils.FindEnabledPluginMetadata(BeatLeaderId);
-    }
-
-    [Conditional("DEBUG")]
-    internal static void DebugSpam(string s)
-    {
-        if (PluginConfig.Instance.DebugSpam)
-        {
-            Logger.Trace(s);
-        }
     }
 }
