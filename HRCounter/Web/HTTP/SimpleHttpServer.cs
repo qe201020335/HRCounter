@@ -98,7 +98,7 @@ internal class SimpleHttpServer : IInitializable, IDisposable
         {
             _listener.Start();
             IsListening = true;
-            Task.Run(GetAndProcessRequestsAsync);
+            Task.Run(GetAndProcessRequests);
             InvokeStatusChanged();
         }
         catch (SocketException e)
@@ -150,21 +150,40 @@ internal class SimpleHttpServer : IInitializable, IDisposable
         });
     }
 
-    private async Task GetAndProcessRequestsAsync()
+    private void GetAndProcessRequests()
     {
         while (_listener.IsListening)
         {
-            var context = await _listener.GetContextAsync();
-
             try
             {
+                var context = _listener.GetContext();
                 _ = Task.Run(() => ProcessRequestAsync(context));
+            }
+            catch (ObjectDisposedException)
+            {
+                _logger.Trace("HTTP Listener was disposed.");
+                return;
+            }
+            catch (HttpListenerException e) when (e.ErrorCode == 500)
+            {
+                // Mono's HttpListener created this exception,
+                // the error code IS NOT a Win32 error code.
+                _logger.Trace("HTTP Listener was stopped.");
+                return;
+            }
+            catch (HttpListenerException e)
+            {
+                _logger.Error("HttpListenerException while trying to get context: " + e.Message);
+                _logger.Error(e);
+                StopListener(e.Message);
+                return;
             }
             catch (Exception e)
             {
-                _logger.Critical("Exception while creating a new task for async request handling");
+                _logger.Critical("Failed to receive and process a request. Stopping the http listener.");
                 _logger.Critical(e);
-                await context.InternalServerErrorAsync(e);
+                StopListener(e.Message);
+                return;
             }
         }
     }
@@ -215,7 +234,15 @@ internal class SimpleHttpServer : IInitializable, IDisposable
         {
             _logger.Critical("Exception while handling request");
             _logger.Critical(e);
-            await context.InternalServerErrorAsync(e);
+            try
+            {
+                await context.InternalServerErrorAsync(e);
+            }
+            catch (Exception)
+            {
+                // The context might be already closed
+                context.Response.Close();
+            }
         }
     }
 
