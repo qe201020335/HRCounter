@@ -144,7 +144,7 @@ internal class SimpleHttpServer : IInitializable, IDisposable
             }
             catch (Exception e)
             {
-                _logger.Error("Failed to invoke OSC server status changed event.");
+                _logger.Error("Failed to invoke HTTP server status changed event.");
                 _logger.Error(e);
             }
         });
