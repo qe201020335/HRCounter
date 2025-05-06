@@ -25,7 +25,7 @@ public static class Extensions
     [Conditional("DEBUG")]
     internal static void Spam(this Logger logger, string s)
     {
-        if (PluginConfig.Instance.DebugSpam)
+        if (PluginConfig.Initialized && PluginConfig.Instance.DebugSpam)
         {
             logger.Trace(s);
         }

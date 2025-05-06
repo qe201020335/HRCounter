@@ -14,7 +14,8 @@ using IPA.Config.Stores.Converters;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
-using Logger = IPA.Logging.Logger;
+using IPALogger = IPA.Logging.Logger;
+using IPAConfig = IPA.Config.Config;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 
@@ -22,12 +23,25 @@ namespace HRCounter.Configuration;
 
 internal class PluginConfig : INotifyPropertyChanged
 {
-    [Obsolete("Try using DI instead.")]
-    public static PluginConfig Instance { get; set; } = null!;
+    private static PluginConfig? _instance;
 
-    internal static Logger Logger { private get; set; } = null!;
+    [Obsolete("Try using DI instead.")]
+    public static PluginConfig Instance => _instance!;
+
+    public static bool Initialized => _instance != null;
+
+    private static IPALogger _logger = null!;
 
     public static PluginConfig DefaultValues { get; } = new();
+
+    public static PluginConfig Initialize(IPALogger logger, IPAConfig conf)
+    {
+        if (_instance != null) return _instance;
+        _logger = logger;
+        _instance = conf.Generated<PluginConfig>();
+        _logger.Debug("Config loaded");
+        return _instance;
+    }
 
     private readonly bool _isGenerateStore;
 
@@ -38,7 +52,7 @@ internal class PluginConfig : INotifyPropertyChanged
         _isGenerateStore = this is IConfigStore;
         if (_isGenerateStore)
         {
-            Logger.Trace("Hot Config ctor");
+            _logger.Trace("Hot Config ctor");
         }
     }
 
@@ -283,7 +297,7 @@ internal class PluginConfig : INotifyPropertyChanged
 
     protected virtual void Changed()
     {
-        Logger.Trace("Changed");
+        _logger.Trace("Changed");
         // generated config will raise property changed events
         if (!_isGenerateStore) RaisePropertyChanged(null);
     }
@@ -291,14 +305,14 @@ internal class PluginConfig : INotifyPropertyChanged
     [UsedImplicitly]
     protected virtual void OnReload()
     {
-        Logger.Trace("OnReload");
+        _logger.Trace("OnReload");
         // generated config will raise property changed events
         if (!_isGenerateStore) RaisePropertyChanged(null);
     }
 
     protected internal virtual void CopyFrom(PluginConfig other)
     {
-        Logger.Trace("CopyFrom");
+        _logger.Trace("CopyFrom");
         // generated config has generated copy logic, and will raise property changed events
         if (!_isGenerateStore) CopyFromInternal(other, true);
     }
@@ -308,7 +322,7 @@ internal class PluginConfig : INotifyPropertyChanged
     [UsedImplicitly]
     protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
     {
-        Logger.Spam($"Property Changed: {propertyName}");
+        _logger.Spam($"Property Changed: {propertyName}");
         Task.Run(() =>
         {
             try
@@ -318,8 +332,8 @@ internal class PluginConfig : INotifyPropertyChanged
             }
             catch (Exception e)
             {
-                Logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
-                Logger.Critical(e);
+                _logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
+                _logger.Critical(e);
             }
         });
     }
