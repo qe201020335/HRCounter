@@ -14,7 +14,7 @@ namespace HRCounter.Utils;
 
 public static class RenderUtils
 {
-    private static Lazy<Material> _uiNoGlow = new(() => Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(x => x.name == "UINoGlow"));
+    private static Lazy<Material> _uiNoGlow = new(() => Resources.FindObjectsOfTypeAll<Material>().First(x => x.name == "UINoGlow"));
 
     private static Lazy<Shader> _textNoGlow = new(() =>
         Resources.FindObjectsOfTypeAll<Shader>().First(x => x.name.Contains("TextMeshPro/Mobile/Distance Field Zero Alpha Write")));

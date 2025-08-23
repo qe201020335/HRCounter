@@ -23,7 +23,7 @@ internal class AssetBundleManager : IInitializable, IDisposable
 
     [Inject]
     private readonly IconManager _iconManager = null!;
-    
+
     internal Sprite? DefaultIconSprite { get; private set; }
 
     public void Initialize()
@@ -89,7 +89,9 @@ internal class AssetBundleManager : IInitializable, IDisposable
             iconImage.sprite = sprite;
         }
 
+        numbers.font.material = numbers.fontMaterial;
         numbers.fontMaterial.shader = _config.NoBloom ? RenderUtils.TextNoGlow : RenderUtils.TextGlow;
+        _logger.Debug($"Using font shader: {numbers.fontMaterial.shader.name}");
 
         return new CustomCounter
         {
