@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using IPA.Utilities.Async;
 using UnityEngine;
 
 namespace HRCounter.Data.DataSources.DebugSource;
@@ -10,7 +11,7 @@ internal class RandomHR : DataSource
     protected override void Start()
     {
         _updating = true;
-        Task.Factory.StartNew(async () =>
+        UnityMainThreadTaskScheduler.Factory.StartNew(async () =>
         {
             while (_updating)
             {
