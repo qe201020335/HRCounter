@@ -1,4 +1,5 @@
 ﻿using System;
+using HRCounter.Configuration;
 using IPA.Utilities.Async;
 using SiraUtil.Logging;
 using Zenject;
@@ -9,6 +10,9 @@ public class HRDataManager : IInitializable, IDisposable
 {
     [Inject]
     private readonly SiraLog _logger = null!;
+
+    [Inject]
+    private readonly PluginConfig _config = null!;
 
     [InjectOptional]
     private IHRDataSource? _dataSource;
@@ -41,6 +45,8 @@ public class HRDataManager : IInitializable, IDisposable
     private void OnHrDataReceivedInternalHandler(object sender, HRDataReceivedEventArgs args)
     {
         BPM.Set(args.HR, args.ReceivedAt);
+
+        if (_config.LogHR) _logger.Info($"Received HR: {args.HR} at {args.ReceivedAt}");
 
         UnityMainThreadTaskScheduler.Factory.StartNew(() =>
         {
