@@ -1,4 +1,6 @@
-﻿using HRCounter.Configuration;
+﻿using System.Collections.Generic;
+using HRCounter.Configuration;
+using HRCounter.Utils;
 using HRCounter.Web.HTTP;
 using HRCounter.Web.HTTP.Handlers;
 using HRCounter.Web.OSC;
@@ -14,6 +16,8 @@ public class AppInstaller : Installer<AppInstaller>
     private readonly PluginConfig _config;
     private readonly Logger _logger;
     private readonly PluginMetadata _pluginMetadata;
+
+    private readonly Dictionary<string, Logger> _loggers = new();
 
     private AppInstaller(PluginConfig config, Logger logger, PluginMetadata pluginMetadata)
     {
@@ -41,7 +45,17 @@ public class AppInstaller : Installer<AppInstaller>
 
     private Logger CreateChildLogger(InjectContext context)
     {
-        return _logger.GetChildLogger(context.ObjectType.Name);
+        var name = context.ObjectType.Name;
+        if (_loggers.TryGetValue(name, out var logger))
+        {
+            _logger.Spam($"Using cached child logger for {name}");
+            return logger;
+        }
+
+        _logger.Spam($"Creating child logger for {name}");
+        logger = _logger.GetChildLogger(name);
+        _loggers[name] = logger;
+        return logger;
     }
 
     private bool ShouldBindLogger(InjectContext context)

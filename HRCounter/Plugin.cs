@@ -31,7 +31,6 @@ public class Plugin
         Logger = logger;
         var config = PluginConfig.Initialize(logger.GetChildLogger(nameof(PluginConfig)), conf);
 
-        zenject.UseLogger(logger);
         zenject.UseMetadataBinder<Plugin>();
 
         zenject.Install<AppInstaller>(Location.App, config, logger, metadata);

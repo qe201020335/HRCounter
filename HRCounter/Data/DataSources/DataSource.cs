@@ -1,7 +1,7 @@
 ﻿using System;
 using HRCounter.Configuration;
+using IPA.Logging;
 using IPA.Utilities.Async;
-using SiraUtil.Logging;
 using Zenject;
 
 namespace HRCounter.Data.DataSources;
@@ -12,7 +12,7 @@ internal abstract class DataSource : IHRDataSource, IInitializable, IDisposable
     protected readonly PluginConfig Config = null!;
 
     [Inject]
-    protected readonly SiraLog Logger = null!;
+    protected readonly Logger Logger = null!;
 
     public event EventHandler<HRDataReceivedEventArgs>? OnHRDataReceived;
 

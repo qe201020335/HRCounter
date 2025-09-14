@@ -5,10 +5,10 @@ using HMUI;
 using HRCounter.Configuration;
 using HRCounter.Data;
 using IPA.Utilities.Async;
-using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
 using Zenject;
+using IPALogger = IPA.Logging.Logger;
 
 namespace HRCounter.UI.CountersPlus;
 
@@ -17,7 +17,7 @@ internal class SettingController : MonoBehaviour
 {
     private PluginConfig _config = null!;
 
-    private SiraLog _logger = null!;
+    private IPALogger _logger = null!;
 
     [UIComponent("data-source-text")]
     private TMP_Text _dataSourceText = null!;
@@ -30,7 +30,7 @@ internal class SettingController : MonoBehaviour
     private string _previousDataSource = "";
 
     [Inject]
-    private void Init(PluginConfig config, SiraLog logger)
+    private void Init(PluginConfig config, IPALogger logger)
     {
         _config = config;
         _logger = logger;

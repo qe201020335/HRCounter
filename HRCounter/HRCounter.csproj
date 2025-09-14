@@ -154,6 +154,7 @@
     <ItemGroup>
         <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')"/>
         <None Include="HRCounter.csproj.user" Condition="Exists('HRCounter.csproj.user')"/>
+        <None Include="$(BeatSaberDir)\Logs\_latest.log" Condition="Exists('$(BeatSaberDir)\Logs\_latest.log')"/>
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="BeatSaberModdingTools.Tasks">

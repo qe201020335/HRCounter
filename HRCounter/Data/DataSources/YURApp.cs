@@ -97,7 +97,7 @@ internal sealed class YURApp : DataSource
                 if (type[0] == 1)
                 {
                     // ping message
-                    Logger.Logger!.Spam("Ping!");
+                    Logger.Spam("Ping!");
                     await Pong();
                 }
                 else if (type[0] == 20)
@@ -171,7 +171,7 @@ internal sealed class YURApp : DataSource
 
     private void HandleData(string data)
     {
-        Logger.Logger!.Spam(data);
+        Logger.Spam(data);
 
         try
         {
@@ -188,7 +188,7 @@ internal sealed class YURApp : DataSource
 
             var osu = JObject.Parse(json["jsonData"]?.ToString());
 
-            Logger.Logger!.Spam(osu.ToString());
+            Logger.Spam(osu.ToString());
 
             var hrToken = osu["status"]?["heartRate"]?.Type != JTokenType.Null
                 ? osu["status"]?["heartRate"]
@@ -210,7 +210,7 @@ internal sealed class YURApp : DataSource
 
     private async Task Pong()
     {
-        Logger.Logger!.Spam("Pong!");
+        Logger.Spam("Pong!");
         await SendMessage(2, null);
     }
 

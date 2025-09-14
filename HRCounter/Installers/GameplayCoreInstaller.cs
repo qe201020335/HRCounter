@@ -1,5 +1,5 @@
 ﻿using HRCounter.Configuration;
-using SiraUtil.Logging;
+using IPA.Logging;
 using Zenject;
 
 namespace HRCounter.Installers;
@@ -10,7 +10,7 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
     private readonly PluginConfig _config = null!;
 
     [Inject]
-    private readonly SiraLog _logger = null!;
+    private readonly Logger _logger = null!;
 
     [InjectOptional]
     private readonly GameplayCoreSceneSetupData? _sceneSetupData = null;

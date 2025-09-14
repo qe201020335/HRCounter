@@ -1,7 +1,7 @@
 ﻿using System;
 using HRCounter.Configuration;
+using IPA.Logging;
 using IPA.Utilities.Async;
-using SiraUtil.Logging;
 using Zenject;
 
 namespace HRCounter.Data;
@@ -9,7 +9,7 @@ namespace HRCounter.Data;
 public class HRDataManager : IInitializable, IDisposable
 {
     [Inject]
-    private readonly SiraLog _logger = null!;
+    private readonly Logger _logger = null!;
 
     [Inject]
     private readonly PluginConfig _config = null!;

@@ -7,8 +7,8 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Web.OSC.Handlers;
+using IPA.Logging;
 using IPA.Utilities.Async;
-using SiraUtil.Logging;
 using Zenject;
 
 namespace HRCounter.Web.OSC;
@@ -16,7 +16,7 @@ namespace HRCounter.Web.OSC;
 internal class SimpleOscServer : IInitializable, IDisposable
 {
     private readonly PluginConfig _config;
-    private readonly SiraLog _logger;
+    private readonly Logger _logger;
     private readonly object _listenerLock = new();
     private readonly IReadOnlyDictionary<string, IOSCMessageHandler> _handlers;
 
@@ -30,7 +30,7 @@ internal class SimpleOscServer : IInitializable, IDisposable
     internal IPEndPoint? EndPoint => _endPoint;
     public string? ErrorMessage { get; private set; }
 
-    public SimpleOscServer(PluginConfig config, SiraLog logger, IOSCMessageHandler[] handlers)
+    public SimpleOscServer(PluginConfig config, Logger logger, IOSCMessageHandler[] handlers)
     {
         _config = config;
         _logger = logger;

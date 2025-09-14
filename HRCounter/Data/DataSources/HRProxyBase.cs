@@ -157,7 +157,7 @@ internal abstract class HRProxyBase : DataSource
             return;
         }
 
-        Logger.Logger!.Spam(e.Data);
+        Logger.Spam(e.Data);
 
         try
         {

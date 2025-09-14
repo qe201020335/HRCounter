@@ -1,8 +1,8 @@
 ﻿using HRCounter.Configuration;
 using HRCounter.Data;
-using SiraUtil.Logging;
 using UnityEngine;
 using Zenject;
+using IPALogger = IPA.Logging.Logger;
 
 namespace HRCounter.Installers;
 
@@ -12,7 +12,7 @@ public class GameplayHearRateInstaller : Installer<GameplayHearRateInstaller>
     private readonly PluginConfig _config = null!;
 
     [Inject]
-    private readonly SiraLog _logger = null!;
+    private readonly IPALogger _logger = null!;
 
     public override void InstallBindings()
     {

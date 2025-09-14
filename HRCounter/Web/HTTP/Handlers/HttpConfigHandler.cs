@@ -4,9 +4,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
+using IPA.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SiraUtil.Logging;
 using Zenject;
 
 namespace HRCounter.Web.HTTP.Handlers;
@@ -14,10 +14,10 @@ namespace HRCounter.Web.HTTP.Handlers;
 internal class HttpConfigHandler : IHttpRouteHandler
 {
     [Inject]
-    private readonly PluginConfig _config;
+    private readonly PluginConfig _config = null!;
 
     [Inject]
-    private readonly SiraLog _logger;
+    private readonly Logger _logger = null!;
 
     private readonly JsonSerializer _serializer = new();
 
