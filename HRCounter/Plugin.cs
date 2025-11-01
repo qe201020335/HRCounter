@@ -9,6 +9,7 @@ using IPALogger = IPA.Logging.Logger;
 namespace HRCounter;
 
 [Plugin(RuntimeOptions.SingleStartInit)]
+[NoEnableDisable]
 public class Plugin
 {
     internal static Plugin Instance { get; private set; } = null!;
@@ -16,9 +17,9 @@ public class Plugin
 
     // private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
 
-    internal static PluginMetadata? BSMLMeta { get; private set; } = null;
-    internal static PluginMetadata? ScoreSaberMeta { get; private set; } = null;
-    internal static PluginMetadata? BeatLeaderMeta { get; private set; } = null;
+    internal PluginMetadata? BSMLMeta { get; }
+    internal PluginMetadata? ScoreSaberMeta { get; }
+    internal PluginMetadata? BeatLeaderMeta { get; }
 
     private const string BSMLId = "BeatSaberMarkupLanguage";
     private const string ScoreSaberId = "ScoreSaber";
@@ -30,6 +31,10 @@ public class Plugin
         Instance = this;
         Logger = logger;
         var config = PluginConfig.Initialize(logger.GetChildLogger(nameof(PluginConfig)), conf);
+
+        BSMLMeta = Utils.Utils.FindEnabledPluginMetadata(BSMLId);
+        ScoreSaberMeta = Utils.Utils.FindEnabledPluginMetadata(ScoreSaberId);
+        BeatLeaderMeta = Utils.Utils.FindEnabledPluginMetadata(BeatLeaderId);
 
         zenject.UseMetadataBinder<Plugin>();
 
@@ -43,13 +48,5 @@ public class Plugin
         zenject.Expose<FlyingGameHUDRotation>("Environment");
 
         Logger.Info("HRCounter initialized.");
-    }
-
-    [OnStart]
-    public void OnEnable()
-    {
-        BSMLMeta = Utils.Utils.FindEnabledPluginMetadata(BSMLId);
-        ScoreSaberMeta = Utils.Utils.FindEnabledPluginMetadata(ScoreSaberId);
-        BeatLeaderMeta = Utils.Utils.FindEnabledPluginMetadata(BeatLeaderId);
     }
 }

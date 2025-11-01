@@ -11,7 +11,7 @@ public static class Utils
 
     private static readonly Lazy<MethodBase?> ScoreSaber_playbackEnabled = new(() =>
     {
-        var meta = Plugin.ScoreSaberMeta;
+        var meta = Plugin.Instance.ScoreSaberMeta;
         if (meta == null)
         {
             Plugin.Logger.Info("ScoreSaber is not installed or disabled");
@@ -32,7 +32,7 @@ public static class Utils
 
     private static readonly Lazy<MethodBase?> GetBeatLeaderIsStartedAsReplay = new(() =>
     {
-        var meta = Plugin.BeatLeaderMeta;
+        var meta = Plugin.Instance.BeatLeaderMeta;
         if (meta == null)
         {
             Plugin.Logger.Info("BeatLeader is not installed or disabled");
@@ -62,10 +62,7 @@ public static class Utils
 
     #endregion
 
-    internal static bool IsModEnabled(string id)
-    {
-        return FindEnabledPluginMetadata(id) != null;
-    }
+    internal static bool IsModEnabled(string id) => FindEnabledPluginMetadata(id) != null;
 
     internal static PluginMetadata? FindEnabledPluginMetadata(string id)
     {

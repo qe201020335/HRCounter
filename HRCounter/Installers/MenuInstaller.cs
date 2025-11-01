@@ -10,7 +10,7 @@ public class MenuInstaller : Installer<MenuInstaller>
 
     public override void InstallBindings()
     {
-        if (Plugin.BSMLMeta != null)
+        if (Plugin.Instance.BSMLMeta != null)
         {
             _logger.Debug("BSML is installed, installing the menus");
             Container.Install<BSMLInstaller>();

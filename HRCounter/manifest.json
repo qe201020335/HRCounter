@@ -8,12 +8,14 @@
     "description": "A custom counter mod that displays your heart rate in game.",
     "gameVersion": "1.39.1",
     "dependsOn": {
-        "BSIPA": "^4.2.0",
+        "BSIPA": "^4.3.6",
         "SiraUtil": "^3.0.0"
     },
     "loadAfter": [
         "Counters+",
-        "BeatSaberMarkupLanguage"
+        "BeatLeader",
+        "BeatSaberMarkupLanguage",
+        "ScoreSaber"
     ],
     "features": {
         "CountersPlus.CustomCounter": {
