@@ -51,14 +51,13 @@ public static class Utils
         return method;
     });
 
-    internal static bool IsInReplay()
-    {
-        var ssReplay = ScoreSaber_playbackEnabled.Value != null && (bool)ScoreSaber_playbackEnabled.Value.Invoke(null, null) == false;
+    internal static bool IsInSSReplay() =>
+        ScoreSaber_playbackEnabled.Value != null && (bool)ScoreSaber_playbackEnabled.Value.Invoke(null, null) == false;
 
-        var blReplay = GetBeatLeaderIsStartedAsReplay.Value != null && (bool)GetBeatLeaderIsStartedAsReplay.Value.Invoke(null, null);
+    internal static bool IsInBLReplay() =>
+        GetBeatLeaderIsStartedAsReplay.Value != null && (bool)GetBeatLeaderIsStartedAsReplay.Value.Invoke(null, null);
 
-        return ssReplay || blReplay;
-    }
+    internal static bool IsInReplay() => IsInSSReplay() || IsInBLReplay();
 
     #endregion
 

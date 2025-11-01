@@ -1,4 +1,7 @@
-﻿using HRCounter.Configuration;
+﻿using BeatLeader.Replayer;
+using HRCounter.Configuration;
+using HRCounter.Data;
+using HRCounter.Data.Replay;
 using IPA.Logging;
 using Zenject;
 
@@ -40,9 +43,35 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
         }
         else
         {
+            ReplayHRData? data;
+            if (Utils.Utils.IsInBLReplay() && (data = GetBeatleaderReplayHRData()) != null)
+            {
+                _logger.Debug("Binding replay HR provider");
+                Container.BindInstance(data).WhenInjectedInto<ReplayHRProvider>();
+                Container.BindInterfacesAndSelfTo<ReplayHRProvider>().AsSingle();
+            }
+            else
+            {
+                _logger.Debug("Binding live HR provider");
+                Container.BindInterfacesAndSelfTo<LiveHRProvider>().AsSingle();
+            }
+
             _logger.Debug("Binding HR Counter");
             Container.BindInterfacesTo<HRCounterController>().AsSingle().NonLazy();
             _logger.Debug("HR Counter binded");
         }
+    }
+
+    private ReplayHRData? GetBeatleaderReplayHRData()
+    {
+        var rawData = ReplayerLauncher.GetMainReplayCustomData(ReplayHRDataConverter.DataKey);
+        if (rawData == null)
+        {
+            _logger.Debug("No HR data in BeatLeader replay");
+            return null;
+        }
+
+        _logger.Info("Loading HR data from BeatLeader replay");
+        return ReplayHRDataConverter.Decode(rawData);
     }
 }

@@ -29,8 +29,8 @@ internal class HRCounterController : IInitializable, IDisposable
     [Inject]
     private readonly IPALogger _logger = null!;
 
-    [InjectOptional]
-    private readonly HRDataManager? _hrDataManager;
+    [Inject]
+    private readonly IInGameHRProvider _hrProvider = null!;
 
     private bool _needs360Move;
 
@@ -50,15 +50,9 @@ internal class HRCounterController : IInitializable, IDisposable
             return;
         }
 
-        if (_config.HideDuringReplay && Utils.Utils.IsInReplay())
+        if (!_hrProvider.IsReplayData && _config.HideDuringReplay && Utils.Utils.IsInReplay())
         {
-            _logger.Info("We are in a replay, HRCounter hides.");
-            return;
-        }
-
-        if (_hrDataManager == null)
-        {
-            _logger.Warn("HRDataManager is null");
+            _logger.Info("We are in a replay without hr data, HRCounter hides.");
             return;
         }
 
@@ -71,8 +65,8 @@ internal class HRCounterController : IInitializable, IDisposable
             return;
         }
 
-        _hrDataManager.OnHRUpdate -= OnHRUpdate;
-        _hrDataManager.OnHRUpdate += OnHRUpdate;
+        _hrProvider.HRChanged -= OnHRUpdate;
+        _hrProvider.HRChanged += OnHRUpdate;
         _config.PropertyChanged += OnSettingChange;
 
         _logger.Info("HRCounter Initialized");
@@ -94,7 +88,7 @@ internal class HRCounterController : IInitializable, IDisposable
 
         _currentCanvas.transform.localScale = Vector3.one / 150;
 
-        OnHRUpdate(BPM.Bpm); // give it an initial value
+        OnHRUpdate(_hrProvider.GetCurrentHR()); // give it an initial value
 
         if (!_needs360Move)
         {
@@ -138,11 +132,7 @@ internal class HRCounterController : IInitializable, IDisposable
 
     public void Dispose()
     {
-        if (_hrDataManager != null)
-        {
-            _hrDataManager.OnHRUpdate -= OnHRUpdate;
-        }
-
+        _hrProvider.HRChanged -= OnHRUpdate;
         _config.PropertyChanged -= OnSettingChange;
 
         if (_currentCanvas != null)

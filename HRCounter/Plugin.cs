@@ -30,7 +30,7 @@ public class Plugin
     {
         Instance = this;
         Logger = logger;
-        var config = PluginConfig.Initialize(logger.GetChildLogger(nameof(PluginConfig)), conf);
+        var config = PluginConfig.Initialize(GetChildLogger(nameof(PluginConfig)), conf);
 
         BSMLMeta = Utils.Utils.FindEnabledPluginMetadata(BSMLId);
         ScoreSaberMeta = Utils.Utils.FindEnabledPluginMetadata(ScoreSaberId);
@@ -49,4 +49,6 @@ public class Plugin
 
         Logger.Info("HRCounter initialized.");
     }
+
+    internal static IPALogger GetChildLogger(string name) => Logger.GetChildLogger(name);
 }

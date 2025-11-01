@@ -21,8 +21,8 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
     [Inject]
     private readonly IPALogger _logger = null!;
 
-    [InjectOptional]
-    private readonly HRDataManager? _hrDataManager;
+    [Inject]
+    private readonly IInGameHRProvider _hrProvider;
 
     private TMP_Text? _counter;
 
@@ -36,15 +36,9 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
             return;
         }
 
-        if (_config.HideDuringReplay && Utils.Utils.IsInReplay())
+        if (!_hrProvider.IsReplayData && _config.HideDuringReplay && Utils.Utils.IsInReplay())
         {
-            _logger.Info("We are in a replay, Counter hides.");
-            return;
-        }
-
-        if (_hrDataManager == null)
-        {
-            _logger.Warn("HRDataManager is null");
+            _logger.Info("We are in a replay without hr data, HRCounter hides.");
             return;
         }
 
@@ -54,7 +48,7 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
             return;
         }
 
-        _hrDataManager.OnHRUpdate += OnHRUpdate;
+        _hrProvider.HRChanged += OnHRUpdate;
         _logger.Info("Start updating counter text");
     }
 
@@ -88,7 +82,7 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
         _customCounter.transform.SetParent(canvas.transform, false);
         _customCounter.GetComponent<RectTransform>().anchoredPosition = _counter.rectTransform.anchoredPosition;
         _customCounter.transform.localPosition -= new Vector3(2, 0, 0); // recenter
-        OnHRUpdate(BPM.Bpm); // give it an initial value
+        OnHRUpdate(_hrProvider.GetCurrentHR()); // give it an initial value
         _customCounter.SetActive(true);
 
         if (counter.Counter != null)
@@ -108,10 +102,7 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
 
     public override void CounterDestroy()
     {
-        if (_hrDataManager != null)
-        {
-            _hrDataManager.OnHRUpdate -= OnHRUpdate;
-        }
+        _hrProvider.HRChanged -= OnHRUpdate;
 
         _counter = null;
         if (_customCounter != null)
