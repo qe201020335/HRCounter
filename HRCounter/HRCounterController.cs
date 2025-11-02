@@ -88,7 +88,7 @@ internal class HRCounterController : IInitializable, IDisposable
 
         _currentCanvas.transform.localScale = Vector3.one / 150;
 
-        OnHRUpdate(_hrProvider.GetCurrentHR()); // give it an initial value
+        OnHRUpdate(_hrProvider.CurrentHR); // give it an initial value
 
         if (!_needs360Move)
         {

@@ -17,6 +17,9 @@ public class HRDataManager : IInitializable, IDisposable
     [InjectOptional]
     private IHRDataSource? _dataSource;
 
+    /// <summary>
+    ///     Always invoked on the main thread when new HR data is received.
+    /// </summary>
     public event Action<int>? OnHRUpdate;
 
     public int CurrentBpm => BPM.Bpm;

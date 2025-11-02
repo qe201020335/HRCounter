@@ -2,9 +2,9 @@
 
 namespace HRCounter.Data;
 
-public interface IInGameHRProvider
+internal interface IInGameHRProvider
 {
     bool IsReplayData { get; }
-    event Action<int> HRChanged;
-    int GetCurrentHR();
+    event Action<int>? HRChanged;
+    int CurrentHR { get; }
 }

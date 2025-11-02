@@ -82,7 +82,7 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
         _customCounter.transform.SetParent(canvas.transform, false);
         _customCounter.GetComponent<RectTransform>().anchoredPosition = _counter.rectTransform.anchoredPosition;
         _customCounter.transform.localPosition -= new Vector3(2, 0, 0); // recenter
-        OnHRUpdate(_hrProvider.GetCurrentHR()); // give it an initial value
+        OnHRUpdate(_hrProvider.CurrentHR); // give it an initial value
         _customCounter.SetActive(true);
 
         if (counter.Counter != null)
