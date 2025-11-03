@@ -7,6 +7,8 @@ public class FrameRateHR : MonoBehaviour, IHRDataSource
 {
     public event EventHandler<HRDataReceivedEventArgs>? OnHRDataReceived;
 
+    public bool AllowReplayRecording => false;
+
     private readonly float _sampleInterval = .5f;
 
     private void Update()

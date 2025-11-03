@@ -1,4 +1,5 @@
-﻿using BeatLeader.Replayer;
+﻿using System;
+using BeatLeader.Replayer;
 using HRCounter.Configuration;
 using HRCounter.Data;
 using HRCounter.Data.Replay;
@@ -72,6 +73,15 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
         }
 
         _logger.Info("Loading HR data from BeatLeader replay");
-        return ReplayHRDataConverter.Decode(rawData);
+        try
+        {
+            return ReplayHRDataConverter.Decode(rawData);
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Failed to load HR data from BeatLeader replay");
+            _logger.Error(e);
+            return null;
+        }
     }
 }

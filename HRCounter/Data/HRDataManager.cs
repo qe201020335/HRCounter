@@ -24,6 +24,8 @@ public class HRDataManager : IInitializable, IDisposable
 
     public int CurrentBpm => BPM.Bpm;
 
+    internal bool AllowReplayRecording => _dataSource?.AllowReplayRecording ?? false;
+
     public void Initialize()
     {
         _logger.Debug("HRDataManager Init");

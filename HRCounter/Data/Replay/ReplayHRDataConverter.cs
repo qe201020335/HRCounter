@@ -25,6 +25,7 @@ internal static class ReplayHRDataConverter
         }
 
         using var ms = new MemoryStream(data);
+        // BinaryReader is always little-endian
         using var reader = new BinaryReader(ms);
 
         var version = reader.ReadInt32();
@@ -83,6 +84,33 @@ internal static class ReplayHRDataConverter
         Logger.Debug($"Replay HR data device: {result.DeviceName}");
         Logger.Debug($"Replay HR data count: {result.Count}");
         Logger.Spam(string.Join(',', result));
+        return result;
+    }
+
+    public static byte[] ToBytes(ReplayHRData data)
+    {
+        var deviceNameBytes = Encoding.UTF8.GetBytes(data.DeviceName);
+        using var ms = new MemoryStream(4 + 4 + data.Count * 8 + 4 + deviceNameBytes.Length);
+        // BinaryWriter is always little-endian
+        using var writer = new BinaryWriter(ms, Encoding.UTF8, true);
+        writer.Write(1); // version
+        writer.Write(data.Count);
+
+        foreach (var hrData in data)
+        {
+            writer.Write(hrData.SongTime);
+            writer.Write(hrData.HeartRate);
+        }
+
+        writer.Write(deviceNameBytes.Length);
+        writer.Write(deviceNameBytes);
+        writer.Flush();
+        var result = ms.ToArray();
+        Logger.Debug($"Replay HR data serialized, size: {result.Length}");
+
+#if DEBUG
+        File.WriteAllBytes("debug_hrdata_saved.bin", result);
+#endif
         return result;
     }
 }
