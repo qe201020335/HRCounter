@@ -15,15 +15,8 @@ internal static class ReplayHRDataConverter
     public static ReplayHRData? Decode(byte[] data)
     {
 #if DEBUG
-        File.WriteAllBytes("debug_hrdata.bin", data);
+        File.WriteAllBytes("debug_hrdata_parsed.bin", data);
 #endif
-
-        if (!BitConverter.IsLittleEndian)
-        {
-            // most systems are little endian nowadays
-            Logger.Error("Big Endian systems are not supported");
-            return null;
-        }
 
         if (data.Length < 8)
         {
@@ -31,14 +24,17 @@ internal static class ReplayHRDataConverter
             return null;
         }
 
-        var version = BitConverter.ToInt32(data, 0);
+        using var ms = new MemoryStream(data);
+        using var reader = new BinaryReader(ms);
+
+        var version = reader.ReadInt32();
         if (version != 1)
         {
             Logger.Error($"Unsupported HR data version: {version}");
             return null;
         }
 
-        var entryCount = BitConverter.ToInt32(data, 4);
+        var entryCount = reader.ReadInt32();
         if (data.Length < 8 + entryCount * 8)
         {
             Logger.Error($"Data length is too short for {entryCount} entries");
@@ -48,9 +44,8 @@ internal static class ReplayHRDataConverter
         var entries = new ReplayHR[entryCount];
         for (var i = 0; i < entryCount; i++)
         {
-            var offset = 8 + i * 8;
-            var songTime = BitConverter.ToSingle(data, offset);
-            var heartRate = BitConverter.ToInt32(data, offset + 4);
+            var songTime = reader.ReadSingle();
+            var heartRate = reader.ReadInt32();
             entries[i] = new ReplayHR
             {
                 SongTime = songTime,
@@ -59,20 +54,22 @@ internal static class ReplayHRDataConverter
         }
 
         string deviceName;
-
-        var deviceNameSizeOffset = 8 + entryCount * 8;
-        if (data.Length < deviceNameSizeOffset + 4)
+        int deviceNameSize;
+        if (data.Length < 8 + entryCount * 8 + 4)
         {
             Logger.Warn("Failed to read device name size, data might be corrupted");
             deviceName = "Unknown Device";
         }
+        else if ((deviceNameSize = reader.ReadInt32()) == 0)
+        {
+            deviceName = "";
+        }
         else
         {
-            var deviceNameSize = BitConverter.ToInt32(data, deviceNameSizeOffset);
-            var deviceNameOffset = deviceNameSizeOffset + 4;
             try
             {
-                deviceName = Encoding.UTF8.GetString(data, deviceNameOffset, deviceNameSize);
+                var deviceNameBytes = reader.ReadBytes(deviceNameSize);
+                deviceName = Encoding.UTF8.GetString(deviceNameBytes);
             }
             catch (Exception e)
             {
