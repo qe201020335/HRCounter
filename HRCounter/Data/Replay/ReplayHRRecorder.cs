@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using BeatLeader;
+using IPA.Loader;
+using SiraUtil.Zenject;
 using Zenject;
 using Logger = IPA.Logging.Logger;
 
@@ -22,9 +24,13 @@ public class ReplayHRRecorder : IInitializable, IDisposable
     [InjectOptional]
     private readonly HRDataManager? _hrDataManager = null;
 
+    private readonly PluginMetadata _pMetadata;
+
     private readonly List<ReplayHR> _data = new(0);
 
     private ReplayHR _prev = new() { SongTime = -1f };
+
+    private ReplayHRRecorder(UBinder<Plugin, PluginMetadata> metadataBinder) => _pMetadata = metadataBinder.Value;
 
     void IInitializable.Initialize()
     {
@@ -79,7 +85,8 @@ public class ReplayHRRecorder : IInitializable, IDisposable
         try
         {
             // TODO use data source as device name
-            var hrData = new ReplayHRData(_data.ToArray(), "HRCounter");
+            var hrAgent = $"{_pMetadata.Id}/{_pMetadata.HVersion}";
+            var hrData = new ReplayHRData(_data.ToArray(), "HRCounter", hrAgent);
             var bytes = ReplayHRDataConverter.ToBytes(hrData);
             _replayRecorder.TryWriteCustomData(ReplayHRDataConverter.DataKey, bytes);
             _logger.Info("Heart rate custom data written");

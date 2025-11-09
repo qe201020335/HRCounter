@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using HRCounter.Utils;
 using IPA.Logging;
 
 namespace HRCounter.Data.Replay;
@@ -54,14 +53,17 @@ internal static class ReplayHRDataConverter
             };
         }
 
+        var deviceNameSizeOffset = 8 + entryCount * 8;
         string deviceName;
         int deviceNameSize;
-        if (data.Length < 8 + entryCount * 8 + 4)
+        if (data.Length < deviceNameSizeOffset + 4)
         {
             Logger.Warn("Failed to read device name size, data might be corrupted");
             deviceName = "Unknown Device";
+            return new ReplayHRData(entries, deviceName, "");
         }
-        else if ((deviceNameSize = reader.ReadInt32()) == 0)
+
+        if ((deviceNameSize = reader.ReadInt32()) == 0)
         {
             deviceName = "";
         }
@@ -80,22 +82,41 @@ internal static class ReplayHRDataConverter
             }
         }
 
-        var result = new ReplayHRData(entries, deviceName);
-        Logger.Debug($"Replay HR data device: {result.DeviceName}");
-        Logger.Debug($"Replay HR data count: {result.Count}");
-        Logger.Spam(string.Join(',', result));
-        return result;
+        var hrAgentSizeOffset = deviceNameSizeOffset + 4 + deviceNameSize;
+        int hrAgentSize;
+        string hrAgent;
+        if (data.Length < hrAgentSizeOffset + 4 || (hrAgentSize = reader.ReadInt32()) == 0)
+        {
+            hrAgent = "";
+        }
+        else
+        {
+            try
+            {
+                var hrAgentBytes = reader.ReadBytes(hrAgentSize);
+                hrAgent = Encoding.UTF8.GetString(hrAgentBytes);
+            }
+            catch (Exception e)
+            {
+                hrAgent = "Unknown";
+                Logger.Warn("Failed to read hr agent, data might be corrupted");
+                Logger.Warn(e);
+            }
+        }
+
+        return new ReplayHRData(entries, deviceName, hrAgent);
     }
 
     public static byte[] ToBytes(ReplayHRData data)
     {
         var deviceNameBytes = Encoding.UTF8.GetBytes(data.DeviceName);
-        using var ms = new MemoryStream(4 + 4 + data.Count * 8 + 4 + deviceNameBytes.Length);
+        var hrAgentBytes = Encoding.UTF8.GetBytes(data.HRAgent);
+        using var ms = new MemoryStream(4 + 4 + data.Count * 8 + 4 + deviceNameBytes.Length + 4 + hrAgentBytes.Length);
         // BinaryWriter is always little-endian
         using var writer = new BinaryWriter(ms, Encoding.UTF8, true);
         writer.Write(1); // version
-        writer.Write(data.Count);
 
+        writer.Write(data.Count);
         foreach (var hrData in data)
         {
             writer.Write(hrData.SongTime);
@@ -104,6 +125,10 @@ internal static class ReplayHRDataConverter
 
         writer.Write(deviceNameBytes.Length);
         writer.Write(deviceNameBytes);
+
+        writer.Write(hrAgentBytes.Length);
+        writer.Write(hrAgentBytes);
+
         writer.Flush();
         var result = ms.ToArray();
         Logger.Debug($"Replay HR data serialized, size: {result.Length}");

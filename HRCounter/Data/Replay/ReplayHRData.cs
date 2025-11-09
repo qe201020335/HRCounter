@@ -9,14 +9,17 @@ public class ReplayHRData : IEnumerable<ReplayHR>
     private readonly ReplayHR[] _data;
     public string DeviceName { get; }
 
+    public string HRAgent { get; }
+
     public int Count => _data.Length;
 
-    internal ReplayHRData(ReplayHR[] hrData, string deviceName)
+    internal ReplayHRData(ReplayHR[] hrData, string deviceName, string hrAgent)
     {
         // Should I clone the arrays here to prevent external modification?
         Array.Sort(hrData);
         _data = hrData;
         DeviceName = deviceName;
+        HRAgent = hrAgent;
     }
 
     public ReplayHR this[int index] => _data[index];

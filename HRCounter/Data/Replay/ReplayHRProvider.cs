@@ -1,4 +1,5 @@
 ﻿using System;
+using HRCounter.Utils;
 using IPA.Logging;
 using JetBrains.Annotations;
 using Zenject;
@@ -33,6 +34,10 @@ internal class ReplayHRProvider : IInGameHRProvider, ITickable
     private void Init()
     {
         _logger.Info("Providing HR data from replay");
+        _logger.Debug($"Replay HR Agent: {_data.HRAgent ?? "null"}");
+        _logger.Debug($"Replay HR data device: {_data.DeviceName}");
+        _logger.Debug($"Replay HR data count: {_data.Count}");
+        _logger.Spam(string.Join(',', _data));
         _currentHR = _data[0].HeartRate;
     }
 
