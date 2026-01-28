@@ -149,6 +149,7 @@
         <EmbeddedResource Include="Resources\hrcounter"/>
         <EmbeddedResource Include="Resources\hrcounter.png"/>
         <EmbeddedResource Include="UI\BSML\configMenu.bsml"/>
+        <EmbeddedResource Include="UI\BSML\serviceStatus.bsml"/>
         <EmbeddedResource Include="UI\CountersPlus\config.bsml"/>
     </ItemGroup>
     <ItemGroup>
