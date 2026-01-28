@@ -36,7 +36,7 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
             return;
         }
 
-        if (!_hrProvider.IsReplayData && _config.HideDuringReplay && Utils.Utils.IsInReplay())
+        if (!_hrProvider.IsReplayData && _config.ReplayHideLiveHr && Utils.Utils.IsInReplay())
         {
             _logger.Info("We are in a replay without hr data, HRCounter hides.");
             return;

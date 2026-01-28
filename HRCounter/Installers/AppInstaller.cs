@@ -33,6 +33,7 @@ public class AppInstaller : Installer<AppInstaller>
         Container.BindInstance(_config).AsSingle();
         Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<IconManager>().AsSingle();
+        Container.BindInterfacesAndSelfTo<UserInfoHelper>().AsSingle();
 
         // Web stuff
         Container.BindInterfacesAndSelfTo<SimpleHttpServer>().AsSingle();
@@ -58,8 +59,5 @@ public class AppInstaller : Installer<AppInstaller>
         return logger;
     }
 
-    private bool ShouldBindLogger(InjectContext context)
-    {
-        return context.ObjectType.Assembly == _pluginMetadata.Assembly;
-    }
+    private bool ShouldBindLogger(InjectContext context) => context.ObjectType.Assembly == _pluginMetadata.Assembly;
 }

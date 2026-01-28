@@ -51,8 +51,6 @@ public class HRDataManager : IInitializable, IDisposable
     {
         BPM.Set(args.HR, args.ReceivedAt);
 
-        if (_config.LogHR) _logger.Info($"Received HR: {args.HR} at {args.ReceivedAt}");
-
         UnityMainThreadTaskScheduler.Factory.StartNew(() =>
         {
             try

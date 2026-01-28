@@ -59,7 +59,6 @@ internal class PluginConfig : INotifyPropertyChanged
     #region private backing fields
 
     private bool _modEnable = true;
-    private bool _logHR = false;
     private string _dataSource = DataSourceManager.OscServer.Key;
     private string _pulsoidToken = "";
     private string _hypeRateSessionID = "";
@@ -69,7 +68,6 @@ internal class PluginConfig : INotifyPropertyChanged
     private string _feedLink = "";
     private bool _noBloom = false;
     private bool _colorize = true;
-    private bool _hideDuringReplay = true;
     private int _hrLow = 120;
     private int _hrHigh = 180;
     private Color _lowColor = new(0, 1, 0); // default to green
@@ -93,6 +91,11 @@ internal class PluginConfig : INotifyPropertyChanged
 
     private string _customIcon = "";
 
+    private bool _replayRecordHr = true;
+    private bool _replayPlaybackSelfHr = true;
+    private bool _replayPlaybackOthersHr = false;
+    private bool _replayHideLiveHr = true;
+
     #endregion
 
     // Must be 'virtual' if you want BSIPA to detect a value change and save the config automatically.
@@ -101,12 +104,6 @@ internal class PluginConfig : INotifyPropertyChanged
     {
         get => _modEnable;
         set => _modEnable = value;
-    }
-
-    public virtual bool LogHR
-    {
-        get => _logHR;
-        set => _logHR = value;
     }
 
     public virtual string DataSource
@@ -161,12 +158,6 @@ internal class PluginConfig : INotifyPropertyChanged
     {
         get => _colorize;
         set => _colorize = value;
-    }
-
-    public virtual bool HideDuringReplay
-    {
-        get => _hideDuringReplay;
-        set => _hideDuringReplay = value;
     }
 
     public virtual int HRLow
@@ -295,6 +286,30 @@ internal class PluginConfig : INotifyPropertyChanged
         set => _customIcon = value;
     }
 
+    public virtual bool ReplayRecordHr
+    {
+        get => _replayRecordHr;
+        set => _replayRecordHr = value;
+    }
+
+    public virtual bool ReplayPlaybackSelfHr
+    {
+        get => _replayPlaybackSelfHr;
+        set => _replayPlaybackSelfHr = value;
+    }
+
+    public virtual bool ReplayPlaybackOthersHr
+    {
+        get => _replayPlaybackOthersHr;
+        set => _replayPlaybackOthersHr = value;
+    }
+
+    public virtual bool ReplayHideLiveHr
+    {
+        get => _replayHideLiveHr;
+        set => _replayHideLiveHr = value;
+    }
+
     protected virtual void Changed()
     {
         _logger.Trace("Changed");
@@ -348,7 +363,6 @@ internal class PluginConfig : INotifyPropertyChanged
     private void CopyFromInternal(PluginConfig other, bool notify)
     {
         _modEnable = other._modEnable;
-        _logHR = other._logHR;
         _dataSource = other._dataSource;
         _pulsoidToken = other._pulsoidToken;
         _hypeRateSessionID = other._hypeRateSessionID;
@@ -358,7 +372,6 @@ internal class PluginConfig : INotifyPropertyChanged
         _feedLink = other._feedLink;
         _noBloom = other._noBloom;
         _colorize = other._colorize;
-        _hideDuringReplay = other._hideDuringReplay;
         _hrLow = other._hrLow;
         _hrHigh = other._hrHigh;
         _lowColor = other._lowColor;
@@ -377,6 +390,11 @@ internal class PluginConfig : INotifyPropertyChanged
         _httpLocalOnly = other._httpLocalOnly;
         _httpPort = other._httpPort;
         _customIcon = other._customIcon;
+        _replayRecordHr = other._replayRecordHr;
+        _replayPlaybackSelfHr = other._replayPlaybackSelfHr;
+        _replayPlaybackOthersHr = other._replayPlaybackOthersHr;
+        _replayHideLiveHr = other._replayHideLiveHr;
+
         if (notify) Changed();
     }
 }
