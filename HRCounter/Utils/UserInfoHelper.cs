@@ -29,7 +29,7 @@ internal class UserInfoHelper : IAsyncInitializable
             {
                 // exponential backoff
                 var delay = 1000 * Math.Pow(2, i);
-                await Task.Delay((int)delay);
+                await Task.Delay((int)delay, token);
             }
 
             try
