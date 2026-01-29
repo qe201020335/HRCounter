@@ -77,14 +77,15 @@ internal class HRCounterController : IInitializable, IDisposable
         _logger.Info("Creating HRCounter");
 
         var counter = _assetBundleManager.SetupCustomCounter();
-        if (!counter.IsNotNull())
+        if (counter == null)
         {
             _logger.Warn("No Counter asset is loaded!");
             return false;
         }
 
-        _currentCanvas = counter.Counter!;
-        _numbersText = counter.Numbers!;
+        counter.Value.ReplayIcon.SetActive(_hrProvider.IsReplayData);
+        _currentCanvas = counter.Value.Counter;
+        _numbersText = counter.Value.Numbers;
 
         _currentCanvas.transform.localScale = Vector3.one / 150;
 

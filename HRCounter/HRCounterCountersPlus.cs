@@ -22,7 +22,7 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
     private readonly IPALogger _logger = null!;
 
     [Inject]
-    private readonly IInGameHRProvider _hrProvider;
+    private readonly IInGameHRProvider _hrProvider = null!;
 
     private TMP_Text? _counter;
 
@@ -68,14 +68,15 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
 
         var counter = _assetBundleManager.SetupCustomCounter();
 
-        if (counter.Icon == null || counter.Numbers == null)
+        if (counter == null)
         {
             _logger.Error("Cannot create custom counter");
             return false;
         }
 
-        _customCounter = counter.Icon;
-        _customCounterText = counter.Numbers;
+        counter.Value.ReplayIcon.SetActive(_hrProvider.IsReplayData);
+        _customCounter = counter.Value.Icon;
+        _customCounterText = counter.Value.Numbers;
 
         // position the counter as the counters+ one
         _customCounter.transform.localScale = Vector3.one / 30;
@@ -85,11 +86,8 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
         OnHRUpdate(_hrProvider.CurrentHR); // give it an initial value
         _customCounter.SetActive(true);
 
-        if (counter.Counter != null)
-        {
-            // destroy the unused game obj
-            Object.Destroy(counter.Counter);
-        }
+        // destroy the unused game obj
+        Object.Destroy(counter.Value.Counter);
 
         return true;
     }
