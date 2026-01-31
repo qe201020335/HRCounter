@@ -361,11 +361,11 @@ internal class SettingMenuController : BSMLAutomaticViewController
         set => _config.ReplayPlaybackOthersHr = value;
     }
 
-    [UIValue("ReplayHideLiveHr")]
-    public bool ReplayHideLiveHr
+    [UIValue("ReplayFallbackLiveHr")]
+    public bool ReplayFallbackLiveHr
     {
-        get => _config.ReplayHideLiveHr;
-        set => _config.ReplayHideLiveHr = value;
+        get => _config.ReplayFallbackLiveHr;
+        set => _config.ReplayFallbackLiveHr = value;
     }
 
     #endregion

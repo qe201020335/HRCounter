@@ -72,6 +72,7 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
 
     private ReplayHRData? GetBeatLeaderReplayHRData()
     {
+        if (!_config.ReplayPlaybackSelfHr && !_config.ReplayPlaybackOthersHr) return null;
         var playerData = ReplayerLauncher.LaunchData?.MainReplay.ReplayData.Player;
         if (playerData == null)
         {

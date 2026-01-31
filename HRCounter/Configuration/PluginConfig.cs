@@ -94,7 +94,7 @@ internal class PluginConfig : INotifyPropertyChanged
     private bool _replayRecordHr = true;
     private bool _replayPlaybackSelfHr = true;
     private bool _replayPlaybackOthersHr = false;
-    private bool _replayHideLiveHr = true;
+    private bool _replayFallbackLiveHr = false;
 
     #endregion
 
@@ -304,10 +304,10 @@ internal class PluginConfig : INotifyPropertyChanged
         set => _replayPlaybackOthersHr = value;
     }
 
-    public virtual bool ReplayHideLiveHr
+    public virtual bool ReplayFallbackLiveHr
     {
-        get => _replayHideLiveHr;
-        set => _replayHideLiveHr = value;
+        get => _replayFallbackLiveHr;
+        set => _replayFallbackLiveHr = value;
     }
 
     protected virtual void Changed()
@@ -393,7 +393,7 @@ internal class PluginConfig : INotifyPropertyChanged
         _replayRecordHr = other._replayRecordHr;
         _replayPlaybackSelfHr = other._replayPlaybackSelfHr;
         _replayPlaybackOthersHr = other._replayPlaybackOthersHr;
-        _replayHideLiveHr = other._replayHideLiveHr;
+        _replayFallbackLiveHr = other._replayFallbackLiveHr;
 
         if (notify) Changed();
     }
