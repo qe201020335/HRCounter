@@ -65,25 +65,23 @@ internal class AssetBundleManager : IInitializable, IDisposable
         }
     }
 
-    internal CustomCounter SetupCustomCounter()
+    internal CustomCounter? SetupCustomCounter()
     {
         if (CounterPrefab == null)
         {
-            return new CustomCounter
-            {
-                Counter = null,
-                Icon = null,
-                Numbers = null
-            };
+            return null;
         }
 
         var currentCanvas = Object.Instantiate(CounterPrefab);
         var icon = currentCanvas.transform.GetChild(0).gameObject;
         var numbers = icon.transform.GetChild(0).GetComponent<TMP_Text>();
+        var replayIcon = icon.transform.GetChild(1).gameObject;
         numbers.alignment = TextAlignmentOptions.MidlineLeft;
 
         var iconImage = icon.GetComponent<Image>();
         iconImage.material = RenderUtils.UINoGlow;
+        // var replayIconImage = replayIcon.GetComponent<Image>();
+        // replayIconImage.material = RenderUtils.UINoGlow;
         if (!string.IsNullOrWhiteSpace(_config.CustomIcon) && _iconManager.TryGetIconSprite(_config.CustomIcon, out var sprite))
         {
             iconImage.sprite = sprite;
@@ -97,19 +95,16 @@ internal class AssetBundleManager : IInitializable, IDisposable
         {
             Counter = currentCanvas,
             Icon = icon,
+            ReplayIcon = replayIcon,
             Numbers = numbers
         };
     }
 
     internal struct CustomCounter
     {
-        public GameObject? Counter;
-        public GameObject? Icon;
-        public TMP_Text? Numbers;
-
-        internal bool IsNotNull()
-        {
-            return Counter != null && Icon != null && Numbers != null;
-        }
+        public GameObject Counter;
+        public GameObject Icon;
+        public GameObject ReplayIcon;
+        public TMP_Text Numbers;
     }
 }

@@ -21,8 +21,8 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
     [Inject]
     private readonly IPALogger _logger = null!;
 
-    [InjectOptional]
-    private readonly HRDataManager? _hrDataManager;
+    [Inject]
+    private readonly IInGameHRProvider _hrProvider = null!;
 
     private TMP_Text? _counter;
 
@@ -36,15 +36,9 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
             return;
         }
 
-        if (_config.HideDuringReplay && Utils.Utils.IsInReplay())
+        if (Utils.Utils.IsInReplay() && !_hrProvider.IsReplayData && !_config.ReplayFallbackLiveHr)
         {
-            _logger.Info("We are in a replay, Counter hides.");
-            return;
-        }
-
-        if (_hrDataManager == null)
-        {
-            _logger.Warn("HRDataManager is null");
+            _logger.Info("We are in a replay without hr data, HRCounter hides.");
             return;
         }
 
@@ -54,7 +48,7 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
             return;
         }
 
-        _hrDataManager.OnHRUpdate += OnHRUpdate;
+        _hrProvider.HRChanged += OnHRUpdate;
         _logger.Info("Start updating counter text");
     }
 
@@ -74,28 +68,26 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
 
         var counter = _assetBundleManager.SetupCustomCounter();
 
-        if (counter.Icon == null || counter.Numbers == null)
+        if (counter == null)
         {
             _logger.Error("Cannot create custom counter");
             return false;
         }
 
-        _customCounter = counter.Icon;
-        _customCounterText = counter.Numbers;
+        counter.Value.ReplayIcon.SetActive(_hrProvider.IsReplayData);
+        _customCounter = counter.Value.Icon;
+        _customCounterText = counter.Value.Numbers;
 
         // position the counter as the counters+ one
         _customCounter.transform.localScale = Vector3.one / 30;
         _customCounter.transform.SetParent(canvas.transform, false);
         _customCounter.GetComponent<RectTransform>().anchoredPosition = _counter.rectTransform.anchoredPosition;
         _customCounter.transform.localPosition -= new Vector3(2, 0, 0); // recenter
-        OnHRUpdate(BPM.Bpm); // give it an initial value
+        OnHRUpdate(_hrProvider.CurrentHR); // give it an initial value
         _customCounter.SetActive(true);
 
-        if (counter.Counter != null)
-        {
-            // destroy the unused game obj
-            Object.Destroy(counter.Counter);
-        }
+        // destroy the unused game obj
+        Object.Destroy(counter.Value.Counter);
 
         return true;
     }
@@ -108,10 +100,7 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
 
     public override void CounterDestroy()
     {
-        if (_hrDataManager != null)
-        {
-            _hrDataManager.OnHRUpdate -= OnHRUpdate;
-        }
+        _hrProvider.HRChanged -= OnHRUpdate;
 
         _counter = null;
         if (_customCounter != null)

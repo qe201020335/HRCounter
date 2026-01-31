@@ -14,6 +14,8 @@ internal abstract class DataSource : IHRDataSource, IInitializable, IDisposable
     [Inject]
     protected readonly Logger Logger = null!;
 
+    public virtual bool AllowReplayRecording => true;
+
     public event EventHandler<HRDataReceivedEventArgs>? OnHRDataReceived;
 
     protected void OnHeartRateDataReceived(int hr, string? receivedAt = null)

@@ -7,8 +7,6 @@
         <tab tab-name="General" tags="tabs">
             <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
                 <bool-setting text="Mod Enable" value="ModEnable" apply-on-change="true" bind-value="true"/>
-                <bool-setting text="Hide During Replay" value="HideDuringReplay" hover-hint="Hide this counter while in a replay"
-                              apply-on-change="true" bind-value="true"/>
                 <bool-setting text="Counter No Bloom" value="NoBloom" hover-hint="Do you want no bloom on the text?" apply-on-change="true"
                               bind-value="true"/>
                 <bool-setting text="Ignore Counters+" value="IgnoreCounters+"
@@ -85,10 +83,19 @@
                                 apply-on-change="true" bind-value="true"/>
             </vertical>
         </tab>
-        <tab tab-name="Misc" tags="tabs">
+        <tab tab-name="Replay" tags="tabs">
             <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
-                <bool-setting text="Log Heart Rate" value="LogHR" hover-hint="Whether the received HR data will be logged." apply-on-change="true"
-                              bind-value="true"/>
+                <bool-setting text="Record Heart Rate" value="ReplayRecordHr" apply-on-change="true" bind-value="true"
+                              hover-hint="Record heart rate into BeatLeader replays"/>
+                <horizontal pad-top="2">
+                    <text text="Replay Playback" italics="true" font-size="6" color="lightblue"/>
+                </horizontal>
+                <bool-setting text="Show Your Recorded HR" value="ReplayPlaybackSelfHr" apply-on-change="true" bind-value="true"
+                              hover-hint="Allow heart rate recorded in your own replays to be shown"/>
+                <bool-setting text="Show Others' Recorded HR" value="ReplayPlaybackOthersHr" apply-on-change="true" bind-value="true"
+                              hover-hint="Allow heart rate recorded in other players' replays to be shown"/>
+                <bool-setting text="Fallback to Live Heart Rate" value="ReplayFallbackLiveHr" apply-on-change="true" bind-value="true"
+                              hover-hint="Show your live heart rate when recorded data is not available or not used"/>
             </vertical>
         </tab>
     </horizontal>

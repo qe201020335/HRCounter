@@ -30,7 +30,7 @@ public class Plugin
     {
         Instance = this;
         Logger = logger;
-        var config = PluginConfig.Initialize(logger.GetChildLogger(nameof(PluginConfig)), conf);
+        var config = PluginConfig.Initialize(GetChildLogger(nameof(PluginConfig)), conf);
 
         BSMLMeta = Utils.Utils.FindEnabledPluginMetadata(BSMLId);
         ScoreSaberMeta = Utils.Utils.FindEnabledPluginMetadata(ScoreSaberId);
@@ -40,13 +40,17 @@ public class Plugin
 
         zenject.Install<AppInstaller>(Location.App, config, logger, metadata);
         zenject.Install<MenuInstaller>(Location.Menu);
-        zenject.Install<GameplayHearRateInstaller>(Location.Player);
+        zenject.Install<GameplayHearRateInstaller>(Location.Player);  // TODO check Campaign
         zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);
         // we don't want to popup the pause menu during multiplayer, that's not gonna help anything!
         zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer);
+
+        if (BeatLeaderMeta != null) zenject.Install<ReplayRecorderInstaller>(Location.Player);
 
         zenject.Expose<FlyingGameHUDRotation>("Environment");
 
         Logger.Info("HRCounter initialized.");
     }
+
+    internal static IPALogger GetChildLogger(string name) => Logger.GetChildLogger(name);
 }

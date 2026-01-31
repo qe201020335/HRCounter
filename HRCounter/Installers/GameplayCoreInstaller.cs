@@ -1,4 +1,9 @@
-﻿using HRCounter.Configuration;
+﻿using System;
+using BeatLeader.Replayer;
+using HRCounter.Configuration;
+using HRCounter.Data;
+using HRCounter.Data.Replay;
+using HRCounter.Utils;
 using IPA.Logging;
 using Zenject;
 
@@ -11,6 +16,12 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
 
     [Inject]
     private readonly Logger _logger = null!;
+
+    [Inject]
+    private readonly UserInfoHelper _userInfoHelper = null!;
+
+    [Inject]
+    private readonly IPlatformUserModel _platformUserModel = null!;
 
     [InjectOptional]
     private readonly GameplayCoreSceneSetupData? _sceneSetupData = null;
@@ -40,9 +51,76 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
         }
         else
         {
+            ReplayHRData? data;
+            if (Utils.Utils.IsInBLReplay() && (data = GetBeatLeaderReplayHRData()) != null)
+            {
+                _logger.Debug("Binding replay HR provider");
+                Container.BindInstance(data).WhenInjectedInto<ReplayHRProvider>();
+                Container.BindInterfacesAndSelfTo<ReplayHRProvider>().AsSingle();
+            }
+            else
+            {
+                _logger.Debug("Binding live HR provider");
+                Container.BindInterfacesAndSelfTo<LiveHRProvider>().AsSingle();
+            }
+
             _logger.Debug("Binding HR Counter");
             Container.BindInterfacesTo<HRCounterController>().AsSingle().NonLazy();
             _logger.Debug("HR Counter binded");
+        }
+    }
+
+    private ReplayHRData? GetBeatLeaderReplayHRData()
+    {
+        if (!_config.ReplayPlaybackSelfHr && !_config.ReplayPlaybackOthersHr) return null;
+        var playerData = ReplayerLauncher.LaunchData?.MainReplay.ReplayData.Player;
+        if (playerData == null)
+        {
+            _logger.Warn("BeatLeader replay player data is null");
+        }
+        else
+        {
+            _logger.Spam($"BeatLeader replay player: {playerData.name} ({playerData.id})");
+        }
+
+        //todo
+        var currenUser = _userInfoHelper.UserInfo;
+        if (currenUser == null)
+        {
+            _logger.Warn("Current user info is null");
+        }
+        else
+        {
+            _logger.Spam($"Current user: {currenUser.userName} ({currenUser.platformUserId})");
+        }
+
+        var replayPlayer = playerData?.id;
+        var currentPlayer = currenUser?.platformUserId;
+        var idMatch = replayPlayer == currentPlayer;
+        var shouldLoadHr = (idMatch && _config.ReplayPlaybackSelfHr) || (!idMatch && _config.ReplayPlaybackOthersHr);
+        if (!shouldLoadHr)
+        {
+            _logger.Debug("Not loading HR data from BeatLeader replay");
+            return null;
+        }
+
+        var rawData = ReplayerLauncher.GetMainReplayCustomData(ReplayHRDataConverter.DataKey);
+        if (rawData == null)
+        {
+            _logger.Debug("No HR data in BeatLeader replay");
+            return null;
+        }
+
+        _logger.Info("Loading HR data from BeatLeader replay");
+        try
+        {
+            return ReplayHRDataConverter.Decode(rawData);
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Failed to load HR data from BeatLeader replay");
+            _logger.Error(e);
+            return null;
         }
     }
 }

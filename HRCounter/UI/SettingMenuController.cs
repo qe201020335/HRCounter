@@ -234,13 +234,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
         set => _config.ModEnable = value;
     }
 
-    [UIValue("LogHR")]
-    public bool LogHR
-    {
-        get => _config.LogHR;
-        set => _config.LogHR = value;
-    }
-
     [UIValue("Colorize")]
     public bool Colorize
     {
@@ -260,13 +253,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
     {
         get => _config.HRHigh;
         set => _config.HRHigh = value;
-    }
-
-    [UIValue("HideDuringReplay")]
-    public bool HideDuringReplay
-    {
-        get => _config.HideDuringReplay;
-        set => _config.HideDuringReplay = value;
     }
 
     [UIValue("source-list-options")]
@@ -352,6 +338,34 @@ internal class SettingMenuController : BSMLAutomaticViewController
             _isIconListLoaded = value;
             NotifyPropertyChanged();
         }
+    }
+
+    [UIValue("ReplayRecordHr")]
+    public bool ReplayRecordHr
+    {
+        get => _config.ReplayRecordHr;
+        set => _config.ReplayRecordHr = value;
+    }
+
+    [UIValue("ReplayPlaybackSelfHr")]
+    public bool ReplayPlaybackSelfHr
+    {
+        get => _config.ReplayPlaybackSelfHr;
+        set => _config.ReplayPlaybackSelfHr = value;
+    }
+
+    [UIValue("ReplayPlaybackOthersHr")]
+    public bool ReplayPlaybackOthersHr
+    {
+        get => _config.ReplayPlaybackOthersHr;
+        set => _config.ReplayPlaybackOthersHr = value;
+    }
+
+    [UIValue("ReplayFallbackLiveHr")]
+    public bool ReplayFallbackLiveHr
+    {
+        get => _config.ReplayFallbackLiveHr;
+        set => _config.ReplayFallbackLiveHr = value;
     }
 
     #endregion

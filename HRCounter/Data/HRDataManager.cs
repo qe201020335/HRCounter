@@ -17,9 +17,14 @@ public class HRDataManager : IInitializable, IDisposable
     [InjectOptional]
     private IHRDataSource? _dataSource;
 
+    /// <summary>
+    ///     Always invoked on the main thread when new HR data is received.
+    /// </summary>
     public event Action<int>? OnHRUpdate;
 
     public int CurrentBpm => BPM.Bpm;
+
+    internal bool AllowReplayRecording => _dataSource?.AllowReplayRecording ?? false;
 
     public void Initialize()
     {
@@ -45,8 +50,6 @@ public class HRDataManager : IInitializable, IDisposable
     private void OnHrDataReceivedInternalHandler(object sender, HRDataReceivedEventArgs args)
     {
         BPM.Set(args.HR, args.ReceivedAt);
-
-        if (_config.LogHR) _logger.Info($"Received HR: {args.HR} at {args.ReceivedAt}");
 
         UnityMainThreadTaskScheduler.Factory.StartNew(() =>
         {

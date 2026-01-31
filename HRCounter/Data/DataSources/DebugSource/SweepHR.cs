@@ -8,6 +8,7 @@ internal class SweepHR : DataSource
     private const int Low = 60;
     private const int High = 240;
 
+    public override bool AllowReplayRecording => false;
 
     protected override void Start()
     {

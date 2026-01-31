@@ -8,6 +8,8 @@ internal class RandomHR : DataSource
 {
     private bool _updating = false;
 
+    public override bool AllowReplayRecording => false;
+
     protected override void Start()
     {
         _updating = true;
