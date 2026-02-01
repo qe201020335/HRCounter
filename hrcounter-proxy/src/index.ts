@@ -8,7 +8,7 @@ export default {
         console.log(`Fetch from ${ua} at ${url.pathname}`);
 
         switch (url.pathname) {
-            case "/hyperate":
+            case "/proxy/hyperate":
                 //TODO limit max connections per user
                 const auth = await verifyUser(request);
                 if (auth !== null) {
