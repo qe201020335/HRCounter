@@ -279,8 +279,8 @@ internal class SettingMenuController : BSMLAutomaticViewController
         set => _config.AutoPause = value;
     }
 
-    [UIValue("IgnoreCounters+")]
-    public bool UseCountersPlus
+    [UIValue("IgnoreCountersPlus")]
+    public bool IgnoreCountersPlus
     {
         get => _config.IgnoreCountersPlus;
         set => _config.IgnoreCountersPlus = value;

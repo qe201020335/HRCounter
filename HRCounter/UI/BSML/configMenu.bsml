@@ -9,8 +9,8 @@
                 <bool-setting text="Mod Enable" value="ModEnable" apply-on-change="true" bind-value="true"/>
                 <bool-setting text="Counter No Bloom" value="NoBloom" hover-hint="Do you want no bloom on the text?" apply-on-change="true"
                               bind-value="true"/>
-                <bool-setting text="Ignore Counters+" value="IgnoreCounters+"
-                              hover-hint="Ignore whether Counters+ is installed, ignore it to allow 2 hr counters to present at the same time"
+                <bool-setting text="Always Show Standalone Counter" value="IgnoreCountersPlus"
+                              hover-hint="Always show the standalone counter regardless whether Counters+ is installed, enable to allow 2 hr counters to present at the same time"
                               apply-on-change="true" bind-value="true"/>
             </vertical>
         </tab>
