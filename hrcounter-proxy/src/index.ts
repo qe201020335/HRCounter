@@ -1,4 +1,5 @@
-import hyperate from "./hyperate/handler";
+import { handleHypeRate } from "./hyperate/handler";
+import { verifyUser } from "./auth";
 
 export default {
     async fetch(request, env, ctx): Promise<Response> {
@@ -8,8 +9,12 @@ export default {
 
         switch (url.pathname) {
             case "/hyperate":
-                //TODO auth and limit max connections per user
-                return hyperate.handle(request, env, ctx);
+                //TODO limit max connections per user
+                const auth = await verifyUser(request);
+                if (auth !== null) {
+                    return auth;
+                }
+                return handleHypeRate(request, env, ctx);
         }
 
         return new Response("Not Found", { status: 404 });

@@ -3,7 +3,7 @@ import { HypeRate } from "./HypeRate";
 const HYPERATE_ID_RE = /^[a-zA-Z0-9_\-]+$/;
 const HYPERATE_ID_HEADER = "X-HypeRate-ID";
 
-const handle: ExportedHandlerFetchHandler<Env> = async (request, env, ctx) => {
+export const handleHypeRate: ExportedHandlerFetchHandler<Env> = async (request, env, ctx) => {
     console.log("handling hyperate request");
     // check id 
     const hyperateId = request.headers.get(HYPERATE_ID_HEADER);
@@ -71,8 +71,4 @@ const handle: ExportedHandlerFetchHandler<Env> = async (request, env, ctx) => {
         status: 101,
         webSocket: client,
     });
-};
-
-export default {
-    handle,
 };
