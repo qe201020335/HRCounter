@@ -78,6 +78,7 @@ public class ReplayHRRecorder : IInitializable, IDisposable
         if (_data.Count == 0)
         {
             _logger.Warn("No heart rate data is recorded, not saving");
+            return;
         }
 
         _logger.Debug($"Data size: {_data.Count}");
