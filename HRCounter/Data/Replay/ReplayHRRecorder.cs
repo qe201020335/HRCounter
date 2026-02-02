@@ -24,13 +24,17 @@ public class ReplayHRRecorder : IInitializable, IDisposable
     [InjectOptional]
     private readonly HRDataManager? _hrDataManager = null;
 
-    private readonly PluginMetadata _pMetadata;
+    private readonly string _hrAgent;
 
     private readonly List<ReplayHR> _data = new(0);
 
     private ReplayHR _prev = new() { SongTime = -1f };
 
-    private ReplayHRRecorder(UBinder<Plugin, PluginMetadata> metadataBinder) => _pMetadata = metadataBinder.Value;
+    private ReplayHRRecorder(UBinder<Plugin, PluginMetadata> metadataBinder)
+    {
+        var meta = metadataBinder.Value;
+        _hrAgent = $"{meta.Id}/{meta.HVersion}";
+    }
 
     void IInitializable.Initialize()
     {
@@ -86,8 +90,7 @@ public class ReplayHRRecorder : IInitializable, IDisposable
         try
         {
             // TODO use data source as device name
-            var hrAgent = $"{_pMetadata.Id}/{_pMetadata.HVersion}";
-            var hrData = new ReplayHRData(_data.ToArray(), "HRCounter", hrAgent);
+            var hrData = new ReplayHRData(_data.ToArray(), "HRCounter", _hrAgent);
             var bytes = ReplayHRDataConverter.ToBytes(hrData);
             _replayRecorder.TryWriteCustomData(ReplayHRDataConverter.DataKey, bytes);
             _logger.Info("Heart rate custom data written");
