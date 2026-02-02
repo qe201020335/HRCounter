@@ -27,12 +27,25 @@ export const verifyUser = async (request: Request) => {
     const response = await fetch("https://api.beatsaver.com/users/verify", {
         body: body,
         method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
     });
 
-    // @ts-ignore
-    if ((await response.json())["success"] === true) {
-        return null;
+    if (!response.ok) {
+        console.warn("User verification request failed with status", response.status);
+        return new Response(response.body, { status: response.status });
     }
 
-    return new Response("Unauthorized", { status: 401 });
+    try {
+        // @ts-ignore
+        if ((await response.json())["success"] === true) {
+            return null;
+        }
+
+        return new Response("Unauthorized", { status: 401 });
+    } catch (error) {
+        console.error("Failed to parse user verification response:", error);
+        return new Response("Internal Server Error", { status: 500 });
+    }
 };
