@@ -17,6 +17,9 @@
         "BeatSaberMarkupLanguage",
         "ScoreSaber"
     ],
+    "links": {
+        "project-source": "https://github.com/qe201020335/HRCounter"
+    },
     "features": {
         "CountersPlus.CustomCounter": {
             "Name": "Heart Rate Counter",
