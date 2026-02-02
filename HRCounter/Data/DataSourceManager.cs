@@ -73,7 +73,7 @@ public class DataSourceManager
 
     #region Some Instances
 
-    internal static DataSourceInfo HypeRate = RegisterDataSource<HypeRate>(HYPERATE_KEY,
+    internal static DataSourceInfo HypeRate = RegisterDataSource<HypeRate2>(HYPERATE_KEY,
         () => DataSourceUtils.WebSocketSharpInstalled ? $"Current Session ID: {Config.HypeRateSessionID}" : WSNotInstalledStr,
         () => GenericPreconditionWS(Config.HypeRateSessionID)
     );
