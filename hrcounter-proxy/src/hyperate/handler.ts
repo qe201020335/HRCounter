@@ -8,17 +8,17 @@ export const handleHypeRate: ExportedHandlerFetchHandler<Env> = async (request, 
     // check id 
     const hyperateId = request.headers.get(HYPERATE_ID_HEADER);
     if (!hyperateId || !hyperateId.match(HYPERATE_ID_RE)) {
-        console.log("Invalid HypeRate id");
+        // console.log("Invalid HypeRate id");
         return new Response("Invalid HypeRate id", { status: 400 });
     }
 
     const upgradeHeader = request.headers.get("Upgrade");
     if (!upgradeHeader || upgradeHeader !== "websocket") {
-        console.log("invalid ws upgrade header");
+        // console.log("invalid ws upgrade header");
         return new Response("Expected Upgrade: websocket", { status: 426 });
     }
 
-    console.debug("creating websocket pair");
+    // console.debug("creating websocket pair");
 
     const webSocketPair = new WebSocketPair();
     const [client, server] = Object.values(webSocketPair);

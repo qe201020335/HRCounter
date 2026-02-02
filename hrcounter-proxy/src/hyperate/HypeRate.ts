@@ -17,12 +17,13 @@ export class HypeRate {
             this.startKeepAlive();
         });
         ws.addEventListener("message", (e) => {
-            console.debug("Received message", e.data);
+            // console.debug("Received message", e.data);
             onMessage(e.data);
         });
         ws.addEventListener("close", (e) => {
             console.log("hyperate websocket closed");
             onClose(e.code, e.reason);
+            this.close();
         });
         ws.addEventListener("error", (e) => {
             console.warn("hyperate websocket error:", e.message);
@@ -36,7 +37,7 @@ export class HypeRate {
     }
 
     private sendMessage(message: any) {
-        console.debug("Sending message", message);
+        // console.debug("Sending message", message);
         if (this.ws.readyState == WebSocket.READY_STATE_OPEN) {
             this.ws.send(message);
             return true;
@@ -50,7 +51,7 @@ export class HypeRate {
             if (!open) {
                 this.close();
             }
-        }, 9000);
+        }, 14500);
     }
 
     close() {
