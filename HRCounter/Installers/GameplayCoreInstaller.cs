@@ -5,6 +5,7 @@ using HRCounter.Data;
 using HRCounter.Data.Replay;
 using HRCounter.Utils;
 using IPA.Logging;
+using OculusStudios.Platform.Core;
 using Zenject;
 
 namespace HRCounter.Installers;
@@ -18,10 +19,7 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
     private readonly Logger _logger = null!;
 
     [Inject]
-    private readonly UserInfoHelper _userInfoHelper = null!;
-
-    [Inject]
-    private readonly IPlatformUserModel _platformUserModel = null!;
+    private readonly IPlatform _platform = null!;
 
     [InjectOptional]
     private readonly GameplayCoreSceneSetupData? _sceneSetupData = null;
@@ -83,19 +81,18 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
             _logger.Spam($"BeatLeader replay player: {playerData.name} ({playerData.id})");
         }
 
-        //todo
-        var currenUser = _userInfoHelper.UserInfo;
-        if (currenUser == null)
+        var user = _platform.user;
+        if (user == null)
         {
-            _logger.Warn("Current user info is null");
+            _logger.Warn("Current user is null");
         }
         else
         {
-            _logger.Spam($"Current user: {currenUser.userName} ({currenUser.platformUserId})");
+            _logger.Spam($"Current user: {user.displayName} ({user.userId})");
         }
 
         var replayPlayer = playerData?.id;
-        var currentPlayer = currenUser?.platformUserId;
+        var currentPlayer = (user?.userId)?.ToString();
         var idMatch = replayPlayer == currentPlayer;
         var shouldLoadHr = (idMatch && _config.ReplayPlaybackSelfHr) || (!idMatch && _config.ReplayPlaybackOthersHr);
         if (!shouldLoadHr)
