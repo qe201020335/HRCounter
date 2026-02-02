@@ -8,6 +8,8 @@ export class HypeRate {
 
     private keepAliveIntervalId?: number;
 
+    private closed: boolean = false;
+
     constructor(id: string, token: string, onMessage: OnMessageHandler, onClose: OnCloseHandler) {
         console.log("Creating HypeRate connection for id", id);
         this.id = id;
@@ -22,15 +24,14 @@ export class HypeRate {
         });
         ws.addEventListener("close", (e) => {
             console.log("hyperate websocket closed");
+            if (this.closed) {
+                return;
+            }
             onClose(e.code, e.reason);
-            this.close();
+            this.cleanup();
         });
         ws.addEventListener("error", (e) => {
             console.warn("hyperate websocket error:", e.message);
-            try {
-                this.ws.close();
-            } catch (e) {
-            }
             onClose(1011, e.message);
         });
         this.ws = ws;
@@ -40,30 +41,26 @@ export class HypeRate {
         // console.debug("Sending message", message);
         if (this.ws.readyState == WebSocket.READY_STATE_OPEN) {
             this.ws.send(message);
-            return true;
         }
-        return false;
     }
 
     private startKeepAlive() {
         this.keepAliveIntervalId = setInterval(() => {
-            const open = this.sendMessage(`{"topic": "phoenix","event": "heartbeat","payload": {},"ref": 0}`);
-            if (!open) {
-                this.close();
-            }
+            this.sendMessage(`{"topic": "phoenix","event": "heartbeat","payload": {},"ref": 0}`);
         }, 14500);
     }
 
-    close() {
+    private cleanup() {
         console.log("Closing HypeRate connection for id", this.id);
+        this.closed = true;
         if (this.keepAliveIntervalId !== undefined) {
             clearInterval(this.keepAliveIntervalId);
             this.keepAliveIntervalId = undefined;
         }
-        try {
-            this.ws.close();
-        } catch (e) {
-            console.error("Failed to close websocket", e);
-        }
+    }
+
+    close() {
+        this.cleanup();
+        this.ws.close();
     }
 }

@@ -23,45 +23,30 @@ export const handleHypeRate: ExportedHandlerFetchHandler<Env> = async (request, 
     const webSocketPair = new WebSocketPair();
     const [client, server] = Object.values(webSocketPair);
 
-    const closeWS = (code?: number, reason?: string) => {
-        try {
-            server.close(code, reason);
-            client.close(code, reason);
-        } catch (e) {
-            console.error("Failed to close websocket", e);
-        }
-    };
-
     const sendMessage = (message: any) => {
         if (server.readyState == WebSocket.READY_STATE_OPEN) {
             server.send(message);
-            return true;
+        } else if (server.readyState != WebSocket.CONNECTING) {
+            hyperate.close();
         }
-        return false;
     };
 
     // @ts-ignore
     const hyperate = new HypeRate(hyperateId, env["HYPERATE_TOKEN"] ?? "",
-        message => {
-            if (!sendMessage(message)) {
-                closeWS();
-                hyperate.close();
-            }
-        },
+        sendMessage,
         (code, reason) => {
-            closeWS(code, reason);
+            server.close(code, reason);
         }
     );
 
     server.addEventListener("close", () => {
-        console.log("the client is closed");
-        closeWS();
+        console.log("client ws closed");
+        server.close();
         hyperate.close();
     });
 
     server.addEventListener("error", (e) => {
-        console.warn("hyperate proxy websocket error:", e.message);
-        closeWS();
+        console.error("client websocket error:", e);
         hyperate.close();
     });
 
