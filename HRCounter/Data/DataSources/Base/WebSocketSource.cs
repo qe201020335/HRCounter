@@ -16,11 +16,14 @@ public abstract class WebSocketSource : DataSource
     private readonly Logger _logger = null!;
 
     private readonly SimpleWebSocketClient _ws = new();
-    private CancellationTokenSource? _cts;
+    private readonly CancellationTokenSource _cts = new();
+    private int _running = 0;
 
     protected abstract string Url { get; }
 
     protected virtual string UserAgent { get; }
+
+    protected CancellationToken CToken => _cts.Token;
 
     protected WebSocketSource()
     {
@@ -30,12 +33,18 @@ public abstract class WebSocketSource : DataSource
 
     protected override void Start()
     {
+        if (!Validate())
+        {
+            _logger.Warn("Validation failed, not starting data source");
+        }
+
+        if (Interlocked.Exchange(ref _running, 1) == 1)
+        {
+            _logger.Warn("WebSocket data source already running");
+            return;
+        }
+
         _logger.Debug("WebSocket data source starting");
-        _cts?.Cancel();
-        _cts?.Dispose();
-        _cts = null;
-        var cts = new CancellationTokenSource();
-        _cts = cts;
 
         _ws.MessageReceived += OnMessageReceived;
         _ws.Closed += OnWebSocketClosed;
@@ -44,7 +53,7 @@ public abstract class WebSocketSource : DataSource
         {
             try
             {
-                await Connect(cts.Token);
+                await Connect(_cts.Token);
             }
             catch (OperationCanceledException)
             {
@@ -54,8 +63,9 @@ public abstract class WebSocketSource : DataSource
             {
                 _logger.Error("Failed to connect to WebSocket");
                 _logger.Error(e);
+                _ = TryReconnect(true, _cts.Token);
             }
-        }, cts.Token);
+        }, _cts.Token);
     }
 
     private async Task Connect(CancellationToken token)
@@ -72,6 +82,7 @@ public abstract class WebSocketSource : DataSource
         await OnWebSocketConnected(token);
     }
 
+    protected virtual bool Validate() => true;
     protected virtual Task<bool> PrepareBeforeConnect(CancellationToken token) => Task.FromResult(true);
 
     protected virtual void ConfigureWebSocket(ClientWebSocketOptions options)
@@ -79,10 +90,43 @@ public abstract class WebSocketSource : DataSource
         options.SetRequestHeader("User-Agent", UserAgent);
     }
 
+    protected async Task SendWebSocketMessageAsync(string message, CancellationToken token)
+    {
+        _logger.Spam("Sending message: " + message);
+        if (Volatile.Read(ref _running) == 0)
+        {
+            _logger.Debug("Data source not running, not sending message");
+            // not running
+            return;
+        }
+
+        if (_ws.State != WebSocketState.Open)
+        {
+            //TODO reconnect?
+            // await TryReconnect(false, token);
+            return;
+        }
+
+        try
+        {
+            await _ws.SendMessageAsync(message, token);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Failed to send WebSocket message");
+            _logger.Error(e);
+            await TryReconnect(true, token);
+        }
+    }
+
     protected virtual Task OnWebSocketConnected(CancellationToken token) => Task.CompletedTask;
 
     protected abstract void OnMessageReceived(WebSocketMessageEventArgs args);
 
+    /// <returns>True if it should reconnect</returns>
     protected virtual bool OnWebSocketClosed(WebSocketClosedEventArgs args) => true;
 
     private void OnMessageReceived(object sender, WebSocketMessageEventArgs args)
@@ -104,18 +148,36 @@ public abstract class WebSocketSource : DataSource
         }
 
         _logger.Warn($"WebSocket closed: {args.CloseStatus} - {args.CloseStatusDescription}");
-        OnWebSocketClosed(args);
-        //TODO auto-reconnect
+        if (OnWebSocketClosed(args))
+        {
+            _ = TryReconnect(false, _cts.Token);
+        }
+    }
+
+    private async Task TryReconnect(bool wasError, CancellationToken token)
+    {
+        if (Volatile.Read(ref _running) == 0)
+        {
+            // not running
+            return;
+        }
+
+        //TODO reconnect with exponential backoff
+        Stop();
     }
 
     protected override void Stop()
     {
+        if (Interlocked.Exchange(ref _running, 0) == 0)
+        {
+            return;
+        }
+
         _logger.Debug("WebSocket data source stopping");
         _ws.MessageReceived -= OnMessageReceived;
         _ws.Closed -= OnWebSocketClosed;
-        _cts?.Cancel();
-        _cts?.Dispose();
-        _cts = null;
+        _cts.Cancel();
+        _cts.Dispose();
         _ws.Dispose();
     }
 }

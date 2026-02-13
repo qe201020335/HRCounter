@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources.Base;
 using HRCounter.Web.WebSocket.EventArgs;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Zenject;
 using Logger = IPA.Logging.Logger;
@@ -37,16 +38,16 @@ internal class HypeRate2 : WebSocketSource
     private string _ticket = "";
     private string _hyperateId = "";
 
-    protected override void Start()
+    protected override bool Validate()
     {
         if (string.IsNullOrWhiteSpace(_config.HypeRateSessionID))
         {
-            _logger.Warn("HypeRate Session ID is not set, not starting HypeRate data source");
-            return;
+            _logger.Warn("HypeRate Session ID not set");
+            return false;
         }
 
         _hyperateId = _config.HypeRateSessionID;
-        base.Start();
+        return true;
     }
 
     protected override async Task<bool> PrepareBeforeConnect(CancellationToken token)
@@ -102,9 +103,15 @@ internal class HypeRate2 : WebSocketSource
                 }
             }
         }
+        catch (JsonException e)
+        {
+            _logger.Warn("Failed to parse HypeRate json message");
+            _logger.Warn(e);
+            _logger.Debug(args.Message);
+        }
         catch (Exception e)
         {
-            _logger.Warn("Failed to parse HypeRate message");
+            _logger.Warn("Failed to handle HypeRate message");
             _logger.Warn(e);
         }
     }
