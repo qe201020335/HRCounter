@@ -2,13 +2,23 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using HRCounter.Configuration;
+using HRCounter.Data.DataSources.Base;
+using IPA.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Zenject;
 
 namespace HRCounter.Data.DataSources;
 
 internal class Pulsoid : DataSource
 {
+    [Inject]
+    private readonly PluginConfig _config = null!;
+
+    [Inject]
+    private readonly Logger _logger = null!;
+
     private bool _updating;
 
     private const string PULSOID_API = "https://dev.pulsoid.net/api/v1/data/heart_rate/latest";
@@ -17,17 +27,17 @@ internal class Pulsoid : DataSource
 
     public override void Initialize()
     {
-        HttpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {Config.PulsoidToken}");
+        HttpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {_config.PulsoidToken}");
         base.Initialize();
     }
 
     protected override void Start()
     {
-        Logger.Info("Starts updating HR");
+        _logger.Info("Starts updating HR");
         _updating = true;
         Task.Factory.StartNew(async () =>
         {
-            Logger.Debug("Requesting HR data");
+            _logger.Debug("Requesting HR data");
 
             while (_updating)
             {
@@ -49,7 +59,7 @@ internal class Pulsoid : DataSource
 
         if (hr == null)
         {
-            Logger.Warn("No hr data");
+            _logger.Warn("No hr data");
         }
         else if (measuredAt == null)
         {
@@ -77,23 +87,23 @@ internal class Pulsoid : DataSource
             }
             else
             {
-                Logger.Error(
+                _logger.Error(
                     $"Failed to fetch HR: {Convert.ToInt32(res.StatusCode)} {res.StatusCode}, Error Code {json["error_code"]}, {json["error_message"]}");
             }
         }
         catch (HttpRequestException e)
         {
-            Logger.Critical($"Failed to request HR: {e.Message}");
-            Logger.Debug(e);
+            _logger.Critical($"Failed to request HR: {e.Message}");
+            _logger.Debug(e);
         }
         catch (JsonReaderException)
         {
-            Logger.Critical($"Invalid json received");
+            _logger.Critical($"Invalid json received");
         }
         catch (Exception e)
         {
-            Logger.Warn($"Error Requesting HR data: {e.Message}");
-            Logger.Warn(e);
+            _logger.Warn($"Error Requesting HR data: {e.Message}");
+            _logger.Warn(e);
         }
     }
 }

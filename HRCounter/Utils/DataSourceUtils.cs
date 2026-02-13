@@ -10,19 +10,7 @@ namespace HRCounter.Utils;
 
 public static class DataSourceUtils
 {
-    internal const string WEBSOCKET_SHARP_MOD_ID = "websocket-sharp";
     internal const string YUR_MOD_ID = "YUR Fit Calorie Tracker";
-
-    private static bool? _webSocketSharpInstalled = null;
-
-    internal static bool WebSocketSharpInstalled
-    {
-        get
-        {
-            _webSocketSharpInstalled ??= PluginManager.GetPluginFromId(WEBSOCKET_SHARP_MOD_ID) != null;
-            return _webSocketSharpInstalled.Value;
-        }
-    }
 
     internal static bool CheckYURProcess()
     {

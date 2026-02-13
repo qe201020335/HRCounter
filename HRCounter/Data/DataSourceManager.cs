@@ -17,15 +17,11 @@ public class DataSourceManager
     private const string PULSOID_KEY = "Pulsoid";
     private const string PULSOID_WIDEGT_KEY = "PulsoidWidget";
     private const string WEBREQUEST_KEY = "WebRequest";
-    private const string FITBIT_KEY = "FitbitHRtoWS";
     private const string HRPROXY_KEY = "HRProxy";
     private const string YUR_APP_KEY = "YUR APP";
     private const string YUR_MOD_KEY = "YUR MOD";
     private const string HTTP_SERVER_KEY = "HttpServer";
     private const string OSC_KEY = "OSC Protocol";
-
-    private static readonly string WSNotInstalledStr =
-        $"<color=#FF0000>{DataSourceUtils.WEBSOCKET_SHARP_MOD_ID} REQUIRED BUT NOT INSTALLED OR ENABLED!</color>";
 
     private static PluginConfig Config => PluginConfig.Instance;
 
@@ -61,11 +57,6 @@ public class DataSourceManager
         return old;
     }
 
-    private static bool GenericPreconditionWS(string s)
-    {
-        return DataSourceUtils.WebSocketSharpInstalled && GenericPrecondition(s);
-    }
-
     private static bool GenericPrecondition(string s)
     {
         return !string.IsNullOrWhiteSpace(s) && s != "NotSet" && s != "-1";
@@ -74,8 +65,8 @@ public class DataSourceManager
     #region Some Instances
 
     internal static DataSourceInfo HypeRate = RegisterDataSource<HypeRate2>(HYPERATE_KEY,
-        () => DataSourceUtils.WebSocketSharpInstalled ? $"Current Session ID: {Config.HypeRateSessionID}" : WSNotInstalledStr,
-        () => GenericPreconditionWS(Config.HypeRateSessionID)
+        () => $"Current Session ID: {Config.HypeRateSessionID}",
+        () => GenericPrecondition(Config.HypeRateSessionID)
     );
 
     internal static DataSourceInfo Pulsoid = RegisterDataSource<Pulsoid>(PULSOID_KEY, async () =>
@@ -96,18 +87,9 @@ public class DataSourceManager
         () => GenericPrecondition(Config.FeedLink)
     );
 
-    internal static DataSourceInfo FitbitHRtoWS = RegisterDataSource<FitbitHRtoWS>(FITBIT_KEY,
-        () => DataSourceUtils.WebSocketSharpInstalled
-            ? $"Current WebSocket Link: {Config.FitbitWebSocket.TruncateW()}"
-            : WSNotInstalledStr,
-        () => GenericPreconditionWS(Config.FitbitWebSocket)
-    );
-
     internal static DataSourceInfo HRProxy = RegisterDataSource<HRProxyCustomReader>(HRPROXY_KEY,
-        () => DataSourceUtils.WebSocketSharpInstalled
-            ? $"Current HRProxy ID: {Config.HRProxyID.TruncateW()}"
-            : WSNotInstalledStr,
-        () => GenericPreconditionWS(Config.HRProxyID)
+        () => $"Current HRProxy ID: {Config.HRProxyID.TruncateW()}",
+        () => GenericPrecondition(Config.HRProxyID)
     );
 
     internal static DataSourceInfo YURApp = RegisterDataSource<YURApp>(YUR_APP_KEY,

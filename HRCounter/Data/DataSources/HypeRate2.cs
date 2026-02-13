@@ -1,18 +1,18 @@
 ﻿using System;
+using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using HRCounter.Utils;
-using HRCounter.Web.WebSocket;
+using HRCounter.Configuration;
+using HRCounter.Data.DataSources.Base;
 using HRCounter.Web.WebSocket.EventArgs;
-using IPA.Loader;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SiraUtil.Zenject;
 using Zenject;
 using Logger = IPA.Logging.Logger;
 
 namespace HRCounter.Data.DataSources;
 
-internal class HypeRate2 : DataSource
+internal class HypeRate2 : WebSocketSource
 {
     private const string URL = "wss://hrcounter.skyqe.net/proxy/hyperate";
     // private const string URL = "ws://127.0.0.1:8787/proxy/hyperate";
@@ -23,95 +23,68 @@ internal class HypeRate2 : DataSource
     private const string HYPERATE_ID_HEADER = "X-HypeRate-ID";
 
     [Inject]
+    private readonly PluginConfig _config = null!;
+
+    [Inject]
     private readonly Logger _logger = null!;
 
     [Inject]
     private readonly IPlatformUserModel _platformUserModel = null!;
 
-    private readonly string _userAgent;
+    protected override string Url => URL;
 
-    private readonly SimpleWebSocketClient _ws = new();
+    private string _platform = "";
+    private string _userId = "";
+    private string _ticket = "";
+    private string _hyperateId = "";
 
-    private CancellationTokenSource? _cts;
-
-    public HypeRate2(UBinder<Plugin, PluginMetadata> metadataBinder)
+    protected override bool Validate()
     {
-        var meta = metadataBinder.Value;
-        _userAgent = $"{meta.Id}/{meta.HVersion}";
+        if (string.IsNullOrWhiteSpace(_config.HypeRateSessionID))
+        {
+            _logger.Warn("HypeRate Session ID not set");
+            return false;
+        }
+
+        _hyperateId = _config.HypeRateSessionID;
+        return true;
     }
 
-    private async Task Connect(string hyperateId, CancellationToken token)
+    protected override async Task<bool> PrepareBeforeConnect(CancellationToken token)
     {
-        _logger.Info("Creating HypeRate WebSocket connection");
         var userInfo = await _platformUserModel.GetUserInfo(token);
         var authToken = await _platformUserModel.GetUserAuthToken();
-        string platform;
-        string ticket;
+        _userId = userInfo.platformUserId;
         switch (userInfo.platform)
         {
             case UserInfo.Platform.Steam:
-                platform = "steam";
-                ticket = authToken.token?.Replace("-", "") ?? "";
+                _platform = "steam";
+                _ticket = authToken.token?.Replace("-", "") ?? "";
                 break;
             case UserInfo.Platform.Oculus:
-                platform = "oculus";
-                ticket = authToken.token ?? "";
+                _platform = "oculus";
+                _ticket = authToken.token ?? "";
                 break;
             default:
-                _logger.Notice($"Unknown platform: {userInfo.platform}");
-                return;
+                _logger.Notice($"Unsupported platform: {userInfo.platform}");
+                return false;
         }
 
-        await _ws.ConnectAsync(new Uri(URL), token, options =>
-        {
-            // options.KeepAliveInterval = TimeSpan.FromSeconds(15);
-            options.SetRequestHeader("User-Agent", _userAgent);
-            options.SetRequestHeader(USER_ID_HEADER, userInfo.platformUserId);
-            options.SetRequestHeader(USER_PLATFORM_HEADER, platform);
-            options.SetRequestHeader(USER_TOKEN_HEADER, ticket);
-            options.SetRequestHeader(HYPERATE_ID_HEADER, hyperateId);
-        });
-        await _ws.StartReceive(token);
+        return true;
     }
 
-    protected override void Start()
+    protected override void ConfigureWebSocket(ClientWebSocketOptions options)
     {
-        if (string.IsNullOrWhiteSpace(Config.HypeRateSessionID))
-        {
-            _logger.Warn("HypeRate Session ID is not set, not starting HypeRate data source");
-            return;
-        }
-
-        _cts?.Cancel();
-        _cts?.Dispose();
-        _cts = null;
-        var cts = new CancellationTokenSource();
-        _cts = cts;
-
-        _ws.MessageReceived += OnMessageReceived;
-        _ws.Closed += OnWebSocketClosed;
-
-        Task.Run(async () =>
-        {
-            try
-            {
-                await Connect(Config.HypeRateSessionID, cts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                _logger.Trace("HypeRate connection cancelled");
-            }
-            catch (Exception e)
-            {
-                _logger.Error("Failed to connect to HypeRate WebSocket");
-                _logger.Error(e);
-            }
-        }, cts.Token);
+        base.ConfigureWebSocket(options);
+        // options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+        options.SetRequestHeader(USER_ID_HEADER, _userId);
+        options.SetRequestHeader(USER_PLATFORM_HEADER, _platform);
+        options.SetRequestHeader(USER_TOKEN_HEADER, _ticket);
+        options.SetRequestHeader(HYPERATE_ID_HEADER, _hyperateId);
     }
 
-    private void OnMessageReceived(object sender, WebSocketMessageEventArgs args)
+    protected override void OnMessageReceived(WebSocketMessageEventArgs args)
     {
-        _logger.Spam(args.Message);
         try
         {
             //{"topic":"hr:6956","event":"hr_update","payload":{"hr":88},"ref":null}
@@ -130,27 +103,16 @@ internal class HypeRate2 : DataSource
                 }
             }
         }
+        catch (JsonException e)
+        {
+            _logger.Warn("Failed to parse HypeRate json message");
+            _logger.Warn(e);
+            _logger.Debug(args.Message);
+        }
         catch (Exception e)
         {
-            _logger.Warn("Failed to parse HypeRate message");
+            _logger.Warn("Failed to handle HypeRate message");
             _logger.Warn(e);
         }
-    }
-
-    private void OnWebSocketClosed(object sender, WebSocketClosedEventArgs args)
-    {
-        _logger.Warn($"HypeRate WebSocket closed: {args.CloseStatus} - {args.CloseStatusDescription}");
-        //TODO auto-reconnect
-    }
-
-    protected override void Stop()
-    {
-        _logger.Info("Stopping HypeRate data source");
-        _ws.MessageReceived -= OnMessageReceived;
-        _ws.Closed -= OnWebSocketClosed;
-        _cts?.Cancel();
-        _cts?.Dispose();
-        _cts = null;
-        _ws.Dispose();
     }
 }

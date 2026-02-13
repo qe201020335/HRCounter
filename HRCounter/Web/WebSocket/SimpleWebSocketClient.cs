@@ -22,6 +22,8 @@ public class SimpleWebSocketClient(long maxMessageSize = 4096) : IDisposable
     /// </summary>
     public event EventHandler<WebSocketClosedEventArgs>? Closed;
 
+    public WebSocketState State => _ws?.State ?? WebSocketState.None;
+
     private ClientWebSocket? _ws;
     private Task? _receiveLoopTask;
     private CancellationTokenSource? _receiveTokenSource;
@@ -71,12 +73,6 @@ public class SimpleWebSocketClient(long maxMessageSize = 4096) : IDisposable
         catch (OperationCanceledException)
         {
             _logger.Trace("WebSocket connect cancelled");
-        }
-        catch (Exception e)
-        {
-            _logger.Error("Failed to connect WebSocket");
-            _logger.Error(e);
-            throw;
         }
         finally
         {
@@ -211,7 +207,6 @@ public class SimpleWebSocketClient(long maxMessageSize = 4096) : IDisposable
     public async Task SendMessageAsync(string message, CancellationToken token)
     {
         ThrowIfDisposed();
-        _logger.Spam("Sending message: " + message);
         ClientWebSocket ws;
         await _lifecycle.WaitAsync(token);
         try
@@ -233,12 +228,6 @@ public class SimpleWebSocketClient(long maxMessageSize = 4096) : IDisposable
         {
             var bytes = Encoding.UTF8.GetBytes(message);
             await ws.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, token);
-        }
-        catch (Exception e)
-        {
-            _logger.Error("Failed to send WebSocket message");
-            _logger.Error(e);
-            throw;
         }
         finally
         {

@@ -1,201 +1,98 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using HRCounter.Configuration;
+using HRCounter.Data.DataSources.Base;
 using HRCounter.Utils;
+using HRCounter.Web.WebSocket.EventArgs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WebSocketSharp;
-using Random = UnityEngine.Random;
+using Zenject;
+using Logger = IPA.Logging.Logger;
 
 namespace HRCounter.Data.DataSources;
 
-internal abstract class HRProxyBase : DataSource
+internal abstract class HRProxyBase : WebSocketSource
 {
     private const string URL = "wss://hrproxy.fortnite.lol:2096/hrproxy";
 
-    // private const string PONG = "{\"method\": \"pong\"}";
+    [Inject]
+    protected readonly PluginConfig Config = null!;
+
+    [Inject]
+    private readonly Logger _logger = null!;
+
+    private readonly Random _random = new();
+
+    protected override string Url => URL;
 
     protected abstract string ReaderName { get; }
-
+    protected abstract string ConfigName { get; }
     protected abstract string EventIdentifier { get; }
 
-    private string SubscribeJson
+    protected override bool Validate()
     {
-        get
+        if (string.IsNullOrWhiteSpace(EventIdentifier))
         {
-            var o = new JObject
-            {
-                new JProperty("reader", ReaderName),
-                new JProperty("identifier", EventIdentifier),
-                new JProperty("service", "beatsaber")
-            };
-
-            return o.ToString();
+            _logger.Warn($"{ConfigName} not set");
+            return false;
         }
+
+        return true;
     }
 
-    private bool _updating;
-
-    private WebSocket? _webSocket;
-
-    protected override void Start()
+    protected override Task OnWebSocketConnected(CancellationToken token)
     {
-        _updating = true;
-        CreateAndConnectSocket();
+        // reader subscribe
+        var sub = $$"""{"reader": "{{ReaderName}}","identifier": "{{EventIdentifier}}","service": "beatsaber"}""";
+        return SendWebSocketMessageAsync(sub, token);
     }
 
-    protected override void Stop()
+    private async Task Pong(string data, CancellationToken token)
     {
-        _updating = false;
-        _webSocket?.CloseAsync();
-        _webSocket = null;
+        var delay = _random.Next(100, 15000); // random delay between 100 ms and 15 sec
+        _logger.Spam($"Random delay {delay} ms for pong.");
+        await Task.Delay(delay, token);
+        _logger.Trace("Pong!");
+        await SendWebSocketMessageAsync(data, token);
     }
 
-    private void OnSocketClose(object sender, CloseEventArgs e)
+    protected override void OnMessageReceived(WebSocketMessageEventArgs args)
     {
-        if (sender != _webSocket)
-        {
-            return;
-        }
-
-        if (!_updating)
-        {
-            // we are not updating anyways.
-            return;
-        }
-
-        Logger.Warn("WebSocket is closed. Stopping HR updates");
-        Stop();
-    }
-
-    private void CreateAndConnectSocket()
-    {
-        if (_webSocket != null && _webSocket.IsAlive)
-        {
-            Logger.Info("We have an old WebSocket, destroying");
-            _webSocket.Close();
-            _webSocket = null;
-        }
-
-        Logger.Info("Creating new WebSocket");
-        _webSocket = new WebSocket(URL);
-        _webSocket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
-        _webSocket.OnMessage += OnMessageReceive;
-        _webSocket.OnError += OnSocketError;
-        _webSocket.OnClose += OnSocketClose;
-        _webSocket.Connect();
-        SendMessage(SubscribeJson);
-    }
-
-    private async void Pong(JObject data)
-    {
-        var delay = Random.Range(30, 15000);
-        Logger.Debug($"Random delay {delay} ms for pong.");
-        await Task.Delay(delay); // random delay between 30 ms and 15 sec
-        if (_updating)
-        {
-            Logger.Debug("Pong!");
-            SendMessage(data.ToString());
-        }
-    }
-
-    private void SendMessage(string s)
-    {
-        Logger.Debug($"Trying to send message {s}");
-        if (!_updating)
-        {
-            Logger.Debug($"Not updating, no message sent.");
-            return;
-        }
-
-        if (_webSocket == null || _webSocket.ReadyState == WebSocketState.Closed)
-        {
-            Logger.Critical("WebSocket is null or Closed. Terminating HR Update.");
-            Logger.Notice("Server unreachable! Does your internet get disconnected?");
-            Stop();
-        }
-
         try
         {
-            _webSocket?.SendAsync(s, delegate(bool b)
+            var json = JObject.Parse(args.Message);
+            int? hr;
+            if (json["method"]?.ToString() == "ping")
             {
-                if (!b)
-                {
-                    Logger.Warn("WebSocket failed to send message");
-                    Stop();
-                }
-                else
-                {
-                    Logger.Debug("Message sent successfully");
-                }
-            });
+                // {"method": "ping","pingId": "xyz"}
+                var id = json["pingId"]?.ToObject<string?>();
+                _logger.Trace("Ping!");
+                var pong = $$"""{"method": "pong","pingId": "{{id}}"}""";
+                _ = Pong(pong, CToken);
+            }
+            else if ((hr = json["hr"]?.ToObject<int?>()) != null)
+            {
+                // {"reader": "","identifier": "","hr": "0","timestamp": "0"}
+                var timestamp = json["timestamp"]?.ToObject<string>();
+                OnHeartRateDataReceived(hr.Value, timestamp);
+            }
+            else
+            {
+                _logger.Warn("Unsupported message received");
+                _logger.Debug(args.Message);
+            }
+        }
+        catch (JsonException e)
+        {
+            _logger.Warn("Failed to parse HRProxy json message");
+            _logger.Warn(e);
+            _logger.Debug(args.Message);
         }
         catch (Exception e)
         {
-            Logger.Error("Error happened when sending message. Terminating HR Update.");
-            Logger.Error(e.Message);
-            Logger.Debug(e);
-            Stop();
-        }
-    }
-
-    private void OnSocketError(object sender, ErrorEventArgs e)
-    {
-        if (sender != _webSocket)
-        {
-            return;
-        }
-
-        Stop();
-        Logger.Error(e.Message);
-        Logger.Debug(e.Exception);
-    }
-
-    private void OnMessageReceive(object sender, MessageEventArgs e)
-    {
-        if (sender != _webSocket)
-        {
-            return;
-        }
-
-        Logger.Spam(e.Data);
-
-        try
-        {
-            var json = JObject.Parse(e.Data);
-
-            if (json["method"]?.ToString() == "ping")
-            {
-                Logger.Debug("Ping!");
-                json["method"] = "pong";
-                Pong(json);
-            }
-            else
-            {
-                // {"reader": "","identifier": "","hr": "0","timestamp": "0"}
-                UpdateHR(json);
-            }
-        }
-        catch (JsonReaderException)
-        {
-            Logger.Warn("Invalid json received.");
-            Logger.Warn(e.Data);
-        }
-    }
-
-    private void UpdateHR(JObject json)
-    {
-        if (json["hr"] != null)
-        {
-            var hr = json["hr"].ToObject<int>();
-            var timestamp = json["timestamp"]?.ToObject<string>();
-            if (timestamp == null)
-            {
-                OnHeartRateDataReceived(hr);
-            }
-            else
-            {
-                OnHeartRateDataReceived(hr, timestamp);
-            }
+            _logger.Warn("Failed to handle HRProxy message");
+            _logger.Warn(e);
         }
     }
 }
