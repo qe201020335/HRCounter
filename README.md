@@ -1,8 +1,7 @@
 # HRCounter <a href="https://github.com/qe201020335/HRCounter/releases"><img src="https://img.shields.io/github/v/release/qe201020335/HRCounter?include_prereleases&style=for-the-badge&label=PRE-RELEASE" align="right"></a> <a href="https://github.com/qe201020335/HRCounter/releases/latest"><img src="https://img.shields.io/github/v/release/qe201020335/HRCounter?style=for-the-badge&label=RELEASE" align="right"></a>
 A Beat Saber custom counter that displays your heart rate in-game.
 
-
-![HR Counter 2.0](https://i.imgur.com/ybzx4gI.jpg)
+![HR Counter 2.0](Assets/hrc2.0_cmp.png)
 
 **Supports BLE HR Monitor, Apple Watch, Fitbit, Galaxy Watch, WearOS and more!** Check out instructions on [HR monitors](#hr-monitors).
 
