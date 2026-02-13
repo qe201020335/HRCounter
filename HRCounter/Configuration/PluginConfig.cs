@@ -63,7 +63,6 @@ internal class PluginConfig : INotifyPropertyChanged
     private string _pulsoidToken = "";
     private string _hypeRateSessionID = "";
     private string _pulsoidWidgetID = "";
-    private string _fitbitWebSocket = "";
     private string _hrProxyID = "";
     private string _feedLink = "";
     private bool _noBloom = false;
@@ -128,12 +127,6 @@ internal class PluginConfig : INotifyPropertyChanged
     {
         get => _pulsoidWidgetID;
         set => _pulsoidWidgetID = value;
-    }
-
-    public virtual string FitbitWebSocket
-    {
-        get => _fitbitWebSocket;
-        set => _fitbitWebSocket = value;
     }
 
     public virtual string HRProxyID
@@ -367,7 +360,6 @@ internal class PluginConfig : INotifyPropertyChanged
         _pulsoidToken = other._pulsoidToken;
         _hypeRateSessionID = other._hypeRateSessionID;
         _pulsoidWidgetID = other._pulsoidWidgetID;
-        _fitbitWebSocket = other._fitbitWebSocket;
         _hrProxyID = other._hrProxyID;
         _feedLink = other._feedLink;
         _noBloom = other._noBloom;

@@ -17,7 +17,6 @@ public class DataSourceManager
     private const string PULSOID_KEY = "Pulsoid";
     private const string PULSOID_WIDEGT_KEY = "PulsoidWidget";
     private const string WEBREQUEST_KEY = "WebRequest";
-    private const string FITBIT_KEY = "FitbitHRtoWS";
     private const string HRPROXY_KEY = "HRProxy";
     private const string YUR_APP_KEY = "YUR APP";
     private const string YUR_MOD_KEY = "YUR MOD";
@@ -94,13 +93,6 @@ public class DataSourceManager
     internal static DataSourceInfo WebRequest = RegisterDataSource<WebRequest>(WEBREQUEST_KEY,
         () => $"Current URL: {Config.FeedLink.TruncateW()}",
         () => GenericPrecondition(Config.FeedLink)
-    );
-
-    internal static DataSourceInfo FitbitHRtoWS = RegisterDataSource<FitbitHRtoWS>(FITBIT_KEY,
-        () => DataSourceUtils.WebSocketSharpInstalled
-            ? $"Current WebSocket Link: {Config.FitbitWebSocket.TruncateW()}"
-            : WSNotInstalledStr,
-        () => GenericPreconditionWS(Config.FitbitWebSocket)
     );
 
     internal static DataSourceInfo HRProxy = RegisterDataSource<HRProxyCustomReader>(HRPROXY_KEY,
