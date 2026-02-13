@@ -18,7 +18,6 @@ Alternatively, you can also download them from their own site.
 * [BSML](https://github.com/monkeymanboy/BeatSaberMarkupLanguage) v1.6.0+
 * [SiraUtil](https://github.com/Auros/SiraUtil) v3.0.0+
 * [Counters+](https://github.com/Caeden117/CountersPlus) v2.0.0+ (Recommended Optional, install if you want to use Counters+ custom counter system)
-* Websocket-sharp (Optional, install if you want to use Pulsoid, HypeRate or FitbitHRtoWS)
 * YUR Mod (Optional, install if you want to enable YUR Mod support)
 * [YUR Desktop App](https://store.steampowered.com/app/1188920/YUR/) (Optional, install if you want to enable YUR App support)
 
@@ -58,19 +57,12 @@ The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad 
 
 ## DATA SOURCES
 ### Pulsoid
-> [!NOTE]  
-> If this is the first time configuring, check out [**Config Generator**](https://hrcounter.skyqe.net/) to download the mod with config included.
-
-#### Pulsoid Token (Recommended)
 1. Get you self a token [**HERE**](https://pulsoid.net/oauth2/authorize?response_type=token&client_id=0025a50e-9449-4aa5-9c68-36d2903cb6a5&redirect_uri=&scope=data:heart_rate:read&state=&response_mode=web_page) for free or [**HERE if you are a BRO**](https://pulsoid.net/ui/keys).
 2. Keep that token in a safe place because it will not expire in a short time. You can always reuse the token in the future.
 3. Paste the token in the config file as below and set the value of `DataSource` to `Pulsoid Token`.
 ![pulsoid token config screenshot](https://i.imgur.com/lEUzf8D.png)
 
 ### HypeRate
-> [!NOTE]  
-> If this is the first time configuring, check out [**Config Generator**](https://hrcounter.skyqe.net/) to download the mod with config included.
-
 1. In the HypeRate app on your phone or watch, there is the session ID, which is also the few hex digits at the end of your overlay link.
 2. Change the value of `HypeRateSessionID` to yours in the config file.
 3. Set the value of `DataSource` to `"HypeRate"`.
@@ -78,16 +70,16 @@ The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad 
 For example, if your overlay link is `https://app.hyperate.io/12ab`, then your session ID is `12ab` and the config will look like `"HypeRateSessionID": "12ab"`
 
 ### Fitbit
-#### Pulsoid Support (Recommended!)
-Check if your device supports [Pulsoid](https://pulsoid.net/)! If so, follow the instructions for Pulsoid [above](#Pulsoid).
 
-#### FitbitHRtoWS
-For support on how to set up FitbitHRtoWS, please ask for help in [200Tigersbloxed's Discord server](https://www.fortnite.lol/discord)
-1. Follow the instruction on [FitbitHRtoWS](https://github.com/200Tigersbloxed/FitbitHRtoWS/wiki/Setup) and set up your heart rate broadcast.
-2. Change the value of `FitbitWebSocket` to `"ws://YOUR_IP:YOUR_PORT/"`.
-3. Set the value of `DataSource` to `"FitbitHRtoWS"`
+#### Pulsoid Support
 
-For example, `"FitbitWebSocket": "ws://localhost:8080/",` or `"FitbitWebSocket": "ws://192.168.1.100:8080/",`
+Check whether your device is supported by [Pulsoid](https://blog.pulsoid.net/monitors?from=mheader). If so, follow the instructions for
+Pulsoid [above](#Pulsoid).
+
+#### HypeRate Support
+
+Check whether your device is supported by [HypeRate](https://www.hyperate.io/supported-devices.html). If so, follow the instructions for
+HypeRate [above](#HypeRate).
 
 ### YUR App
 1. Download and start YUR from [Steam](https://store.steampowered.com/app/1188920/YUR/)
@@ -145,7 +137,6 @@ Here is a table for all the setting options if you want to edit config file inst
 | `DataSource`    | string    | `"YUR MOD"`         | The data source you want to use to get hr data. Use `Random` if you want to test things|
 | `HypeRateSessionID`| string | `"-1"`              | Session ID for HypeRate, it is also the the few hex digits at the end of your overlay link. |
 | `PulsoidWidgetID`| string   | `"NotSet"`          | Widget ID for HypeRate, it is also the last part of your widget link. |
-| `FitbitWebSocket` | string  | `"ws://localhost:8080/"`| WebSocket Link for FitbitHRtoWS |
 | `FeedLink`      | string    | `"NotSet"`   	   	| Your pulsoid feed link |
 | `NoBloom`       | bool      | `false`             | Do you want no bloom on the text? |
 | `Colorize`      | bool      | `true`   	       	| Whether the hr value will be colorized by the following 4 detail settings |
@@ -160,12 +151,4 @@ Here is a table for all the setting options if you want to edit config file inst
 | `IgnoreCountersPlus`| bool  | `false`             | Ignore whether Counters+ is installed, ignore it to allow 2 hr counters to present at the same time |
 | `DebugSpam`     | bool      | `false`             | Only effective in Debug build, toggle spamming of debug message in logs |
 | `StaticCounterPosition` | 3D Vector | `(0, 1.2, 7)` | Location of the standalone static counter, has no effect on the counters+ counter |
-
-## Data Sources To Be Supported
-* <s>[HypeRate](https://hyperate.io/)</s>
-* <s>Apple Watch (via HypeRate)</s>
-* <s>WearOS</s>
-* <s>Fitbit (via [FitbitHRtoWS](https://github.com/200Tigersbloxed/FitbitHRtoWS))</s> (By [200Tigersbloxed](https://github.com/200Tigersbloxed))
-
-Open an [issue](https://github.com/qe201020335/HRCounter/issues) if there is a device or data source you want me to support!
 
