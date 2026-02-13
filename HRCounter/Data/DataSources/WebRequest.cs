@@ -2,14 +2,24 @@
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using HRCounter.Configuration;
+using HRCounter.Data.DataSources.Base;
+using IPA.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Zenject;
 
 namespace HRCounter.Data.DataSources;
 
 internal sealed class WebRequest : DataSource
 {
-    private string FeedLink => Config.FeedLink;
+    [Inject]
+    private readonly PluginConfig _config = null!;
+
+    [Inject]
+    private readonly Logger _logger = null!;
+
+    private string FeedLink => _config.FeedLink;
     private bool _updating;
 
     private readonly Regex _regex = new("^\\d+$");
@@ -18,11 +28,11 @@ internal sealed class WebRequest : DataSource
 
     protected override void Start()
     {
-        Logger.Info("Starts updating HR");
+        _logger.Info("Starts updating HR");
         _updating = true;
         Task.Factory.StartNew(async () =>
         {
-            Logger.Debug("Requesting HR data");
+            _logger.Debug("Requesting HR data");
 
             while (_updating)
             {
@@ -58,8 +68,8 @@ internal sealed class WebRequest : DataSource
                     var json = JObject.Parse(res);
                     if (json["bpm"] == null)
                     {
-                        Logger.Warn("Json received does not contain necessary field");
-                        Logger.Warn(res);
+                        _logger.Warn("Json received does not contain necessary field");
+                        _logger.Warn(res);
                     }
                     else
                     {
@@ -80,25 +90,25 @@ internal sealed class WebRequest : DataSource
                 }
                 catch (JsonReaderException)
                 {
-                    Logger.Critical($"Invalid json received: {res}");
+                    _logger.Critical($"Invalid json received: {res}");
                 }
             }
         }
         catch (InvalidOperationException e)
         {
-            Logger.Error($"Invalid request URI: {FeedLink}");
-            Logger.Info("Stopping hr update");
+            _logger.Error($"Invalid request URI: {FeedLink}");
+            _logger.Info("Stopping hr update");
             Stop();
         }
         catch (HttpRequestException e)
         {
-            Logger.Critical($"Failed to request HR: {e.Message}");
-            Logger.Debug(e);
+            _logger.Critical($"Failed to request HR: {e.Message}");
+            _logger.Debug(e);
         }
         catch (Exception e)
         {
-            Logger.Warn($"Error Requesting HR data: {e.Message}");
-            Logger.Warn(e);
+            _logger.Warn($"Error Requesting HR data: {e.Message}");
+            _logger.Warn(e);
         }
     }
 }

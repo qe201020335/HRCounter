@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using HRCounter.Data.DataSources.Base;
 
 namespace HRCounter.Data.DataSources.DebugSource;
 

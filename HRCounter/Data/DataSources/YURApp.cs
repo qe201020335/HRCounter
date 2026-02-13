@@ -4,13 +4,23 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using HRCounter.Configuration;
+using HRCounter.Data.DataSources.Base;
 using HRCounter.Utils;
+using IPA.Logging;
 using Newtonsoft.Json.Linq;
+using Zenject;
 
 namespace HRCounter.Data.DataSources;
 
 internal sealed class YURApp : DataSource
 {
+    [Inject]
+    private readonly PluginConfig _config = null!;
+
+    [Inject]
+    private readonly Logger _logger = null!;
+
     private const string HOST = "127.0.0.1";
     private const int PORT = 11010;
     private TcpClient? _client;
@@ -26,11 +36,11 @@ internal sealed class YURApp : DataSource
         _running = true;
         if (_client != null)
         {
-            Logger.Info("We have an old tcp client, destroying");
+            _logger.Info("We have an old tcp client, destroying");
             CloseClientMakeNull();
         }
 
-        Logger.Info("Creating new tcp connection");
+        _logger.Info("Creating new tcp connection");
         _client = new TcpClient();
         _cancellationSource?.Cancel();
         _cancellationSource = new CancellationTokenSource();
@@ -46,13 +56,13 @@ internal sealed class YURApp : DataSource
         }
         catch (OperationCanceledException)
         {
-            Logger.Warn("Connect Canceled.");
+            _logger.Warn("Connect Canceled.");
         }
         catch (Exception e)
         {
-            Logger.Warn("Cannot connect to YUR app");
-            Logger.Warn(e.Message);
-            Logger.Debug(e);
+            _logger.Warn("Cannot connect to YUR app");
+            _logger.Warn(e.Message);
+            _logger.Debug(e);
             Stop();
             return;
         }
@@ -63,13 +73,13 @@ internal sealed class YURApp : DataSource
         }
         catch (OperationCanceledException)
         {
-            Logger.Warn("Read Canceled.");
+            _logger.Warn("Read Canceled.");
         }
         catch (Exception e)
         {
-            Logger.Critical("Exception occured while receiving data");
-            Logger.Critical(e.Message);
-            Logger.Debug(e);
+            _logger.Critical("Exception occured while receiving data");
+            _logger.Critical(e.Message);
+            _logger.Debug(e);
             Stop();
         }
     }
@@ -97,7 +107,7 @@ internal sealed class YURApp : DataSource
                 if (type[0] == 1)
                 {
                     // ping message
-                    Logger.Spam("Ping!");
+                    _logger.Spam("Ping!");
                     await Pong();
                 }
                 else if (type[0] == 20)
@@ -117,16 +127,16 @@ internal sealed class YURApp : DataSource
             {
                 if (_running)
                 {
-                    Logger.Warn("tcp client is not connected anymore");
+                    _logger.Warn("tcp client is not connected anymore");
                 }
 
                 return;
             }
             catch (Exception e)
             {
-                Logger.Critical("Exception occured while reading data");
-                Logger.Critical(e.Message);
-                Logger.Debug(e);
+                _logger.Critical("Exception occured while reading data");
+                _logger.Critical(e.Message);
+                _logger.Debug(e);
                 return;
             }
         }
@@ -163,15 +173,15 @@ internal sealed class YURApp : DataSource
         }
         catch (Exception e)
         {
-            Logger.Critical($"Exception trying to send data through socket: {e.Message}");
-            Logger.Debug(e);
+            _logger.Critical($"Exception trying to send data through socket: {e.Message}");
+            _logger.Debug(e);
             return Task.CompletedTask;
         }
     }
 
     private void HandleData(string data)
     {
-        Logger.Spam(data);
+        _logger.Spam(data);
 
         try
         {
@@ -188,7 +198,7 @@ internal sealed class YURApp : DataSource
 
             var osu = JObject.Parse(json["jsonData"]?.ToString());
 
-            Logger.Spam(osu.ToString());
+            _logger.Spam(osu.ToString());
 
             var hrToken = osu["status"]?["heartRate"]?.Type != JTokenType.Null
                 ? osu["status"]?["heartRate"]
@@ -201,16 +211,16 @@ internal sealed class YURApp : DataSource
         }
         catch (Exception e)
         {
-            Logger.Warn("Exception occured while parsing hr data");
-            Logger.Warn(e.Message);
-            Logger.Debug(e);
+            _logger.Warn("Exception occured while parsing hr data");
+            _logger.Warn(e.Message);
+            _logger.Debug(e);
         }
     }
 
 
     private async Task Pong()
     {
-        Logger.Spam("Pong!");
+        _logger.Spam("Pong!");
         await SendMessage(2, null);
     }
 
@@ -224,9 +234,9 @@ internal sealed class YURApp : DataSource
         }
         catch (Exception e)
         {
-            Logger.Warn("Exception occured while closing tcp client");
-            Logger.Warn(e.Message);
-            Logger.Debug(e);
+            _logger.Warn("Exception occured while closing tcp client");
+            _logger.Warn(e.Message);
+            _logger.Debug(e);
         }
 
         _client = null;
@@ -240,6 +250,6 @@ internal sealed class YURApp : DataSource
         _cancellationSource = null;
         CloseClientMakeNull();
         _worker = null;
-        Logger.Info("Stopped");
+        _logger.Info("Stopped");
     }
 }

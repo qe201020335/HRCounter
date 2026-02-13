@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
+using HRCounter.Configuration;
+using HRCounter.Data.DataSources.Base;
 using HRCounter.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
+using Zenject;
+using Logger = IPA.Logging.Logger;
 using Random = UnityEngine.Random;
 
 namespace HRCounter.Data.DataSources;
@@ -13,6 +17,12 @@ internal abstract class HRProxyBase : DataSource
     private const string URL = "wss://hrproxy.fortnite.lol:2096/hrproxy";
 
     // private const string PONG = "{\"method\": \"pong\"}";
+
+    [Inject]
+    protected readonly PluginConfig Config = null!;
+
+    [Inject]
+    private readonly Logger _logger = null!;
 
     protected abstract string ReaderName { get; }
 
@@ -63,7 +73,7 @@ internal abstract class HRProxyBase : DataSource
             return;
         }
 
-        Logger.Warn("WebSocket is closed. Stopping HR updates");
+        _logger.Warn("WebSocket is closed. Stopping HR updates");
         Stop();
     }
 
@@ -71,12 +81,12 @@ internal abstract class HRProxyBase : DataSource
     {
         if (_webSocket != null && _webSocket.IsAlive)
         {
-            Logger.Info("We have an old WebSocket, destroying");
+            _logger.Info("We have an old WebSocket, destroying");
             _webSocket.Close();
             _webSocket = null;
         }
 
-        Logger.Info("Creating new WebSocket");
+        _logger.Info("Creating new WebSocket");
         _webSocket = new WebSocket(URL);
         _webSocket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
         _webSocket.OnMessage += OnMessageReceive;
@@ -89,28 +99,28 @@ internal abstract class HRProxyBase : DataSource
     private async void Pong(JObject data)
     {
         var delay = Random.Range(30, 15000);
-        Logger.Debug($"Random delay {delay} ms for pong.");
+        _logger.Debug($"Random delay {delay} ms for pong.");
         await Task.Delay(delay); // random delay between 30 ms and 15 sec
         if (_updating)
         {
-            Logger.Debug("Pong!");
+            _logger.Debug("Pong!");
             SendMessage(data.ToString());
         }
     }
 
     private void SendMessage(string s)
     {
-        Logger.Debug($"Trying to send message {s}");
+        _logger.Debug($"Trying to send message {s}");
         if (!_updating)
         {
-            Logger.Debug($"Not updating, no message sent.");
+            _logger.Debug($"Not updating, no message sent.");
             return;
         }
 
         if (_webSocket == null || _webSocket.ReadyState == WebSocketState.Closed)
         {
-            Logger.Critical("WebSocket is null or Closed. Terminating HR Update.");
-            Logger.Notice("Server unreachable! Does your internet get disconnected?");
+            _logger.Critical("WebSocket is null or Closed. Terminating HR Update.");
+            _logger.Notice("Server unreachable! Does your internet get disconnected?");
             Stop();
         }
 
@@ -120,20 +130,20 @@ internal abstract class HRProxyBase : DataSource
             {
                 if (!b)
                 {
-                    Logger.Warn("WebSocket failed to send message");
+                    _logger.Warn("WebSocket failed to send message");
                     Stop();
                 }
                 else
                 {
-                    Logger.Debug("Message sent successfully");
+                    _logger.Debug("Message sent successfully");
                 }
             });
         }
         catch (Exception e)
         {
-            Logger.Error("Error happened when sending message. Terminating HR Update.");
-            Logger.Error(e.Message);
-            Logger.Debug(e);
+            _logger.Error("Error happened when sending message. Terminating HR Update.");
+            _logger.Error(e.Message);
+            _logger.Debug(e);
             Stop();
         }
     }
@@ -146,8 +156,8 @@ internal abstract class HRProxyBase : DataSource
         }
 
         Stop();
-        Logger.Error(e.Message);
-        Logger.Debug(e.Exception);
+        _logger.Error(e.Message);
+        _logger.Debug(e.Exception);
     }
 
     private void OnMessageReceive(object sender, MessageEventArgs e)
@@ -157,7 +167,7 @@ internal abstract class HRProxyBase : DataSource
             return;
         }
 
-        Logger.Spam(e.Data);
+        _logger.Spam(e.Data);
 
         try
         {
@@ -165,7 +175,7 @@ internal abstract class HRProxyBase : DataSource
 
             if (json["method"]?.ToString() == "ping")
             {
-                Logger.Debug("Ping!");
+                _logger.Debug("Ping!");
                 json["method"] = "pong";
                 Pong(json);
             }
@@ -177,8 +187,8 @@ internal abstract class HRProxyBase : DataSource
         }
         catch (JsonReaderException)
         {
-            Logger.Warn("Invalid json received.");
-            Logger.Warn(e.Data);
+            _logger.Warn("Invalid json received.");
+            _logger.Warn(e.Data);
         }
     }
 

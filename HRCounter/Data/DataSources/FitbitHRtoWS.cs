@@ -1,11 +1,20 @@
 using System;
 using System.Threading;
+using HRCounter.Configuration;
+using HRCounter.Data.DataSources.Base;
 using WebSocketSharp;
+using Zenject;
 
 namespace HRCounter.Data.DataSources;
 
 internal sealed class FitbitHRtoWS : DataSource
 {
+    [Inject]
+    private readonly PluginConfig _config = null!;
+
+    [Inject]
+    private readonly Logger _logger = null!;
+
     private Thread? _worker;
 
     private WebSocket? _webSocket;
@@ -30,7 +39,7 @@ internal sealed class FitbitHRtoWS : DataSource
         }
         catch (Exception)
         {
-            Logger.Warn("WebSocket URI is not valid! Assuming insecure.");
+            _logger.Warn("WebSocket URI is not valid! Assuming insecure.");
         }
 
         return btr;
@@ -82,12 +91,12 @@ internal sealed class FitbitHRtoWS : DataSource
                     }
                     else
                     {
-                        Logger.Warn("Failed to connect to WebSocket. Is it running?");
+                        _logger.Warn("Failed to connect to WebSocket. Is it running?");
                     }
                 }
                 else
                 {
-                    Logger.Error("WebSocket is null!");
+                    _logger.Error("WebSocket is null!");
                 }
 
                 Thread.Sleep(1000);
@@ -98,7 +107,7 @@ internal sealed class FitbitHRtoWS : DataSource
 
     private void RefreshSettings()
     {
-        _url = Config.FitbitWebSocket;
+        _url = _config.FitbitWebSocket;
     }
 
     private void WebSocket_OnClose(object sender, CloseEventArgs e)
