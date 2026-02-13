@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <Import Project="HRCounter.csproj.user" Condition="Exists('HRCounter.csproj.user')"/>
     <PropertyGroup>
-        <TargetFramework>net48</TargetFramework>
+        <TargetFramework>net472</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>HRCounter</RootNamespace>
         <AssemblyName>HRCounter</AssemblyName>
