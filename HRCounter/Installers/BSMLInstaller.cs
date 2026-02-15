@@ -9,7 +9,6 @@ public class BSMLInstaller : Installer
     {
         Container.BindInterfacesAndSelfTo<SettingMenuController>().FromNewComponentAsViewController().AsSingle();
         Container.BindInterfacesAndSelfTo<ServiceStatusViewController>().FromNewComponentAsViewController().AsSingle();
-        Container.BindInterfacesAndSelfTo<ConfigViewFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
-        Container.BindInterfacesTo<MenuButtonManager>().AsSingle();
+        Container.BindInterfacesAndSelfTo<ConfigViewFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
     }
 }

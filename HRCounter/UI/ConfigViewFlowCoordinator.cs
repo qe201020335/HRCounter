@@ -1,4 +1,5 @@
-﻿using HMUI;
+﻿using BeatSaberMarkupLanguage.MenuButtons;
+using HMUI;
 using Zenject;
 
 namespace HRCounter.UI;
@@ -9,10 +10,27 @@ public class ConfigViewFlowCoordinator : FlowCoordinator
     private readonly MainFlowCoordinator _mainFlowCoordinator = null!;
 
     [Inject]
+    private readonly MenuButtons _menuButtons = null!;
+
+    [Inject]
     private readonly SettingMenuController _mainPanel = null!;
     
     [Inject]
     private readonly ServiceStatusViewController _serviceStatusView = null!;
+
+    private readonly MenuButton _menuButton;
+
+    public ConfigViewFlowCoordinator() => _menuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick);
+
+    private void Start()
+    {
+        _menuButtons.RegisterButton(_menuButton);
+    }
+
+    private void OnMenuButtonClick()
+    {
+        _mainFlowCoordinator.PresentFlowCoordinator(this);
+    }
 
     protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
