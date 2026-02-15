@@ -43,8 +43,6 @@ internal class DataSourceMenu : BSMLAutomaticViewController
     [UIComponent("data-source-info-refresh-btn")]
     private Button _dataSourceInfoRefreshBtn = null!;
 
-    private string _previousDataSource = "";
-
     [UIAction("#post-parse")]
     private void OnParsed()
     {
@@ -55,7 +53,6 @@ internal class DataSourceMenu : BSMLAutomaticViewController
 
         _parsed = true;
         UpdateDataSourceInfoText();
-        _previousDataSource = _config.DataSource;
     }
 
     protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -66,7 +63,8 @@ internal class DataSourceMenu : BSMLAutomaticViewController
         if (!firstActivation)
         {
             // config might have changed while we were inactive
-            RefreshConfigUi();
+            NotifyPropertyChanged(null);
+            UpdateDataSourceInfoText();
         }
 
         _config.PropertyChanged += OnConfigChanged;
@@ -76,27 +74,25 @@ internal class DataSourceMenu : BSMLAutomaticViewController
     {
         _logger.Trace("DataSourceMenu DidDeactivate");
         _config.PropertyChanged -= OnConfigChanged;
-        _previousDataSource = ""; // force a refresh next time we activate
 
         base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
     }
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {
-        // TODO change only needed values
-        UnityMainThreadTaskScheduler.Factory.StartNew(RefreshConfigUi);
-    }
-
-    private void RefreshConfigUi()
-    {
-        _logger.Trace("DataSourceMenu RefreshConfigUi");
-        NotifyPropertyChanged(string.Empty); // refresh all of them
-
-        if (_previousDataSource != _config.DataSource)
+        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
         {
-            _previousDataSource = _config.DataSource;
-            UpdateDataSourceInfoText();
-        }
+            NotifyPropertyChanged(args.PropertyName);
+            switch (args.PropertyName)
+            {
+                case nameof(_config.DataSource):
+                    UpdateDataSourceInfoText();
+                    break;
+                case "" or null:
+                    UpdateDataSourceInfoText();
+                    break;
+            }
+        });
     }
 
     [UIAction("UpdateDataSourceInfoText")]
@@ -110,9 +106,10 @@ internal class DataSourceMenu : BSMLAutomaticViewController
         }
 
         _dataSourceInfoText.SetText("Loading Data Source Info...");
+        _dataSourceInfoRefreshBtn.interactable = false;
+
         UnityMainThreadTaskScheduler.Factory.StartNew(async () =>
         {
-            _dataSourceInfoRefreshBtn.interactable = false;
             string newText;
             try
             {

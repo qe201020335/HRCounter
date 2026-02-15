@@ -8,13 +8,11 @@ using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using HRCounter.Configuration;
-using HRCounter.Data;
 using HRCounter.Utils;
 using IPA.Utilities;
 using IPA.Utilities.Async;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using Zenject;
 using Logger = IPA.Logging.Logger;
 
@@ -34,23 +32,7 @@ internal class SettingMenuController : BSMLAutomaticViewController
     [Inject]
     private readonly IconManager _iconManager = null!;
 
-    private string _previousIcon = "";
-
     private readonly IList<string> _iconNames = new List<string>();
-
-    private void RefreshConfigUi()
-    {
-        _logger.Trace("SettingMenuController RefreshConfigUi");
-        NotifyPropertyChanged(string.Empty); // refresh all of them
-
-        if (_previousIcon != _config.CustomIcon)
-        {
-            _previousIcon = _config.CustomIcon;
-            UpdateCustomIconSelection();
-        }
-
-        UpdateColorText();
-    }
 
     private void UpdateColorText()
     {
@@ -62,14 +44,25 @@ internal class SettingMenuController : BSMLAutomaticViewController
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {
-        // TODO change only needed values
-        UnityMainThreadTaskScheduler.Factory.StartNew(RefreshConfigUi);
+        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+        {
+            NotifyPropertyChanged(args.PropertyName);
+            UpdateColorText();
+            switch (args.PropertyName)
+            {
+                case nameof(_config.CustomIcon):
+                    UpdateCustomIconSelection();
+                    break;
+                case "" or null:
+                    UpdateCustomIconSelection();
+                    break;
+            }   
+        });
     }
 
     [UIAction("#post-parse")]
     private async Task PostParse()
     {
-        _previousIcon = _config.CustomIcon;
         UpdateColorText();
         await LoadIconList(false);
     }
@@ -82,7 +75,9 @@ internal class SettingMenuController : BSMLAutomaticViewController
         if (!firstActivation)
         {
             // config might have changed while we were inactive
-            RefreshConfigUi();
+            NotifyPropertyChanged(null);
+            UpdateCustomIconSelection();
+            UpdateColorText();
         }
 
         _config.PropertyChanged += OnConfigChanged;
@@ -364,7 +359,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
     {
         if (view != _iconList.TableView) return;
         var iconName = _iconNames[index];
-        _previousIcon = iconName;
         _logger.Debug($"Selected icon {index} ({iconName})");
         _config.CustomIcon = iconName;
     }
