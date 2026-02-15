@@ -1,13 +1,15 @@
 ﻿using System.ComponentModel;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
+using HMUI;
 using HRCounter.Configuration;
 using HRCounter.Web.HTTP;
 using HRCounter.Web.OSC;
-using IPA.Logging;
 using IPA.Utilities.Async;
 using TMPro;
+using UnityEngine;
 using Zenject;
+using Logger = IPA.Logging.Logger;
 
 namespace HRCounter.UI;
 
@@ -28,6 +30,9 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
     private readonly SimpleHttpServer _httpServer = null!;
 
     private bool _parsed = false;
+
+    [UIComponent("title_container")]
+    private Transform _titleContainer = null!;
 
     [UIComponent("http_status_text")]
     private TMP_Text _httpStatusText = null!;
@@ -52,7 +57,14 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
     [UIAction("#post-parse")]
     private void OnParsed()
     {
+        if (!_parsed)
+        {
+            ((RectTransform)gameObject.transform).offsetMax = new Vector2(0, 22);
+        }
+
         _parsed = true;
+        var bg = _titleContainer.GetComponent<ImageView>();
+        (bg.color0, bg.color1) = (bg.color1, bg.color0);
         RefreshStatus();
     }
 
