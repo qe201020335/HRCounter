@@ -34,8 +34,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
     [Inject]
     private readonly IconManager _iconManager = null!;
 
-    private string _previousDataSource = "";
-
     private string _previousIcon = "";
 
     private readonly IList<string> _iconNames = new List<string>();
@@ -44,12 +42,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
     {
         _logger.Trace("SettingMenuController RefreshConfigUi");
         NotifyPropertyChanged(string.Empty); // refresh all of them
-
-        if (_previousDataSource != _config.DataSource)
-        {
-            _previousDataSource = _config.DataSource;
-            UpdateDataSourceInfoText();
-        }
 
         if (_previousIcon != _config.CustomIcon)
         {
@@ -68,36 +60,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
         }
     }
 
-    private void UpdateDataSourceInfoText()
-    {
-        var known = DataSourceManager.TryGetFromKey(_config.DataSource, out var source);
-        if (!known)
-        {
-            _dataSourceInfoText.SetText("Unknown Data Source");
-            return;
-        }
-
-        _dataSourceInfoText.SetText("Loading Data Source Info...");
-        UnityMainThreadTaskScheduler.Factory.StartNew(async () =>
-        {
-            _dataSourceInfoRefreshBtn.interactable = false;
-            string newText;
-            try
-            {
-                newText = await source.GetSourceLinkText();
-            }
-            catch (Exception e)
-            {
-                _logger.Error($"Failed to update data source info text: {e}");
-                newText = "<color=#FF0000>Failed to load info, check logs for details.</color>";
-            }
-
-            _dataSourceInfoText.SetText(newText);
-            await Task.Delay(500); // no spamming the button
-            _dataSourceInfoRefreshBtn.interactable = true;
-        });
-    }
-
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {
         // TODO change only needed values
@@ -107,8 +69,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
     [UIAction("#post-parse")]
     private async Task PostParse()
     {
-        UpdateDataSourceInfoText();
-        _previousDataSource = _config.DataSource;
         _previousIcon = _config.CustomIcon;
         UpdateColorText();
         await LoadIconList(false);
@@ -132,7 +92,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
     {
         _logger.Trace("SettingMenuController DidDeactivate");
         _config.PropertyChanged -= OnConfigChanged;
-        _previousDataSource = ""; // force a refresh next time we activate
         if (_colorVisualizerCoroutine != null)
         {
             VisualizeColorsBtnPressed(); // stop the visualization and reset the text
@@ -214,11 +173,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
     [UIComponent("color-info-text")]
     private TMP_Text _colorInfoText = null!;
 
-    [UIComponent("data-source-info-text")]
-    private TextPageScrollView _dataSourceInfoText = null!;
-
-    [UIComponent("data-source-info-refresh-btn")]
-    private Button _dataSourceInfoRefreshBtn = null!;
 
     [UIComponent("icon-list")]
     private CustomListTableData _iconList = null!;
@@ -253,16 +207,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
     {
         get => _config.HRHigh;
         set => _config.HRHigh = value;
-    }
-
-    [UIValue("source-list-options")]
-    public List<object> DataSourceOptions => new(DataSourceManager.DataSourceTypes.Keys);
-
-    [UIValue("source-list-choice")]
-    public string DataSourceChoice
-    {
-        get => _config.DataSource;
-        set => _config.DataSource = value;
     }
 
     [UIValue("PauseHR")]
@@ -371,12 +315,6 @@ internal class SettingMenuController : BSMLAutomaticViewController
     #endregion
 
     #region UIActions
-
-    [UIAction("data-source-info-refresh-btn-action")]
-    private void OnDataSourceInfoRefreshBtnPressed()
-    {
-        UpdateDataSourceInfoText();
-    }
 
     [UIAction("reset-low-color")]
     private void ResetLowColor()

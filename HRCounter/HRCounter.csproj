@@ -155,6 +155,7 @@
         <EmbeddedResource Include="UI\BSML\configMenu.bsml"/>
         <EmbeddedResource Include="UI\BSML\serviceStatus.bsml"/>
         <EmbeddedResource Include="UI\CountersPlus\config.bsml"/>
+        <EmbeddedResource Include="UI\BSML\dataSource.bsml"/>
     </ItemGroup>
     <ItemGroup>
         <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')"/>
