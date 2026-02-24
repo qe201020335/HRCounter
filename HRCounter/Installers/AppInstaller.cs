@@ -33,7 +33,6 @@ public class AppInstaller : Installer<AppInstaller>
         Container.BindInstance(_config).AsSingle();
         Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<IconManager>().AsSingle();
-        Container.BindInterfacesAndSelfTo<UserInfoHelper>().AsSingle();
 
         // Web stuff
         Container.BindInterfacesAndSelfTo<SimpleHttpServer>().AsSingle();

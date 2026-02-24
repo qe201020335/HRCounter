@@ -7,6 +7,7 @@ using HRCounter.Data.DataSources.Base;
 using HRCounter.Web.WebSocket.EventArgs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OculusStudios.Platform.Core;
 using Zenject;
 using Logger = IPA.Logging.Logger;
 
@@ -29,7 +30,7 @@ internal class HypeRate2 : WebSocketSource
     private readonly Logger _logger = null!;
 
     [Inject]
-    private readonly IPlatformUserModel _platformUserModel = null!;
+    private readonly IPlatform _platformModel = null!;
 
     protected override string Url => URL;
 
@@ -52,21 +53,21 @@ internal class HypeRate2 : WebSocketSource
 
     protected override async Task<bool> PrepareBeforeConnect(CancellationToken token)
     {
-        var userInfo = await _platformUserModel.GetUserInfo(token);
-        var authToken = await _platformUserModel.GetUserAuthToken();
-        _userId = userInfo.platformUserId;
-        switch (userInfo.platform)
+        var userInfo = _platformModel.user;
+        var authToken = await userInfo.GetAccessTokenAsync() ?? "";
+        _userId = userInfo.userId.ToString();
+        switch (_platformModel.vendor)
         {
-            case UserInfo.Platform.Steam:
+            case Vendor.Valve:
                 _platform = "steam";
-                _ticket = authToken.token?.Replace("-", "") ?? "";
+                _ticket = authToken.Replace("-", "");
                 break;
-            case UserInfo.Platform.Oculus:
+            case Vendor.Meta:
                 _platform = "oculus";
-                _ticket = authToken.token ?? "";
+                _ticket = authToken;
                 break;
             default:
-                _logger.Notice($"Unsupported platform: {userInfo.platform}");
+                _logger.Notice($"Unsupported platform: {_platformModel.vendor}");
                 return false;
         }
 
