@@ -283,7 +283,7 @@ internal class MainConfigMenu : BaseConfigViewController
         if (!counter.HasValue)
         {
             _logger.Warn("Failed to setup preview counter");
-            var text = BeatSaberUI.CreateText(transform as RectTransform, "Failed to load preview counter", new Vector2(0.5f, 0.5f));
+            var text = BeatSaberUI.CreateCurvedUIText(transform as RectTransform, "Failed to load preview counter");
             text.color = Color.red;
             PreviewCounter = text.transform;
             return;

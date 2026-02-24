@@ -45,7 +45,6 @@ public class AppInstaller : Installer<AppInstaller>
         Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<DataSourceManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<IconManager>().AsSingle();
-        Container.BindInterfacesAndSelfTo<UserInfoHelper>().AsSingle();
         Container.BindInterfacesAndSelfTo<PulsoidAuthenticator>().AsSingle();
 
         // Web stuff
