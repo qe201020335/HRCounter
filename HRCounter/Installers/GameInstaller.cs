@@ -6,6 +6,7 @@ using HRCounter.Data;
 using HRCounter.Data.Replay;
 using HRCounter.Utils;
 using IPA.Logging;
+using OculusStudios.Platform.Core;
 using Zenject;
 using Version = Hive.Versioning.Version;
 
@@ -20,7 +21,7 @@ public class GameInstaller : Installer<GameInstaller>
     private readonly Logger _logger = null!;
 
     [Inject]
-    private readonly UserInfoHelper _userInfoHelper = null!;
+    private readonly IPlatform _platform = null!;
 
     private const string COUNTERS_PLUS_MOD_ID = "Counters+";
 
@@ -106,18 +107,18 @@ public class GameInstaller : Installer<GameInstaller>
             _logger.Spam($"BeatLeader replay player: {playerName} ({playerId})");
         }
 
-        var currenUser = _userInfoHelper.UserInfo;
-        if (currenUser == null)
+        var user = _platform.user;
+        if (user == null)
         {
-            _logger.Warn("Current user info is null");
+            _logger.Warn("Current user is null");
         }
         else
         {
-            _logger.Spam($"Current user: {currenUser.userName} ({currenUser.platformUserId})");
+            _logger.Spam($"Current user: {user.displayName} ({user.userId})");
         }
 
         var replayPlayer = playerId;
-        var currentPlayer = currenUser?.platformUserId;
+        var currentPlayer = (user?.userId)?.ToString();
         var idMatch = replayPlayer == currentPlayer;
         var shouldLoadHr = (idMatch && _config.ReplayPlaybackSelfHr) || (!idMatch && _config.ReplayPlaybackOthersHr);
         if (!shouldLoadHr)
