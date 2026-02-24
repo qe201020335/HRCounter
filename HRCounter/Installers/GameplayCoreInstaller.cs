@@ -35,9 +35,22 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
             return;
         }
 
+        ReplayHRData? data;
+        if (Utils.Utils.IsInBLReplay() && (data = GetBeatLeaderReplayHRData()) != null)
+        {
+            _logger.Debug("Binding replay HR provider");
+            Container.BindInstance(data).WhenInjectedInto<ReplayHRProvider>();
+            Container.BindInterfacesAndSelfTo<ReplayHRProvider>().AsSingle();
+        }
+        else
+        {
+            _logger.Debug("Binding live HR provider");
+            Container.BindInterfacesAndSelfTo<LiveHRProvider>().AsSingle();
+        }
+
         if (!_config.IgnoreCountersPlus && Utils.Utils.IsModEnabled(COUNTERS_PLUS_MOD_ID))
         {
-            _logger.Info("Counters+ mod is enabled! Not binding!");
+            _logger.Info("Counters+ mod is enabled! Not binding standalone counter!");
             return;
         }
 
@@ -51,19 +64,6 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
         }
         else
         {
-            ReplayHRData? data;
-            if (Utils.Utils.IsInBLReplay() && (data = GetBeatLeaderReplayHRData()) != null)
-            {
-                _logger.Debug("Binding replay HR provider");
-                Container.BindInstance(data).WhenInjectedInto<ReplayHRProvider>();
-                Container.BindInterfacesAndSelfTo<ReplayHRProvider>().AsSingle();
-            }
-            else
-            {
-                _logger.Debug("Binding live HR provider");
-                Container.BindInterfacesAndSelfTo<LiveHRProvider>().AsSingle();
-            }
-
             _logger.Debug("Binding HR Counter");
             Container.BindInterfacesTo<HRCounterController>().AsSingle().NonLazy();
             _logger.Debug("HR Counter binded");

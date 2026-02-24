@@ -21,8 +21,8 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
     [Inject]
     private readonly IPALogger _logger = null!;
 
-    [Inject]
-    private readonly IInGameHRProvider _hrProvider = null!;
+    [InjectOptional]
+    private readonly IInGameHRProvider? _hrProvider = null;
 
     private TMP_Text? _counter;
 
@@ -31,7 +31,7 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
 
     public override void CounterInit()
     {
-        if (!_config.ModEnable)
+        if (!_config.ModEnable || _hrProvider == null)
         {
             return;
         }
@@ -74,7 +74,7 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
             return false;
         }
 
-        counter.Value.ReplayIcon.SetActive(_hrProvider.IsReplayData);
+        counter.Value.ReplayIcon.SetActive(_hrProvider!.IsReplayData);
         _customCounter = counter.Value.Icon;
         _customCounterText = counter.Value.Numbers;
 
@@ -100,7 +100,10 @@ public sealed class HRCounterCountersPlus : BasicCustomCounter
 
     public override void CounterDestroy()
     {
-        _hrProvider.HRChanged -= OnHRUpdate;
+        if (_hrProvider != null)
+        {
+            _hrProvider.HRChanged -= OnHRUpdate;
+        }
 
         _counter = null;
         if (_customCounter != null)
