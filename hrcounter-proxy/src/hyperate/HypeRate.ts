@@ -15,32 +15,53 @@ export class HypeRate {
         this.id = id;
         const ws = new WebSocket("wss://app.hyperate.io/socket/websocket?token=" + token);
         ws.addEventListener("open", () => {
-            this.sendMessage(`{"topic": "hr:${id}","event": "phx_join","payload": {},"ref": 0}`);
-            this.startKeepAlive();
+            try {
+                this.sendMessage(`{"topic": "hr:${id}","event": "phx_join","payload": {},"ref": 0}`);
+                this.startKeepAlive();
+            } catch (e) {
+                console.error("Error in HypeRate ws onOpen handler:", e);
+            }
         });
         ws.addEventListener("message", (e) => {
             // console.debug("Received message", e.data);
-            onMessage(e.data);
+            try {
+                onMessage(e.data);
+            } catch (e) {
+                console.error("Error in HypeRate ws onMessage handler:", e);
+            }
         });
         ws.addEventListener("close", (e) => {
             console.log("hyperate websocket closed");
-            if (this.closed) {
-                return;
+            try {
+                if (this.closed) {
+                    return;
+                }
+                onClose(e.code, e.reason);
+                this.cleanup();
+            } catch (e) {
+                console.log("Error in HypeRate ws onClose handler:", e);
             }
-            onClose(e.code, e.reason);
-            this.cleanup();
+            
         });
         ws.addEventListener("error", (e) => {
             console.warn("hyperate websocket error:", e.message);
-            onClose(1011, e.message);
+            try {
+                onClose(1011, e.message);
+            } catch (e) {
+                console.error("Error in HypeRate ws onError handler:", e);
+            }
         });
         this.ws = ws;
     }
 
     private sendMessage(message: any) {
         // console.debug("Sending message", message);
-        if (this.ws.readyState == WebSocket.READY_STATE_OPEN) {
-            this.ws.send(message);
+        try {
+            if (this.ws.readyState == WebSocket.READY_STATE_OPEN) {
+                this.ws.send(message);
+            }
+        } catch (e) {
+            console.error("Error sending message to HypeRate ws:", e);
         }
     }
 

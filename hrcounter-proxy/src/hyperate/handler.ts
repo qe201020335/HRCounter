@@ -24,30 +24,48 @@ export const handleHypeRate: ExportedHandlerFetchHandler<Env> = async (request, 
     const [client, server] = Object.values(webSocketPair);
 
     const sendMessage = (message: any) => {
-        if (server.readyState == WebSocket.READY_STATE_OPEN) {
-            server.send(message);
-        } else if (server.readyState != WebSocket.CONNECTING) {
-            hyperate.close();
+        try {
+            if (server.readyState == WebSocket.READY_STATE_OPEN) {
+                server.send(message);
+            } else if (server.readyState != WebSocket.CONNECTING) {
+                hyperate.close();
+            }
+        } catch (e) {
+            console.error("Error sending message to client ws:", e);
         }
     };
 
-    // @ts-ignore
-    const hyperate = new HypeRate(hyperateId, env["HYPERATE_TOKEN"] ?? "",
-        sendMessage,
-        (code, reason) => {
-            server.close(code, reason);
-        }
-    );
+    let hyperate: HypeRate;
+    try {
+        // @ts-ignore
+        hyperate = new HypeRate(hyperateId, env["HYPERATE_TOKEN"] ?? "",
+            sendMessage,
+            (code, reason) => {
+                server.close(code, reason);
+            }
+        );
+    } catch (e) {
+        console.error("Failed to create HypeRate client", e);
+        return new Response("Internal Server Error", { status: 500 });
+    }
 
     server.addEventListener("close", () => {
         console.log("client ws closed");
-        server.close();
-        hyperate.close();
+        try {
+            server.close();
+            hyperate.close();
+        } catch (e) {
+            console.error("Error in client ws onClose handler:", e);
+        }
     });
 
     server.addEventListener("error", (e) => {
         console.error("client websocket error:", e);
-        hyperate.close();
+        try {
+            hyperate.close();
+        } catch (e) {
+            console.error("Error in client ws onError handler:", e);
+        }
     });
 
     server.accept();
