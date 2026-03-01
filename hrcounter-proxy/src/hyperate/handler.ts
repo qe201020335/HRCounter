@@ -3,18 +3,41 @@ import { HypeRate } from "./HypeRate";
 const HYPERATE_ID_RE = /^[a-zA-Z0-9_\-]+$/;
 const HYPERATE_ID_HEADER = "X-HypeRate-ID";
 
+export const handleHypeRateProxyStatus: ExportedHandlerFetchHandler<Env> = async (request, env, ctx) => {
+    console.log("handling hyperate proxy status request");
+    if (request.method !== "GET") {
+        console.log("invalid method", request.method);
+        return new Response("Method Not Allowed", { status: 405 });
+    }
+
+    const urlOverride: string = env.HYPERATE_PROXY_OVERRIDE;
+    const body = {
+        urlOverride: urlOverride ? urlOverride : ""
+    };
+    return new Response(JSON.stringify(body), {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+};
+
 export const handleHypeRate: ExportedHandlerFetchHandler<Env> = async (request, env, ctx) => {
     console.log("handling hyperate request");
+    if (request.method !== "GET") {
+        console.log("invalid method", request.method);
+        return new Response("Bad Request", { status: 400 });
+    }
+
     // check id 
     const hyperateId = request.headers.get(HYPERATE_ID_HEADER);
     if (!hyperateId || !hyperateId.match(HYPERATE_ID_RE)) {
-        // console.log("Invalid HypeRate id");
+        console.log("Invalid HypeRate id");
         return new Response("Invalid HypeRate id", { status: 400 });
     }
 
     const upgradeHeader = request.headers.get("Upgrade");
     if (!upgradeHeader || upgradeHeader !== "websocket") {
-        // console.log("invalid ws upgrade header");
+        console.log("Invalid ws upgrade header");
         return new Response("Expected Upgrade: websocket", { status: 426 });
     }
 

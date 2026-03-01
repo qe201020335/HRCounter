@@ -9,7 +9,7 @@
 	"compatibility_date": "2026-01-28",
 	"observability": {
 		"enabled": true
-	}
+    },
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
@@ -27,7 +27,9 @@
 	 * Note: Use secrets to store sensitive data.
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
 	 */
-	// "vars": {  "MY_VARIABLE": "production_value" }
+    "vars": {
+        "HYPERATE_PROXY_OVERRIDE": ""
+    }
 	/**
 	 * Static Assets
 	 * https://developers.cloudflare.com/workers/static-assets/binding/

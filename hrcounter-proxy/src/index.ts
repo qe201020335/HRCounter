@@ -1,4 +1,4 @@
-import { handleHypeRate } from "./hyperate/handler";
+import { handleHypeRate, handleHypeRateProxyStatus } from "./hyperate/handler";
 import { verifyUser } from "./auth";
 
 export default {
@@ -15,6 +15,8 @@ export default {
                     return auth;
                 }
                 return handleHypeRate(request, env, ctx);
+            case "/proxy/hyperate/status":
+                return handleHypeRateProxyStatus(request, env, ctx);
         }
 
         return new Response("Not Found", { status: 404 });
