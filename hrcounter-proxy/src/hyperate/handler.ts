@@ -37,8 +37,7 @@ export const handleHypeRate: ExportedHandlerFetchHandler<Env> = async (request, 
 
     let hyperate: HypeRate;
     try {
-        // @ts-ignore
-        hyperate = new HypeRate(hyperateId, env["HYPERATE_TOKEN"] ?? "",
+        hyperate = new HypeRate(hyperateId, env.HYPERATE_TOKEN ?? "",
             sendMessage,
             (code, reason) => {
                 server.close(code, reason);
