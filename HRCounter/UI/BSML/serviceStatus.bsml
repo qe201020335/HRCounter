@@ -1,5 +1,5 @@
 ﻿<vertical child-control-height='false' child-expand-height="false" spacing="2" pref-width="90" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-          xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+          xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
     <macro.define id="tab-width" value="90"/>
     <macro.define id="vertical-spacing" value="1.5"/>
     <horizontal pad-bottom="1">
