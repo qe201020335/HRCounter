@@ -60,6 +60,7 @@ internal class PluginConfig : INotifyPropertyChanged
 
     private bool _modEnable = true;
     private string _dataSource = DataSourceManager.OscServer.Key;
+    private bool _streamerMode = true;
     private string _pulsoidToken = "";
     private string _hypeRateSessionID = "";
     private string _pulsoidWidgetID = "";
@@ -109,6 +110,12 @@ internal class PluginConfig : INotifyPropertyChanged
     {
         get => _dataSource;
         set => _dataSource = DataSourceManager.MigrateKey(value);
+    }
+
+    public virtual bool StreamerMode
+    {
+        get => _streamerMode;
+        set => _streamerMode = value;
     }
 
     public virtual string PulsoidToken
@@ -357,6 +364,7 @@ internal class PluginConfig : INotifyPropertyChanged
     {
         _modEnable = other._modEnable;
         _dataSource = other._dataSource;
+        _streamerMode = other._streamerMode;
         _pulsoidToken = other._pulsoidToken;
         _hypeRateSessionID = other._hypeRateSessionID;
         _pulsoidWidgetID = other._pulsoidWidgetID;

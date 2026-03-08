@@ -8,6 +8,7 @@ using HMUI;
 using HRCounter.Configuration;
 using HRCounter.Data;
 using IPA.Utilities.Async;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -37,11 +38,31 @@ internal class DataSourceMenu : BSMLAutomaticViewController
         set => _config.DataSource = value;
     }
 
+    [UIValue("StreamerMode")]
+    public bool StreamerMode
+    {
+        get => _config.StreamerMode;
+        set => _config.StreamerMode = value;
+    }
+
+    [UIValue("AllowEdit")]
+    public bool AllowEdit => !StreamerMode;
+
+    [UIValue("HypeRateSessionID")]
+    public string HypeRateSessionID
+    {
+        get => _config.HypeRateSessionID;
+        set => _config.HypeRateSessionID = value;
+    }
+
     [UIComponent("data-source-info-text")]
     private TextPageScrollView _dataSourceInfoText = null!;
 
     [UIComponent("data-source-info-refresh-btn")]
     private Button _dataSourceInfoRefreshBtn = null!;
+
+    [UIComponent("hyperate-session-id-text")]
+    private TMP_Text _HypeRateSessionIDText = null!;
 
     [UIAction("#post-parse")]
     private void OnParsed()
@@ -52,7 +73,7 @@ internal class DataSourceMenu : BSMLAutomaticViewController
         }
 
         _parsed = true;
-        UpdateDataSourceInfoText();
+        RefreshUI();
     }
 
     protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -63,8 +84,7 @@ internal class DataSourceMenu : BSMLAutomaticViewController
         if (!firstActivation)
         {
             // config might have changed while we were inactive
-            NotifyPropertyChanged(null);
-            UpdateDataSourceInfoText();
+            RefreshUI(true);
         }
 
         _config.PropertyChanged += OnConfigChanged;
@@ -80,6 +100,7 @@ internal class DataSourceMenu : BSMLAutomaticViewController
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {
+        if (!_parsed) return;
         UnityMainThreadTaskScheduler.Factory.StartNew(() =>
         {
             NotifyPropertyChanged(args.PropertyName);
@@ -88,11 +109,27 @@ internal class DataSourceMenu : BSMLAutomaticViewController
                 case nameof(_config.DataSource):
                     UpdateDataSourceInfoText();
                     break;
-                case "" or null:
+                case nameof(_config.StreamerMode):
+                    NotifyPropertyChanged(nameof(AllowEdit));
                     UpdateDataSourceInfoText();
+                    UpdateHypeRateSessionIDText();
+                    break;
+                case nameof(_config.HypeRateSessionID):
+                    UpdateHypeRateSessionIDText();
+                    break;
+                case "" or null:
+                    RefreshUI();
                     break;
             }
         });
+    }
+
+    private void RefreshUI(bool fullRefresh = false)
+    {
+        if (!_parsed) return;
+        if (fullRefresh) NotifyPropertyChanged(null);
+        UpdateDataSourceInfoText();
+        UpdateHypeRateSessionIDText();
     }
 
     [UIAction("UpdateDataSourceInfoText")]
@@ -125,5 +162,10 @@ internal class DataSourceMenu : BSMLAutomaticViewController
             await Task.Delay(500); // no spamming the button
             _dataSourceInfoRefreshBtn.interactable = true;
         });
+    }
+
+    private void UpdateHypeRateSessionIDText()
+    {
+        _HypeRateSessionIDText.text = StreamerMode ? "********" : _config.HypeRateSessionID;
     }
 }

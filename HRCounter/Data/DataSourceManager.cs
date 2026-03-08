@@ -65,7 +65,7 @@ public class DataSourceManager
     #region Some Instances
 
     internal static DataSourceInfo HypeRate = RegisterDataSource<HypeRate2>(HYPERATE_KEY,
-        () => $"Current Session ID: {Config.HypeRateSessionID}",
+        () => $"Current Session ID: {(Config.StreamerMode ? "********" : Config.HypeRateSessionID)}",
         () => GenericPrecondition(Config.HypeRateSessionID)
     );
 
@@ -83,12 +83,12 @@ public class DataSourceManager
     );
 
     internal static DataSourceInfo WebRequest = RegisterDataSource<WebRequest>(WEBREQUEST_KEY,
-        () => $"Current URL: {Config.FeedLink.TruncateW()}",
+        () => $"Current URL: {(Config.StreamerMode ? "********" : Config.FeedLink)}",
         () => GenericPrecondition(Config.FeedLink)
     );
 
     internal static DataSourceInfo HRProxy = RegisterDataSource<HRProxyCustomReader>(HRPROXY_KEY,
-        () => $"Current HRProxy ID: {Config.HRProxyID.TruncateW()}",
+        () => $"Current HRProxy ID: {(Config.StreamerMode ? "********" : Config.HRProxyID)}",
         () => GenericPrecondition(Config.HRProxyID)
     );
 
@@ -121,8 +121,9 @@ public class DataSourceManager
 
     internal static DataSourceInfo PulsoidWidget = RegisterDataSource<PulsoidWidget>(PULSOID_WIDEGT_KEY, async () =>
         {
-            var status = $"Widget ID: {(GenericPrecondition(Config.PulsoidWidgetID) ? Config.PulsoidWidgetID.TruncateW(10) : "Not Set")}";
-            return "<color=#FF5630>EXPERIMENTAL</color> " + status;
+            var status =
+                $"Widget ID: {(GenericPrecondition(Config.PulsoidWidgetID) ? Config.StreamerMode ? "********" : Config.PulsoidWidgetID : "Not Set")}";
+            return "<color=#FF5630>EXPERIMENTAL</color>\n" + status;
         },
         () => GenericPrecondition(Config.PulsoidToken)
     );
