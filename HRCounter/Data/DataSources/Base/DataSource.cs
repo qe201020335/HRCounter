@@ -1,5 +1,4 @@
 ﻿using System;
-using HRCounter.Configuration;
 using IPA.Logging;
 using Zenject;
 
@@ -7,10 +6,7 @@ namespace HRCounter.Data.DataSources.Base;
 
 public abstract class DataSource : IHRDataSource, IInitializable, IDisposable
 {
-    [Inject]
-    private readonly PluginConfig _config = null!;
-
-    [Inject]
+    [Inject(Id = typeof(DataSource))]
     private readonly Logger _logger = null!;
 
     public virtual bool AllowReplayRecording => true;

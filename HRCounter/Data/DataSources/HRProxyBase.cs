@@ -19,7 +19,7 @@ internal abstract class HRProxyBase : WebSocketSource
     [Inject]
     protected readonly PluginConfig Config = null!;
 
-    [Inject]
+    [Inject(Id = typeof(HRProxyBase))]
     private readonly Logger _logger = null!;
 
     private readonly Random _random = new();

@@ -40,7 +40,7 @@ public class Plugin
 
         zenject.UseMetadataBinder<Plugin>();
 
-        zenject.Install<AppInstaller>(Location.App, config, logger, metadata);
+        zenject.Install<AppInstaller>(Location.App, config, GetChildLogger(nameof(AppInstaller)), metadata);
         zenject.Install<MenuInstaller>(Location.Menu);
         zenject.Install<GameplayHearRateInstaller>(Location.Player);  // TODO check Campaign
         zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);

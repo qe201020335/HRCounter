@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using HRCounter.Configuration;
+using HRCounter.Data.DataSources;
+using HRCounter.Data.DataSources.Base;
+using HRCounter.UI;
 using HRCounter.Utils;
 using HRCounter.Web.HTTP;
 using HRCounter.Web.HTTP.Handlers;
@@ -29,6 +33,10 @@ public class AppInstaller : Installer<AppInstaller>
     public override void InstallBindings()
     {
         Container.Bind<Logger>().FromMethod(CreateChildLogger).AsTransient().When(ShouldBindLogger);
+        Container.Bind<Logger>().WithId(typeof(BaseConfigViewController)).FromMethod(CreateChildLogger).AsTransient();
+        Container.Bind<Logger>().WithId(typeof(DataSource)).FromMethod(CreateChildLogger).AsTransient();
+        Container.Bind<Logger>().WithId(typeof(HRProxyBase)).FromMethod(CreateChildLogger).AsTransient();
+        Container.Bind<Logger>().WithId(typeof(WebSocketSource)).FromMethod(CreateChildLogger).AsTransient();
 
         Container.BindInstance(_config).AsSingle();
         Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
@@ -46,7 +54,8 @@ public class AppInstaller : Installer<AppInstaller>
 
     private Logger CreateChildLogger(InjectContext context)
     {
-        var name = context.ObjectType.Name;
+        var type = context.Identifier as Type ?? context.ObjectType;
+        var name = type.Name;
         if (_loggers.TryGetValue(name, out var logger))
         {
             _logger.Spam($"Using cached child logger for {name}");
@@ -54,7 +63,7 @@ public class AppInstaller : Installer<AppInstaller>
         }
 
         _logger.Spam($"Creating child logger for {name}");
-        logger = _logger.GetChildLogger(name);
+        logger = Plugin.GetChildLogger(name);
         _loggers[name] = logger;
         return logger;
     }

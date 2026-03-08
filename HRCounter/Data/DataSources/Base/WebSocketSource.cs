@@ -12,7 +12,7 @@ namespace HRCounter.Data.DataSources.Base;
 
 public abstract class WebSocketSource : DataSource
 {
-    [Inject]
+    [Inject(Id = typeof(WebSocketSource))]
     private readonly Logger _logger = null!;
 
     private readonly SimpleWebSocketClient _ws = new();

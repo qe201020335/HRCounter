@@ -10,7 +10,7 @@ namespace HRCounter.UI;
 
 internal abstract class BaseConfigViewController : BSMLAutomaticViewController
 {
-    [Inject]
+    [Inject(Id = typeof(BaseConfigViewController))]
     private readonly Logger _logger = null!;
 
     [Inject]
