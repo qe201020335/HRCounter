@@ -18,6 +18,9 @@ public class ConfigViewFlowCoordinator : FlowCoordinator
     [Inject]
     private readonly ServiceStatusViewController _serviceStatusView = null!;
 
+    [Inject]
+    private readonly DataSourceMenu _dataSourceMenu = null!;
+
     private readonly MenuButton _menuButton;
 
     public ConfigViewFlowCoordinator() => _menuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick);
@@ -38,7 +41,7 @@ public class ConfigViewFlowCoordinator : FlowCoordinator
         {
             SetTitle("HR Counter");
             showBackButton = true;
-            ProvideInitialViewControllers(_mainPanel, _serviceStatusView);
+            ProvideInitialViewControllers(_mainPanel, _serviceStatusView, _dataSourceMenu);
         }
     }
 

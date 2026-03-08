@@ -31,9 +31,6 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
 
     private bool _parsed = false;
 
-    [UIComponent("title_container")]
-    private Transform _titleContainer = null!;
-
     [UIComponent("http_status_text")]
     private TMP_Text _httpStatusText = null!;
 
@@ -63,8 +60,6 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
         }
 
         _parsed = true;
-        var bg = _titleContainer.GetComponent<ImageView>();
-        (bg.color0, bg.color1) = (bg.color1, bg.color0);
         RefreshStatus();
     }
 
@@ -73,8 +68,10 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
         _logger.Trace("ServiceStatusViewController DidActivate");
         base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
 
-        if (_parsed)
+        if (!firstActivation)
         {
+            // config might have changed while we were inactive
+            NotifyPropertyChanged(null);
             RefreshStatus();
         }
 
@@ -86,25 +83,28 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
     protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
         _logger.Trace("ServiceStatusViewController DidDeactivate");
-        base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
 
         _config.PropertyChanged -= OnConfigChanged;
         _httpServer.StatusChanged -= RefreshHttpStatus;
         _oscServer.StatusChanged -= RefreshOscStatus;
+        base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
     }
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {
-        // TODO Update only needed values
         UnityMainThreadTaskScheduler.Factory.StartNew(() =>
         {
-            NotifyPropertyChanged(null);
+            NotifyPropertyChanged(args.PropertyName);
             switch (args.PropertyName)
             {
                 case nameof(_config.EnableHttpServer):
                     RefreshHttpStatus();
                     break;
                 case nameof(_config.EnableOscServer):
+                    RefreshOscStatus();
+                    break;
+                case "" or null:
+                    RefreshHttpStatus();
                     RefreshOscStatus();
                     break;
             }
@@ -114,7 +114,6 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
     [UIAction("RefreshStatus")]
     private void RefreshStatus()
     {
-        if (!_parsed) return;
         RefreshHttpStatus();
         RefreshOscStatus();
     }
