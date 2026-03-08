@@ -3,7 +3,7 @@
     <macro.define id="tab-width" value="90"/>
     <macro.define id="vertical-spacing" value="1.5"/>
     <horizontal pad-bottom="1">
-        <horizontal background="panel-fade-gradient" pref-height="8" bg-color="#00c0ffff" pad-top='1'>
+        <horizontal background="panel-top" pref-height="8" bg-color="#7f7f7f" bg-color0="#00c0ffff" bg-color1="#00c0ffff" pad-top='1'>
             <text text='Data Source' align='Center' font-size='6' italics='true'/>
         </horizontal>
     </horizontal>

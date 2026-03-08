@@ -31,9 +31,6 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
 
     private bool _parsed = false;
 
-    [UIComponent("title_container")]
-    private Transform _titleContainer = null!;
-
     [UIComponent("http_status_text")]
     private TMP_Text _httpStatusText = null!;
 
@@ -63,8 +60,6 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
         }
 
         _parsed = true;
-        var bg = _titleContainer.GetComponent<ImageView>();
-        (bg.color0, bg.color1) = (bg.color1, bg.color0);
         RefreshStatus();
     }
 
