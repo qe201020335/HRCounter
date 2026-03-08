@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
-using HRCounter.Configuration;
 using HRCounter.Data;
 using IPA.Utilities.Async;
 using TMPro;
@@ -18,15 +15,10 @@ namespace HRCounter.UI;
 
 [HotReload(RelativePathToLayout = @"BSML\dataSource.bsml")]
 [ViewDefinition("HRCounter.UI.BSML.dataSource.bsml")]
-internal class DataSourceMenu : BSMLAutomaticViewController
+internal class DataSourceMenu : BaseConfigViewController
 {
     [Inject]
-    private readonly PluginConfig _config = null!;
-
-    [Inject]
     private readonly Logger _logger = null!;
-
-    private bool _parsed = false;
 
     [UIValue("DataSourceOptions")]
     public List<object> DataSourceOptions => [..DataSourceManager.DataSourceTypes.Keys];
@@ -34,15 +26,15 @@ internal class DataSourceMenu : BSMLAutomaticViewController
     [UIValue("DataSource")]
     public string DataSource
     {
-        get => _config.DataSource;
-        set => _config.DataSource = value;
+        get => Config.DataSource;
+        set => Config.DataSource = value;
     }
 
     [UIValue("StreamerMode")]
     public bool StreamerMode
     {
-        get => _config.StreamerMode;
-        set => _config.StreamerMode = value;
+        get => Config.StreamerMode;
+        set => Config.StreamerMode = value;
     }
 
     [UIValue("AllowEdit")]
@@ -51,8 +43,8 @@ internal class DataSourceMenu : BSMLAutomaticViewController
     [UIValue("HypeRateSessionID")]
     public string HypeRateSessionID
     {
-        get => _config.HypeRateSessionID;
-        set => _config.HypeRateSessionID = value;
+        get => Config.HypeRateSessionID;
+        set => Config.HypeRateSessionID = value;
     }
 
     [UIComponent("data-source-info-text")]
@@ -64,70 +56,36 @@ internal class DataSourceMenu : BSMLAutomaticViewController
     [UIComponent("hyperate-session-id-text")]
     private TMP_Text _HypeRateSessionIDText = null!;
 
-    [UIAction("#post-parse")]
-    private void OnParsed()
+    protected override void OnParsed()
     {
-        if (!_parsed)
+        if (!Parse)
         {
             ((RectTransform)gameObject.transform).offsetMax = new Vector2(0, 22);
         }
 
-        _parsed = true;
-        RefreshUI();
+        base.OnParsed();
     }
 
-    protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+    protected override void OnConfigChanged(string propertyName)
     {
-        _logger.Trace("DataSourceMenu DidActivate");
-        base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-
-        if (!firstActivation)
+        switch (propertyName)
         {
-            // config might have changed while we were inactive
-            RefreshUI(true);
+            case nameof(Config.DataSource):
+                UpdateDataSourceInfoText();
+                break;
+            case nameof(Config.StreamerMode):
+                NotifyPropertyChanged(nameof(AllowEdit));
+                UpdateDataSourceInfoText();
+                UpdateHypeRateSessionIDText();
+                break;
+            case nameof(Config.HypeRateSessionID):
+                UpdateHypeRateSessionIDText();
+                break;
         }
-
-        _config.PropertyChanged += OnConfigChanged;
     }
 
-    protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
+    protected override void RefreshNoBindUI()
     {
-        _logger.Trace("DataSourceMenu DidDeactivate");
-        _config.PropertyChanged -= OnConfigChanged;
-
-        base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
-    }
-
-    private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
-    {
-        if (!_parsed) return;
-        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
-        {
-            NotifyPropertyChanged(args.PropertyName);
-            switch (args.PropertyName)
-            {
-                case nameof(_config.DataSource):
-                    UpdateDataSourceInfoText();
-                    break;
-                case nameof(_config.StreamerMode):
-                    NotifyPropertyChanged(nameof(AllowEdit));
-                    UpdateDataSourceInfoText();
-                    UpdateHypeRateSessionIDText();
-                    break;
-                case nameof(_config.HypeRateSessionID):
-                    UpdateHypeRateSessionIDText();
-                    break;
-                case "" or null:
-                    RefreshUI();
-                    break;
-            }
-        });
-    }
-
-    private void RefreshUI(bool fullRefresh = false)
-    {
-        if (!_parsed) return;
-        if (fullRefresh) NotifyPropertyChanged(null);
         UpdateDataSourceInfoText();
         UpdateHypeRateSessionIDText();
     }
@@ -135,7 +93,7 @@ internal class DataSourceMenu : BSMLAutomaticViewController
     [UIAction("UpdateDataSourceInfoText")]
     private void UpdateDataSourceInfoText()
     {
-        var known = DataSourceManager.TryGetFromKey(_config.DataSource, out var source);
+        var known = DataSourceManager.TryGetFromKey(Config.DataSource, out var source);
         if (!known)
         {
             _dataSourceInfoText.SetText("Unknown Data Source");
@@ -166,6 +124,6 @@ internal class DataSourceMenu : BSMLAutomaticViewController
 
     private void UpdateHypeRateSessionIDText()
     {
-        _HypeRateSessionIDText.text = StreamerMode ? "********" : _config.HypeRateSessionID;
+        _HypeRateSessionIDText.text = StreamerMode ? "********" : Config.HypeRateSessionID;
     }
 }

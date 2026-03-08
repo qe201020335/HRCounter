@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
-using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using HRCounter.Configuration;
 using HRCounter.Utils;
 using IPA.Utilities;
-using IPA.Utilities.Async;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -21,11 +18,8 @@ namespace HRCounter.UI;
 // setting controller for menu button
 [HotReload(RelativePathToLayout = @"BSML\configMenu.bsml")]
 [ViewDefinition("HRCounter.UI.BSML.configMenu.bsml")]
-internal class SettingMenuController : BSMLAutomaticViewController
+internal class SettingMenuController : BaseConfigViewController
 {
-    [Inject]
-    private readonly PluginConfig _config = null!;
-
     [Inject]
     private readonly Logger _logger = null!;
 
@@ -42,51 +36,31 @@ internal class SettingMenuController : BSMLAutomaticViewController
         }
     }
 
-    private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
-    {
-        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
-        {
-            NotifyPropertyChanged(args.PropertyName);
-            UpdateColorText();
-            switch (args.PropertyName)
-            {
-                case nameof(_config.CustomIcon):
-                    UpdateCustomIconSelection();
-                    break;
-                case "" or null:
-                    UpdateCustomIconSelection();
-                    break;
-            }   
-        });
-    }
-
-    [UIAction("#post-parse")]
-    private async Task PostParse()
+    protected override void OnConfigChanged(string propertyName)
     {
         UpdateColorText();
-        await LoadIconList(false);
+        switch (propertyName)
+        {
+            case nameof(Config.CustomIcon):
+                UpdateCustomIconSelection();
+                break;
+        }
     }
 
-    protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+    protected override void OnParsed()
     {
-        _logger.Trace("SettingMenuController DidActivate");
-        base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+        base.OnParsed();
+        _ = LoadIconList(false);
+    }
 
-        if (!firstActivation)
-        {
-            // config might have changed while we were inactive
-            NotifyPropertyChanged(null);
-            UpdateCustomIconSelection();
-            UpdateColorText();
-        }
-
-        _config.PropertyChanged += OnConfigChanged;
+    protected override void RefreshNoBindUI()
+    {
+        UpdateCustomIconSelection();
+        UpdateColorText();
     }
 
     protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
-        _logger.Trace("SettingMenuController DidDeactivate");
-        _config.PropertyChanged -= OnConfigChanged;
         if (_colorVisualizerCoroutine != null)
         {
             VisualizeColorsBtnPressed(); // stop the visualization and reset the text
@@ -96,19 +70,19 @@ internal class SettingMenuController : BSMLAutomaticViewController
     }
 
     private string DefaultColorText =>
-        $"<color=#{ColorUtility.ToHtmlStringRGBA(_config.LowColor)}>Low</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(_config.MidColor)}>Middle</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(_config.HighColor)}>High</color>";
+        $"<color=#{ColorUtility.ToHtmlStringRGBA(Config.LowColor)}>Low</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(Config.MidColor)}>Middle</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(Config.HighColor)}>High</color>";
 
     private IEnumerator VisualizeColorsCoroutine()
     {
-        var start = _config.HRLow;
+        var start = Config.HRLow;
 
         while (isActivated)
         {
             _colorInfoText.text = $"<size=+5><color=#{ColorUtility.ToHtmlStringRGB(RenderUtils.DetermineColor(start))}>{start}</color></size>";
             start++;
-            if (start > _config.HRHigh)
+            if (start > Config.HRHigh)
             {
-                start = _config.HRLow;
+                start = Config.HRLow;
             }
 
             yield return new WaitForSeconds(0.05f);
@@ -150,7 +124,7 @@ internal class SettingMenuController : BSMLAutomaticViewController
 
     private void UpdateCustomIconSelection()
     {
-        var selected = _iconNames.IndexOf(_config.CustomIcon);
+        var selected = _iconNames.IndexOf(Config.CustomIcon);
         if (selected < 0)
         {
             _iconList.TableView.ClearSelection();
@@ -179,78 +153,78 @@ internal class SettingMenuController : BSMLAutomaticViewController
     [UIValue("ModEnable")]
     private bool ModEnable
     {
-        get => _config.ModEnable;
-        set => _config.ModEnable = value;
+        get => Config.ModEnable;
+        set => Config.ModEnable = value;
     }
 
     [UIValue("Colorize")]
     public bool Colorize
     {
-        get => _config.Colorize;
-        set => _config.Colorize = value;
+        get => Config.Colorize;
+        set => Config.Colorize = value;
     }
 
     [UIValue("HRLow")]
     public int HRLow
     {
-        get => _config.HRLow;
-        set => _config.HRLow = value;
+        get => Config.HRLow;
+        set => Config.HRLow = value;
     }
 
     [UIValue("HRHigh")]
     public int HRHigh
     {
-        get => _config.HRHigh;
-        set => _config.HRHigh = value;
+        get => Config.HRHigh;
+        set => Config.HRHigh = value;
     }
 
     [UIValue("PauseHR")]
     public int PauseHR
     {
-        get => _config.PauseHR;
-        set => _config.PauseHR = value;
+        get => Config.PauseHR;
+        set => Config.PauseHR = value;
     }
 
     [UIValue("AutoPause")]
     public bool AutoPause
     {
-        get => _config.AutoPause;
-        set => _config.AutoPause = value;
+        get => Config.AutoPause;
+        set => Config.AutoPause = value;
     }
 
     [UIValue("IgnoreCountersPlus")]
     public bool IgnoreCountersPlus
     {
-        get => _config.IgnoreCountersPlus;
-        set => _config.IgnoreCountersPlus = value;
+        get => Config.IgnoreCountersPlus;
+        set => Config.IgnoreCountersPlus = value;
     }
 
     [UIValue("NoBloom")]
     private bool NoBloom
     {
-        get => _config.NoBloom;
-        set => _config.NoBloom = value;
+        get => Config.NoBloom;
+        set => Config.NoBloom = value;
     }
 
     [UIValue("LowColor")]
     private Color LowColor
     {
-        get => _config.LowColor;
-        set => _config.LowColor = value;
+        get => Config.LowColor;
+        set => Config.LowColor = value;
     }
 
     [UIValue("MidColor")]
     private Color MidColor
     {
-        get => _config.MidColor;
-        set => _config.MidColor = value;
+        get => Config.MidColor;
+        set => Config.MidColor = value;
     }
 
     [UIValue("HighColor")]
     private Color HighColor
     {
-        get => _config.HighColor;
-        set => _config.HighColor = value;
+        get => Config.HighColor;
+        set => Config.HighColor = value;
     }
 
     private string _visualizeColorsBtnText = "Visualize";
@@ -282,29 +256,29 @@ internal class SettingMenuController : BSMLAutomaticViewController
     [UIValue("ReplayRecordHr")]
     public bool ReplayRecordHr
     {
-        get => _config.ReplayRecordHr;
-        set => _config.ReplayRecordHr = value;
+        get => Config.ReplayRecordHr;
+        set => Config.ReplayRecordHr = value;
     }
 
     [UIValue("ReplayPlaybackSelfHr")]
     public bool ReplayPlaybackSelfHr
     {
-        get => _config.ReplayPlaybackSelfHr;
-        set => _config.ReplayPlaybackSelfHr = value;
+        get => Config.ReplayPlaybackSelfHr;
+        set => Config.ReplayPlaybackSelfHr = value;
     }
 
     [UIValue("ReplayPlaybackOthersHr")]
     public bool ReplayPlaybackOthersHr
     {
-        get => _config.ReplayPlaybackOthersHr;
-        set => _config.ReplayPlaybackOthersHr = value;
+        get => Config.ReplayPlaybackOthersHr;
+        set => Config.ReplayPlaybackOthersHr = value;
     }
 
     [UIValue("ReplayFallbackLiveHr")]
     public bool ReplayFallbackLiveHr
     {
-        get => _config.ReplayFallbackLiveHr;
-        set => _config.ReplayFallbackLiveHr = value;
+        get => Config.ReplayFallbackLiveHr;
+        set => Config.ReplayFallbackLiveHr = value;
     }
 
     #endregion
@@ -314,19 +288,19 @@ internal class SettingMenuController : BSMLAutomaticViewController
     [UIAction("reset-low-color")]
     private void ResetLowColor()
     {
-        _config.LowColor = PluginConfig.DefaultValues.LowColor;
+        Config.LowColor = PluginConfig.DefaultValues.LowColor;
     }
 
     [UIAction("reset-mid-color")]
     private void ResetMidColor()
     {
-        _config.MidColor = PluginConfig.DefaultValues.MidColor;
+        Config.MidColor = PluginConfig.DefaultValues.MidColor;
     }
 
     [UIAction("reset-high-color")]
     private void ResetHighColor()
     {
-        _config.HighColor = PluginConfig.DefaultValues.HighColor;
+        Config.HighColor = PluginConfig.DefaultValues.HighColor;
     }
 
     private Coroutine? _colorVisualizerCoroutine;
@@ -360,7 +334,7 @@ internal class SettingMenuController : BSMLAutomaticViewController
         if (view != _iconList.TableView) return;
         var iconName = _iconNames[index];
         _logger.Debug($"Selected icon {index} ({iconName})");
-        _config.CustomIcon = iconName;
+        Config.CustomIcon = iconName;
     }
 
     [UIAction("open-icons-folder")]

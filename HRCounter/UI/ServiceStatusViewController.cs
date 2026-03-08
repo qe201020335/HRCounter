@@ -1,11 +1,6 @@
-﻿using System.ComponentModel;
-using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.ViewControllers;
-using HMUI;
-using HRCounter.Configuration;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using HRCounter.Web.HTTP;
 using HRCounter.Web.OSC;
-using IPA.Utilities.Async;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -15,11 +10,8 @@ namespace HRCounter.UI;
 
 [HotReload(RelativePathToLayout = @"BSML\serviceStatus.bsml")]
 [ViewDefinition("HRCounter.UI.BSML.serviceStatus.bsml")]
-internal class ServiceStatusViewController : BSMLAutomaticViewController
+internal class ServiceStatusViewController : BaseConfigViewController
 {
-    [Inject]
-    private readonly PluginConfig _config = null!;
-
     [Inject]
     private readonly Logger _logger = null!;
 
@@ -28,8 +20,6 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
 
     [Inject]
     private readonly SimpleHttpServer _httpServer = null!;
-
-    private bool _parsed = false;
 
     [UIComponent("http_status_text")]
     private TMP_Text _httpStatusText = null!;
@@ -40,27 +30,25 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
     [UIValue("EnableHttpServer")]
     private bool EnableHttpServer
     {
-        get => _config.EnableHttpServer;
-        set => _config.EnableHttpServer = value;
+        get => Config.EnableHttpServer;
+        set => Config.EnableHttpServer = value;
     }
 
     [UIValue("EnableOscServer")]
     private bool EnableOscServer
     {
-        get => _config.EnableOscServer;
-        set => _config.EnableOscServer = value;
+        get => Config.EnableOscServer;
+        set => Config.EnableOscServer = value;
     }
 
-    [UIAction("#post-parse")]
-    private void OnParsed()
+    protected override void OnParsed()
     {
-        if (!_parsed)
+        if (!Parse)
         {
             ((RectTransform)gameObject.transform).offsetMax = new Vector2(0, 22);
         }
 
-        _parsed = true;
-        RefreshStatus();
+        base.OnParsed();
     }
 
     protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -68,14 +56,6 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
         _logger.Trace("ServiceStatusViewController DidActivate");
         base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
 
-        if (!firstActivation)
-        {
-            // config might have changed while we were inactive
-            NotifyPropertyChanged(null);
-            RefreshStatus();
-        }
-
-        _config.PropertyChanged += OnConfigChanged;
         _httpServer.StatusChanged += RefreshHttpStatus;
         _oscServer.StatusChanged += RefreshOscStatus;
     }
@@ -84,31 +64,28 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
     {
         _logger.Trace("ServiceStatusViewController DidDeactivate");
 
-        _config.PropertyChanged -= OnConfigChanged;
         _httpServer.StatusChanged -= RefreshHttpStatus;
         _oscServer.StatusChanged -= RefreshOscStatus;
         base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
     }
 
-    private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
+    protected override void OnConfigChanged(string propertyName)
     {
-        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+        switch (propertyName)
         {
-            NotifyPropertyChanged(args.PropertyName);
-            switch (args.PropertyName)
-            {
-                case nameof(_config.EnableHttpServer):
-                    RefreshHttpStatus();
-                    break;
-                case nameof(_config.EnableOscServer):
-                    RefreshOscStatus();
-                    break;
-                case "" or null:
-                    RefreshHttpStatus();
-                    RefreshOscStatus();
-                    break;
-            }
-        });
+            case nameof(Config.EnableHttpServer):
+                RefreshHttpStatus();
+                break;
+            case nameof(Config.EnableOscServer):
+                RefreshOscStatus();
+                break;
+        }
+    }
+
+    protected override void RefreshNoBindUI()
+    {
+        RefreshHttpStatus();
+        RefreshOscStatus();
     }
 
     [UIAction("RefreshStatus")]
@@ -120,19 +97,19 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
 
     private void RefreshHttpStatus()
     {
-        if (!_parsed) return;
+        if (!Parse) return;
         _httpStatusText.text = GetHttpStatusText();
     }
 
     private void RefreshOscStatus()
     {
-        if (!_parsed) return;
+        if (!Parse) return;
         _oscStatusText.text = GetOscStatusText();
     }
 
     private string GetHttpStatusText()
     {
-        if (!_config.EnableHttpServer) return "HTTP server is disabled.";
+        if (!Config.EnableHttpServer) return "HTTP server is disabled.";
         if (_httpServer.IsListening)
         {
             if (_httpServer.IsLocalOnly)
@@ -150,7 +127,7 @@ internal class ServiceStatusViewController : BSMLAutomaticViewController
 
     private string GetOscStatusText()
     {
-        if (!_config.EnableOscServer) return "OSC server is disabled.";
+        if (!Config.EnableOscServer) return "OSC server is disabled.";
         if (_oscServer.IsListening)
         {
             return $"OSC server is <color=green>listening</color> on {_oscServer.EndPoint}";
