@@ -67,8 +67,10 @@ internal class AssetBundleManager : IInitializable, IDisposable
 
     internal CustomCounter? SetupCustomCounter()
     {
+        _logger.Info("Creating HRCounter object from prefab");
         if (CounterPrefab == null)
         {
+            _logger.Warn("Counter prefab is not loaded!");
             return null;
         }
 
