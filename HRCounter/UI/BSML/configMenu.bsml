@@ -8,9 +8,10 @@
             <bool-setting text="Mod Enable" value="ModEnable" apply-on-change="true" bind-value="true"/>
             <bool-setting text="Counter No Bloom" value="NoBloom" hover-hint="Do you want no bloom on the text?" apply-on-change="true"
                           bind-value="true"/>
-            <bool-setting text="Always Show Standalone Counter" value="IgnoreCountersPlus"
-                          hover-hint="Always show the standalone counter regardless whether Counters+ is installed, enable to allow 2 hr counters to present at the same time"
-                          apply-on-change="true" bind-value="true"/>
+            <bool-setting text="Always Show Standalone Counter" value="IgnoreCountersPlus" apply-on-change="true" bind-value="true"
+                          hover-hint="Always show the standalone counter regardless whether Counters+ is installed, enable to allow 2 hr counters to present at the same time"/>
+            <bool-setting text="Ignore Zero Values" value="IgnoreZeroValues" apply-on-change="true" bind-value="true"
+                          hover-hint="Ignore zero heart rate values as if the data did not exist"/>
         </vertical>
     </tab>
     <tab tab-name="Icon" tags="tabs">

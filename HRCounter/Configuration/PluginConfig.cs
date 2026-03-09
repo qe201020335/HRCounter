@@ -70,6 +70,7 @@ internal class PluginConfig : INotifyPropertyChanged
     private int _pauseHR = 200;
     private bool _autoPause = false;
     private bool _ignoreCountersPlus = false;
+    private bool _ignoreZeroValues = true;
     private bool _debugSpam = false;
     private Vector3 _staticCounterPosition = new(0f, 1.2f, 7f);
     private bool _enableHttpServer = true;
@@ -206,6 +207,12 @@ internal class PluginConfig : INotifyPropertyChanged
     {
         get => _ignoreCountersPlus;
         set => _ignoreCountersPlus = value;
+    }
+
+    public virtual bool IgnoreZeroValues
+    {
+        get => _ignoreZeroValues;
+        set => _ignoreZeroValues = value;
     }
 
     public virtual bool DebugSpam
@@ -374,6 +381,7 @@ internal class PluginConfig : INotifyPropertyChanged
         _pauseHR = other._pauseHR;
         _autoPause = other._autoPause;
         _ignoreCountersPlus = other._ignoreCountersPlus;
+        _ignoreZeroValues = other._ignoreZeroValues;
         _debugSpam = other._debugSpam;
         _staticCounterPosition = other._staticCounterPosition;
         _enableHttpServer = other._enableHttpServer;

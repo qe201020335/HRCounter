@@ -1,4 +1,5 @@
 ﻿using System;
+using HRCounter.Configuration;
 using IPA.Logging;
 using IPA.Utilities.Async;
 using Zenject;
@@ -9,6 +10,9 @@ public class HRDataManager : IInitializable, IDisposable
 {
     [Inject]
     private readonly Logger _logger = null!;
+
+    [Inject]
+    private readonly PluginConfig _config = null!;
 
     [InjectOptional]
     private readonly IHRDataSource? _dataSource = null;
@@ -45,6 +49,7 @@ public class HRDataManager : IInitializable, IDisposable
 
     private void OnHrDataReceivedInternalHandler(object sender, HRDataReceivedEventArgs args)
     {
+        if (_config.IgnoreZeroValues && args.HR == 0) return;
         BPM.Set(args.HR, args.ReceivedAt);
 
         UnityMainThreadTaskScheduler.Factory.StartNew(() =>

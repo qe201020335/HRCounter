@@ -206,6 +206,13 @@ internal class SettingMenuController : BaseConfigViewController
         set => Config.NoBloom = value;
     }
 
+    [UIValue("IgnoreZeroValues")]
+    public bool IgnoreZeroValues
+    {
+        get => Config.IgnoreZeroValues;
+        set => Config.IgnoreZeroValues = value;
+    }
+
     [UIValue("LowColor")]
     private Color LowColor
     {
