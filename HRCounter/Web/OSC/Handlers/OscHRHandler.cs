@@ -9,7 +9,7 @@ namespace HRCounter.Web.OSC.Handlers;
 public class OscHRHandler : IOSCMessageHandler
 {
     [Inject]
-    private readonly PluginConfig _config;
+    private readonly PluginConfig _config = null!;
 
     public IReadOnlyList<string> Address => _config.OscAddress;
 

@@ -9,8 +9,6 @@ public class FrameRateHR : MonoBehaviour, IHRDataSource
 
     public bool AllowReplayRecording => false;
 
-    private readonly float _sampleInterval = .5f;
-
     private void Update()
     {
         var fps = 1 / Time.deltaTime;

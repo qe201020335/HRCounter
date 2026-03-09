@@ -26,7 +26,7 @@ public static class RenderUtils
     public static Shader TextNoGlow => _textNoGlow.Value;
     public static Shader TextGlow => _textGlow.Value;
 
-    private static PluginConfig Config => PluginConfig.Instance;
+    private static PluginConfig Config => Plugin.Config;
 
 
     internal static Color DetermineColor(int hr)
@@ -67,7 +67,7 @@ public static class RenderUtils
 
 #if DEBUG
         stopwatch.Stop();
-        Plugin.Logger.Trace($"LoadImageAsync tool {stopwatch.ElapsedMilliseconds}ms to load {file.Name}");
+        Plugin.Logger.Trace($"LoadImageAsync took {stopwatch.ElapsedMilliseconds}ms to load {file.Name}");
 #endif
         texture.name = file.Name;
         return texture;

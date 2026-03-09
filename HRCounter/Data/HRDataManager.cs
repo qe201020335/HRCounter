@@ -1,5 +1,4 @@
 ﻿using System;
-using HRCounter.Configuration;
 using IPA.Logging;
 using IPA.Utilities.Async;
 using Zenject;
@@ -11,11 +10,8 @@ public class HRDataManager : IInitializable, IDisposable
     [Inject]
     private readonly Logger _logger = null!;
 
-    [Inject]
-    private readonly PluginConfig _config = null!;
-
     [InjectOptional]
-    private IHRDataSource? _dataSource;
+    private readonly IHRDataSource? _dataSource = null;
 
     /// <summary>
     ///     Always invoked on the main thread when new HR data is received.

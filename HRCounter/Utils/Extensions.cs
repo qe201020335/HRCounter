@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using HRCounter.Configuration;
 using IPA.Logging;
 
 namespace HRCounter.Utils;
@@ -25,9 +24,6 @@ public static class Extensions
     [Conditional("DEBUG")]
     internal static void Spam(this Logger logger, string s)
     {
-        if (PluginConfig.Initialized && PluginConfig.Instance.DebugSpam)
-        {
-            logger.Trace(s);
-        }
+        logger.Trace(s);
     }
 }

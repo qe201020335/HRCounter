@@ -66,14 +66,15 @@ internal sealed class WebRequest : DataSource
                 try
                 {
                     var json = JObject.Parse(res);
-                    if (json["bpm"] == null)
+                    var bpmToken = json["bpm"];
+                    if (bpmToken == null)
                     {
                         _logger.Warn("Json received does not contain necessary field");
                         _logger.Warn(res);
                     }
                     else
                     {
-                        var hr = json["bpm"].ToObject<int>();
+                        var hr = bpmToken.ToObject<int>();
                         var timestamp = json["measured_at"]?.ToObject<string>();
                         if (_updating)
                         {
@@ -94,7 +95,7 @@ internal sealed class WebRequest : DataSource
                 }
             }
         }
-        catch (InvalidOperationException e)
+        catch (InvalidOperationException)
         {
             _logger.Error($"Invalid request URI: {FeedLink}");
             _logger.Info("Stopping hr update");

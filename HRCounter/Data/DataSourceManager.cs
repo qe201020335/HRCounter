@@ -23,17 +23,17 @@ public class DataSourceManager
     private const string HTTP_SERVER_KEY = "HttpServer";
     private const string OSC_KEY = "OSC Protocol";
 
-    private static PluginConfig Config => PluginConfig.Instance;
+    private static PluginConfig Config => Plugin.Config;
 
-    private static readonly Dictionary<string, DataSourceInfo> _sourceTypes = new();
-    internal static IReadOnlyDictionary<string, DataSourceInfo> DataSourceTypes => _sourceTypes;
+    private static readonly Dictionary<string, DataSourceInfo> SourceTypes = new();
+    internal static IReadOnlyDictionary<string, DataSourceInfo> DataSourceTypes => SourceTypes;
 
     public static DataSourceInfo RegisterDataSource<T>(string key, Func<Task<string>> sourceLinkTextCallback,
         Func<bool> precondition) where T : IHRDataSource
     {
-        if (_sourceTypes.ContainsKey(key)) throw new ArgumentException($"Key {key} already exists!");
+        if (SourceTypes.ContainsKey(key)) throw new ArgumentException($"Key {key} already exists!");
         var type = new DataSourceInfo(key, typeof(T), sourceLinkTextCallback, precondition);
-        _sourceTypes[key] = type;
+        SourceTypes[key] = type;
         return type;
     }
 
@@ -76,7 +76,7 @@ public class DataSourceManager
                 return "Token Not Set";
             }
 
-            var status = await DataSourceUtils.CheckPulsoidToken(PluginConfig.Instance.PulsoidToken);
+            var status = await DataSourceUtils.CheckPulsoidToken(Config.PulsoidToken);
             return "Token Status: " + (status == "" ? "<color=#00FF00>OK</color>" : $"<color=#FF0000>{status}</color>");
         },
         () => GenericPrecondition(Config.PulsoidToken)
@@ -131,15 +131,15 @@ public class DataSourceManager
 #if DEBUG
 
     private const string DEBUG_RANDOM_KEY = "Random Debug";
-    internal static DataSourceInfo Random = RegisterDataSource<RandomHR>(DEBUG_RANDOM_KEY, () => LoremIpsum, () => true);
+    internal static DataSourceInfo Random = RegisterDataSource<RandomHR>(DEBUG_RANDOM_KEY, () => LOREM_IPSUM, () => true);
 
     private const string DEBUG_SWEEP_KEY = "Sweep Debug";
-    internal static DataSourceInfo Sweep = RegisterDataSource<SweepHR>(DEBUG_SWEEP_KEY, () => LoremIpsum, () => true);
+    internal static DataSourceInfo Sweep = RegisterDataSource<SweepHR>(DEBUG_SWEEP_KEY, () => LOREM_IPSUM, () => true);
 
     private const string DEBUG_FPS_KEY = "FPS Debug";
-    internal static DataSourceInfo FrameRate = RegisterDataSource<FrameRateHR>(DEBUG_FPS_KEY, () => LoremIpsum, () => true);
+    internal static DataSourceInfo FrameRate = RegisterDataSource<FrameRateHR>(DEBUG_FPS_KEY, () => LOREM_IPSUM, () => true);
 
-    private static string LoremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer tristique posuere libero eu gravida. " +
+    private const string LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer tristique posuere libero eu gravida. " +
                                        "Aenean sed urna ante. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus " +
                                        "mus. Nam nec nunc enim. Fusce porta condimentum tellus eu hendrerit. Duis semper nisl vitae euismod " +
                                        "mollis. Nullam nunc ligula, elementum vulputate viverra sed, pretium sed orci. Nullam mattis, diam ac " +

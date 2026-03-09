@@ -31,6 +31,8 @@ public class Vector3JsonConverter : JsonConverter<Vector3>
         }
         catch (Exception e)
         {
+            Plugin.Logger.Error("Failed to deserialize Vector3");
+            Plugin.Logger.Error(e);
         }
 
         return hasExistingValue ? existingValue : default;

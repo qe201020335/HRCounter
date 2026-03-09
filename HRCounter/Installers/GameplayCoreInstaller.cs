@@ -20,9 +20,6 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
     [Inject]
     private readonly UserInfoHelper _userInfoHelper = null!;
 
-    [Inject]
-    private readonly IPlatformUserModel _platformUserModel = null!;
-
     [InjectOptional]
     private readonly GameplayCoreSceneSetupData? _sceneSetupData = null;
 

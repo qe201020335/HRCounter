@@ -14,6 +14,7 @@ public class Plugin
 {
     internal static Plugin Instance { get; private set; } = null!;
     internal static IPALogger Logger { get; private set; } = null!;
+    internal static PluginConfig Config { get; private set; } = null!;
 
     // private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
 
@@ -32,6 +33,7 @@ public class Plugin
         Instance = this;
         Logger = logger;
         var config = PluginConfig.Initialize(GetChildLogger(nameof(PluginConfig)), conf);
+        Config = config;
 
         Metadata = metadata;
         BSMLMeta = Utils.Utils.FindEnabledPluginMetadata(BSMLId);

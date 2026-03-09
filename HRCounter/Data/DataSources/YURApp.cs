@@ -4,7 +4,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using HRCounter.Configuration;
 using HRCounter.Data.DataSources.Base;
 using HRCounter.Utils;
 using IPA.Logging;
@@ -15,9 +14,6 @@ namespace HRCounter.Data.DataSources;
 
 internal sealed class YURApp : DataSource
 {
-    [Inject]
-    private readonly PluginConfig _config = null!;
-
     [Inject]
     private readonly Logger _logger = null!;
 
@@ -191,20 +187,18 @@ internal sealed class YURApp : DataSource
                 return;
             }
 
-            if (json["jsonData"] == null)
+            var jsonData = json["jsonData"]?.ToString();
+            if (string.IsNullOrWhiteSpace(jsonData))
             {
                 return;
             }
 
-            var osu = JObject.Parse(json["jsonData"]?.ToString());
-
-            _logger.Spam(osu.ToString());
-
+            _logger.Spam(jsonData!);
+            var osu = JObject.Parse(jsonData!);
             var hrToken = osu["status"]?["heartRate"]?.Type != JTokenType.Null
                 ? osu["status"]?["heartRate"]
                 : osu["status"]?["calculationMetrics"]?["estHeartRate"];
-
-            if (hrToken != null)
+            if (hrToken is { Type: JTokenType.Integer })
             {
                 OnHeartRateDataReceived(hrToken.ToObject<int>());
             }

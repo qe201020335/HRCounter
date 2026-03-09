@@ -24,12 +24,6 @@ namespace HRCounter.Configuration;
 internal class PluginConfig : INotifyPropertyChanged
 {
     private static PluginConfig? _instance;
-
-    [Obsolete("Try using DI instead.")]
-    public static PluginConfig Instance => _instance!;
-
-    public static bool Initialized => _instance != null;
-
     private static IPALogger _logger = null!;
 
     public static PluginConfig DefaultValues { get; } = new();

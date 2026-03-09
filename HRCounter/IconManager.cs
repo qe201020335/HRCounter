@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using HRCounter.Configuration;
 using HRCounter.Utils;
 using IPA.Utilities;
 using IPA.Utilities.Async;
@@ -17,9 +16,6 @@ namespace HRCounter;
 
 internal class IconManager : IInitializable, IDisposable
 {
-    [Inject]
-    private readonly PluginConfig _config = null!;
-
     [Inject]
     private readonly Logger _logger = null!;
     
@@ -109,6 +105,7 @@ internal class IconManager : IInitializable, IDisposable
         _logger.Debug("Loading all icons");
         ClearIconCache();
         foreach (var file in _iconDir.EnumerateFiles())
+        {
             if (file.Exists && _acceptableExtensions.Contains(file.Extension))
             {
                 var name = file.Name;
@@ -118,6 +115,7 @@ internal class IconManager : IInitializable, IDisposable
                     _loadedIcons[name] = sprite;
                 }
             }
+        }
 
         _logger.Debug($"Loaded {_loadedIcons.Count} icons");
     }
