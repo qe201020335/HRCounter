@@ -11,7 +11,7 @@ public class ReplayRecorderInstaller : Installer
 
     public override void InstallBindings()
     {
-        if (!Utils.Utils.IsInReplay() && _config.ReplayRecordHr)
+        if (_config.ModEnable && !Utils.Utils.IsInReplay() && _config.ReplayRecordHr)
         {
             Container.BindInterfacesTo<ReplayHRRecorder>().AsSingle();
         }
