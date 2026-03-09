@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4957068260234883402}
   - component: {fileID: 8291999372758470329}
   - component: {fileID: 7494786341711474759}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Replay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
