@@ -19,13 +19,11 @@ public class GamePauseInstaller : Installer<GamePauseInstaller>
             return;
         }
 
-        if (_config.AutoPause)
+        if (_config.AutoPause && !Utils.Utils.IsInReplay())
         {
             _logger.Debug("Binging game pause");
             Container
-                .BindInterfacesAndSelfTo<GamePauseController>()
-                .FromNewComponentOnNewGameObject()
-                .WithGameObjectName($"HRCounter {nameof(GamePauseController)}")
+                .BindInterfacesTo<GamePauseController>()
                 .AsSingle();
         }
     }

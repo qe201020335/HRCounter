@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections;
 using HRCounter.Configuration;
 using HRCounter.Data;
 using SiraUtil.Tools.SongControl;
-using UnityEngine;
 using Zenject;
 using Logger = IPA.Logging.Logger;
 
 namespace HRCounter;
 
-internal class GamePauseController : MonoBehaviour, IInitializable, IDisposable
+internal class GamePauseController : IInitializable, IDisposable
 {
     [Inject]
     private readonly PluginConfig _config = null!;
@@ -25,9 +23,8 @@ internal class GamePauseController : MonoBehaviour, IInitializable, IDisposable
 
     public void Initialize()
     {
-        if (_hrDataManager != null)
+        if (_hrDataManager != null && _songControl != null)
         {
-            _hrDataManager.OnHRUpdate -= OnHRUpdate;
             _hrDataManager.OnHRUpdate += OnHRUpdate;
         }
     }
@@ -47,18 +44,7 @@ internal class GamePauseController : MonoBehaviour, IInitializable, IDisposable
         if (hr >= _config.PauseHR && _songControl?.IsPaused == false)
         {
             _logger.Info("Heart Rate too high! Pausing!");
-            PauseGame();
+            _songControl?.Pause();
         }
-    }
-
-    internal void PauseGame()
-    {
-        StartCoroutine(PauseCoroutine());
-    }
-
-    private IEnumerator PauseCoroutine()
-    {
-        yield return null;
-        _songControl?.Pause();
     }
 }
