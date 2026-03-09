@@ -40,7 +40,8 @@ internal class HRCounterStandalone : HRCounter, IInitializable, IDisposable
 
     protected override bool SetupCounter(AssetBundleManager.CustomCounter counter)
     {
-        _counter = counter.Counter;
+        _counter = counter.Canvas;
+        _counter.name = "HRCounter Standalone";
         _counter.transform.localScale = Vector3.one / 150;
 
         if (_rotationContainer == null)

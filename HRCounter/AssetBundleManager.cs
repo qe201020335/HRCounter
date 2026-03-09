@@ -95,7 +95,7 @@ internal class AssetBundleManager : IInitializable, IDisposable
 
         return new CustomCounter
         {
-            Counter = currentCanvas,
+            Canvas = currentCanvas,
             Icon = icon,
             ReplayIcon = replayIcon,
             Numbers = numbers
@@ -104,7 +104,7 @@ internal class AssetBundleManager : IInitializable, IDisposable
 
     internal struct CustomCounter
     {
-        public GameObject Counter;
+        public GameObject Canvas;
         public GameObject Icon;
         public GameObject ReplayIcon;
         public TMP_Text Numbers;

@@ -2,7 +2,6 @@
 using CountersPlus.Custom;
 using CountersPlus.Utils;
 using JetBrains.Annotations;
-using TMPro;
 using UnityEngine;
 using Zenject;
 using IPALogger = IPA.Logging.Logger;
@@ -16,12 +15,10 @@ internal sealed class HRCounterCountersPlus : HRCounter, ICounter
     private readonly IPALogger _logger = null!;
 
     [Inject]
-    private readonly CanvasUtility CanvasUtility = null!;
+    private readonly CanvasUtility _canvasUtility = null!;
 
     [Inject]
-    private readonly CustomConfigModel Settings = null!;
-
-    private TMP_Text? _counter;
+    private readonly CustomConfigModel _settings = null!;
 
     private GameObject _customCounter = null!;
 
@@ -38,28 +35,25 @@ internal sealed class HRCounterCountersPlus : HRCounter, ICounter
 
     protected override bool SetupCounter(AssetBundleManager.CustomCounter counter)
     {
-        _counter = CanvasUtility.CreateTextFromSettings(Settings);
-        _counter.fontSize = 3;
-        _counter.text = "";
-
-        var canvas = CanvasUtility.GetCanvasFromID(Settings.CanvasID);
-        if (canvas == null)
+        var canvas = _canvasUtility.GetCanvasFromID(_settings.CanvasID);
+        var canvasSettings = _canvasUtility.GetCanvasSettingsFromID(_settings.CanvasID);
+        if (canvas == null || canvasSettings == null)
         {
             _logger.Warn("Cannot find counters+ canvas");
             return false;
         }
 
-        _customCounter = counter.Icon;
+        var anchoredPosition = _canvasUtility.GetAnchoredPositionFromConfig(_settings) * canvasSettings.PositionScale;
 
-        // position the counter as the counters+ one
+        _customCounter = counter.Icon;
+        _customCounter.name = "HRCounter Counters+";
         _customCounter.transform.localScale = Vector3.one / 30;
         _customCounter.transform.SetParent(canvas.transform, false);
-        _customCounter.GetComponent<RectTransform>().anchoredPosition = _counter.rectTransform.anchoredPosition;
+        _customCounter.GetComponent<RectTransform>().anchoredPosition = anchoredPosition;
         _customCounter.transform.localPosition -= new Vector3(2, 0, 0); // recenter
 
         // destroy the unused game obj
-        Object.Destroy(counter.Counter);
-
+        Object.Destroy(counter.Canvas);
         return true;
     }
 
