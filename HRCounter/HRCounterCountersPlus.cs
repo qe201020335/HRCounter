@@ -20,7 +20,7 @@ internal sealed class HRCounterCountersPlus : HRCounter, ICounter
     [Inject]
     private readonly CustomConfigModel _settings = null!;
 
-    private GameObject _customCounter = null!;
+    private Transform _counter = null!;
 
     void ICounter.CounterInit()
     {
@@ -45,12 +45,11 @@ internal sealed class HRCounterCountersPlus : HRCounter, ICounter
 
         var anchoredPosition = _canvasUtility.GetAnchoredPositionFromConfig(_settings) * canvasSettings.PositionScale;
 
-        _customCounter = counter.Icon;
-        _customCounter.name = "HRCounter Counters+";
-        _customCounter.transform.localScale = Vector3.one / 30;
-        _customCounter.transform.SetParent(canvas.transform, false);
-        _customCounter.GetComponent<RectTransform>().anchoredPosition = anchoredPosition;
-        _customCounter.transform.localPosition -= new Vector3(2, 0, 0); // recenter
+        _counter = counter.Container;
+        _counter.gameObject.name = "HRCounter Counters+";
+        _counter.localScale = Vector3.one / 30;
+        _counter.SetParent(canvas.transform, false);
+        _counter.GetComponent<RectTransform>().anchoredPosition = anchoredPosition;
 
         // destroy the unused game obj
         Object.Destroy(counter.Canvas);

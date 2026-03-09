@@ -48,14 +48,13 @@ internal abstract class HRCounter
             return false;
         }
 
-        var counter = _assetBundleManager.SetupCustomCounter();
+        var counter = _assetBundleManager.SetupCustomCounter(_hrProvider.IsReplayData);
         if (counter == null)
         {
             _logger.Warn("No Counter asset is loaded!");
             return false;
         }
 
-        counter.Value.ReplayIcon.SetActive(_hrProvider.IsReplayData);
         _counterText = counter.Value.Numbers;
 
         if (!SetupCounter(counter.Value))

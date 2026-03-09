@@ -14,10 +14,10 @@ internal class HRCounterStandalone : HRCounter, IInitializable, IDisposable
 
     private GameObject _counter = null!;
 
-    public HRCounterStandalone(IPALogger logger, GameplayCoreSceneSetupData sceneSetupData, [InjectOptional] FlyingGameHUDRotation? flyingGameHUDRotation)
+    public HRCounterStandalone(IPALogger logger, [InjectOptional] FlyingGameHUDRotation? flyingGameHUDRotation)
     {
         _logger = logger;
-        if (sceneSetupData.beatmapKey.beatmapCharacteristic.requires360Movement && flyingGameHUDRotation != null)
+        if (flyingGameHUDRotation != null)
         {
             _rotationContainer = flyingGameHUDRotation.transform.Find("Container");
             if (_rotationContainer == null)
@@ -47,15 +47,15 @@ internal class HRCounterStandalone : HRCounter, IInitializable, IDisposable
         if (_rotationContainer == null)
         {
             // Place our Canvas in a Static Location
-            _counter.transform.position = Config.StaticCounterPosition;
+            _counter.transform.position = Config.StaticCounterPosition + AssetBundleManager.StaticPositionOffset;
             _counter.transform.rotation = Quaternion.identity;
         }
         else
         {
-            _logger.Debug("Attaching HRCounter to FlyingGameHUDRotation");
+            _logger.Debug("Attaching HRCounter to flying hud container");
             // Attach it to the FlyingHUD
             _counter.transform.SetParent(_rotationContainer);
-            _counter.transform.localPosition = new Vector3(-2, -20, 0);
+            _counter.transform.localPosition = new Vector3(0, 55, 0);
             _counter.transform.localRotation = Quaternion.identity;
         }
 
