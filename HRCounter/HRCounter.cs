@@ -60,6 +60,7 @@ internal abstract class HRCounter
         if (!SetupCounter(counter.Value))
         {
             _logger.Warn("Failed to set up the counter");
+            return false;
         }
 
         OnHRUpdate(_hrProvider.CurrentHR); // give it an initial value
