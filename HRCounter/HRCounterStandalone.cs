@@ -47,7 +47,7 @@ internal class HRCounterStandalone : HRCounter, IInitializable, IDisposable
         if (_rotationContainer == null)
         {
             // Place our Canvas in a Static Location
-            _counter.transform.position = Config.StaticCounterPosition + AssetBundleManager.StaticPositionOffset;
+            _counter.transform.position = Config.StaticCounterPosition;
             _counter.transform.rotation = Quaternion.identity;
         }
         else
@@ -55,7 +55,7 @@ internal class HRCounterStandalone : HRCounter, IInitializable, IDisposable
             _logger.Debug("Attaching HRCounter to flying hud container");
             // Attach it to the FlyingHUD
             _counter.transform.SetParent(_rotationContainer);
-            _counter.transform.localPosition = new Vector3(0, 55, 0);
+            _counter.transform.localPosition = new Vector3(0, -20, 0);
             _counter.transform.localRotation = Quaternion.identity;
         }
 

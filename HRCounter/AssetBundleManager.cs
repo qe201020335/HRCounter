@@ -13,10 +13,6 @@ namespace HRCounter;
 
 internal class AssetBundleManager : IInitializable, IDisposable
 {
-    // Prefab layout cleanup changed the center position,
-    // this is the offset move it back to the previous position 
-    internal static readonly Vector3 StaticPositionOffset = new(0, 1.7f, 0);
-    
     private GameObject? CounterPrefab { get; set; }
 
     [Inject]
