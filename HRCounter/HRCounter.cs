@@ -59,7 +59,8 @@ internal abstract class HRCounter
 
         if (!SetupCounter(counter.Value))
         {
-            _logger.Warn("Failed to set up the counter");
+            _logger.Warn("Failed to set up the counter, destroying counter");
+            Object.Destroy(counter.Value.Canvas);
             return false;
         }
 
