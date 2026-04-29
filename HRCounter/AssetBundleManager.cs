@@ -65,46 +65,58 @@ internal class AssetBundleManager : IInitializable, IDisposable
         }
     }
 
-    internal CustomCounter? SetupCustomCounter()
+    internal CustomCounter? SetupCustomCounter(bool isReplay)
     {
+        _logger.Info("Creating HRCounter object from prefab");
         if (CounterPrefab == null)
         {
+            _logger.Warn("Counter prefab is not loaded!");
             return null;
         }
 
-        var currentCanvas = Object.Instantiate(CounterPrefab);
-        var icon = currentCanvas.transform.GetChild(0).gameObject;
-        var numbers = icon.transform.GetChild(0).GetComponent<TMP_Text>();
-        var replayIcon = icon.transform.GetChild(1).gameObject;
-        numbers.alignment = TextAlignmentOptions.MidlineLeft;
+        var canvas = Object.Instantiate(CounterPrefab);
+        if (canvas == null)
+        {
+            _logger.Warn("Failed to instantiate counter prefab");
+            return null;
+        }
 
+        var container = canvas.transform.GetChild(0)!;
+        var icon = container.GetChild(0).gameObject;
+        var replayIcon = icon.transform.GetChild(0).gameObject;
+        var numbers = container.GetChild(1).GetComponent<TMP_Text>();
+        
         var iconImage = icon.GetComponent<Image>();
         iconImage.material = RenderUtils.UINoGlow;
-        // var replayIconImage = replayIcon.GetComponent<Image>();
-        // replayIconImage.material = RenderUtils.UINoGlow;
         if (!string.IsNullOrWhiteSpace(_config.CustomIcon) && _iconManager.TryGetIconSprite(_config.CustomIcon, out var sprite))
         {
             iconImage.sprite = sprite;
         }
 
+        replayIcon.SetActive(isReplay);
+
         numbers.font.material = numbers.fontMaterial;
         numbers.fontMaterial.shader = _config.NoBloom ? RenderUtils.TextNoGlow : RenderUtils.TextGlow;
-        _logger.Debug($"Using font shader: {numbers.fontMaterial.shader.name}");
 
         return new CustomCounter
         {
-            Counter = currentCanvas,
-            Icon = icon,
-            ReplayIcon = replayIcon,
+            Canvas = canvas,
+            Container = container,
+            // Icon = icon,
+            // ReplayIcon = replayIcon,
             Numbers = numbers
         };
     }
 
     internal struct CustomCounter
     {
-        public GameObject Counter;
-        public GameObject Icon;
-        public GameObject ReplayIcon;
+        public GameObject Canvas;
+
+        public Transform Container;
+
+        // public GameObject Icon;
+        // public GameObject ReplayIcon;
+
         public TMP_Text Numbers;
     }
 }

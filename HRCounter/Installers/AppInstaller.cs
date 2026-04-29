@@ -37,6 +37,7 @@ public class AppInstaller : Installer<AppInstaller>
         Container.Bind<Logger>().WithId(typeof(DataSource)).FromMethod(CreateChildLogger).AsTransient();
         Container.Bind<Logger>().WithId(typeof(HRProxyBase)).FromMethod(CreateChildLogger).AsTransient();
         Container.Bind<Logger>().WithId(typeof(WebSocketSource)).FromMethod(CreateChildLogger).AsTransient();
+        Container.Bind<Logger>().WithId(typeof(HRCounter)).FromMethod(CreateChildLogger).AsTransient();
 
         Container.BindInstance(_config).AsSingle();
         Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
