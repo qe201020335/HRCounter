@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using IPA.Loader;
 using Newtonsoft.Json.Linq;
 
 namespace HRCounter.Utils;
@@ -24,12 +23,14 @@ public static class DataSourceUtils
     {
         using var httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}");
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Plugin.Instance.UserAgent);
         try
         {
             var res = await httpClient.GetAsync(PULSOID_VALIDATE);
 
             if (res.IsSuccessStatusCode)
             {
+                //TODO return a result with expire time
                 return "";
             }
 

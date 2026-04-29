@@ -21,15 +21,9 @@ public abstract class WebSocketSource : DataSource
 
     protected abstract string Url { get; }
 
-    protected virtual string UserAgent { get; }
+    protected virtual string UserAgent { get; } = Plugin.Instance.UserAgent;
 
     protected CancellationToken CToken => _cts.Token;
-
-    protected WebSocketSource()
-    {
-        var meta = Plugin.Instance.Metadata;
-        UserAgent = $"{meta.Id}/{meta.HVersion}";
-    }
 
     protected override void Start()
     {

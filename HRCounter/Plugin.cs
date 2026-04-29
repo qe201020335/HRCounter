@@ -27,6 +27,8 @@ public class Plugin
     private const string ScoreSaberId = "ScoreSaber";
     private const string BeatLeaderId = "BeatLeader";
 
+    internal string UserAgent { get; }
+
     [Init]
     public Plugin(IPALogger logger, IPA.Config.Config conf, PluginMetadata metadata, Zenjector zenject)
     {
@@ -39,6 +41,8 @@ public class Plugin
         BSMLMeta = Utils.Utils.FindEnabledPluginMetadata(BSMLId);
         ScoreSaberMeta = Utils.Utils.FindEnabledPluginMetadata(ScoreSaberId);
         BeatLeaderMeta = Utils.Utils.FindEnabledPluginMetadata(BeatLeaderId);
+
+        UserAgent = $"{metadata.Id}/{metadata.HVersion}";
 
         zenject.UseMetadataBinder<Plugin>();
 
