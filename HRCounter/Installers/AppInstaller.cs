@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources;
 using HRCounter.Data.DataSources.Base;
+using HRCounter.Integrations.Pulsoid;
 using HRCounter.UI;
 using HRCounter.Utils;
 using HRCounter.Web.HTTP;
@@ -43,6 +44,7 @@ public class AppInstaller : Installer<AppInstaller>
         Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<IconManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<UserInfoHelper>().AsSingle();
+        Container.BindInterfacesAndSelfTo<PulsoidAuthenticator>().AsTransient();
 
         // Web stuff
         Container.BindInterfacesAndSelfTo<SimpleHttpServer>().AsSingle();
