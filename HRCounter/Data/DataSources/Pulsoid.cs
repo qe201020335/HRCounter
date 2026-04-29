@@ -11,6 +11,10 @@ using Zenject;
 
 namespace HRCounter.Data.DataSources;
 
+/// <summary>
+///     Legacy Pulsoid data source using HTTP polling
+/// </summary>
+[Obsolete("Use Pulsoid2 instead.", true)]
 internal class Pulsoid : DataSource
 {
     [Inject]

@@ -69,7 +69,7 @@ public class DataSourceManager
         () => GenericPrecondition(Config.HypeRateSessionID)
     );
 
-    internal static DataSourceInfo Pulsoid = RegisterDataSource<Pulsoid>(PULSOID_KEY, async () =>
+    internal static DataSourceInfo Pulsoid = RegisterDataSource<Pulsoid2>(PULSOID_KEY, async () =>
         {
             if (!GenericPrecondition(Config.PulsoidToken))
             {
