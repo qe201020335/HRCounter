@@ -13,6 +13,8 @@ public static class Extensions
         return s.Length <= length ? s : s.Substring(0, length) + "...";
     }
 
+    internal static string Redact(this string s) => new('*', s.Length);
+
     internal static async Task<byte[]> ReadAllBytesAsync(this FileInfo file)
     {
         using var ms = new MemoryStream();

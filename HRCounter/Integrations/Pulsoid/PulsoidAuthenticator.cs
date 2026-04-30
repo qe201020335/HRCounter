@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HRCounter.Integrations.Pulsoid.Models;
 using HRCounter.Integrations.Pulsoid.Results;
+using HRCounter.Utils;
 using Zenject;
 using Logger = IPA.Logging.Logger;
 
@@ -80,6 +81,9 @@ internal class PulsoidAuthenticator : IDisposable
         if (_initiationResponse is { IsValid: true })
         {
             _logger.Info("Pulsoid device authorization initiated");
+            _logger.Debug($"UserCode: {_initiationResponse.UserCode?.Redact()}");
+            _logger.Debug($"DeviceCode: {_initiationResponse.DeviceCode?.Redact()}");
+            _logger.Debug($"Verification URI expires in {_initiationResponse.ExpiresIn} seconds");
             CurrentState = State.Initiated;
             return new DeviceAuthInitiationResult
             {
@@ -109,6 +113,7 @@ internal class PulsoidAuthenticator : IDisposable
 
         var interval = TimeSpan.FromSeconds(_initiationResponse!.Interval!.Value);
         var deviceCode = _initiationResponse.DeviceCode!;
+        _logger.Debug($"Polling for access token every {interval.TotalSeconds} seconds with device code {deviceCode.Redact()}");
         while (true)
         {
             try
@@ -150,7 +155,7 @@ internal class PulsoidAuthenticator : IDisposable
                 switch (error.Error)
                 {
                     case TokenErrorResponse.ErrorType.AuthorizationPending:
-                        _logger.Debug("Pulsoid authorization pending...");
+                        _logger.Trace("Pulsoid authorization pending...");
                         break;
                     case TokenErrorResponse.ErrorType.AccessDenied:
                         _logger.Warn("Pulsoid authorization denied");
