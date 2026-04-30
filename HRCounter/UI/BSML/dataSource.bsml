@@ -25,10 +25,11 @@
             </horizontal>
         </vertical>
     </tab>
-    <!--        <tab tab-name="Pulsoid" tags="tabs">-->
-    <!--            <vertical child-control-height="false" spacing="1">-->
-    <!--            </vertical>-->
-    <!--        </tab>-->
+    <tab tab-name="Pulsoid" tags="tabs">
+        <vertical child-control-height="false" spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
+            <button id="authorize-pulsoid-btn" text="Authorize" on-click="AuthorizePulsoid"/>
+        </vertical>
+    </tab>
     <tab tab-name="HypeRate" tags="tabs">
         <vertical child-control-height="false" spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
             <horizontal child-control-width="false" child-expand-width="false" horizontal-fit="PreferredSize" spacing="1">
