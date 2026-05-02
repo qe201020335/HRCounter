@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace HRCounter.Integrations.Pulsoid;
 
-public class PulsoidOAuthClient : IDisposable
+internal class PulsoidOAuthClient : IDisposable
 {
     private const string OAUTH_BASE_URL = "https://pulsoid.net/oauth2/";
     private const string SCOPE = "data:heart_rate:read";

@@ -8,7 +8,7 @@
         <AssemblyName>HRCounter</AssemblyName>
         <DebugType>portable</DebugType>
         <WarningLevel>4</WarningLevel>
-        <LangVersion>12</LangVersion>
+        <LangVersion>14</LangVersion>
         <Nullable>enable</Nullable>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>

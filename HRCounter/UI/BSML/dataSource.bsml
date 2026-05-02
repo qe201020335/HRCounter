@@ -27,8 +27,24 @@
     </tab>
     <tab tab-name="Pulsoid" tags="tabs">
         <vertical child-control-height="false" spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
-            <button id="authorize-pulsoid-btn" text="Authorize" on-click="AuthorizePulsoid"/>
+            <button id="authorize-pulsoid-btn" text="Authorize with Pulsoid" on-click="OpenAuthorizeModal"/>
         </vertical>
+        <modal id="pulsoid-authorize-modal" show-event="show-pulsoid-authorize-modal" hide-event="close-modal" size-delta-x="80"
+               size-delta-y="50" click-off-closes="false" move-to-center="true">
+            <vertical pref-width="80" horizontal-fit="PreferredSize" pref-height="50" vertical-fit="PreferredSize" spacing="1"
+                      background="round-rect-panel">
+                <horizontal>
+                    <text text="Authorize with Pulsoid" font-size="5" align="Center"/>
+                </horizontal>
+                <horizontal pad-left="4" pad-right="4">
+                    <text text="~ModalText" bold="false" align="Center" word-wrapping="true"/>
+                </horizontal>
+                <horizontal pref-width="40" horizontal-fit="PreferredSize">
+                    <button id="modal-close-button" text="~ModalCloseButtonText" on-click="CloseAuthorizeModal"/>
+                    <action-button id="modal-authorize-button" text="Authorize" on-click="AuthorizePulsoid"/>
+                </horizontal>
+            </vertical>
+        </modal>
     </tab>
     <tab tab-name="HypeRate" tags="tabs">
         <vertical child-control-height="false" spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">

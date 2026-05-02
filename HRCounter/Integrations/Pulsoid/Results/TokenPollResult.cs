@@ -8,6 +8,8 @@ internal class TokenPollResult
 
     public string? AccessToken { get; set; }
 
+    public long ExpiresIn { get; set; }
+
     public string? Error { get; set; }
 
     public Exception? Exception { get; set; }
@@ -16,6 +18,7 @@ internal class TokenPollResult
     {
         Success,
         Failure,
+        Denied,
         Timeout,
         Cancelled
     }

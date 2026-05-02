@@ -74,6 +74,7 @@ internal class PulsoidAuthenticator : IDisposable
             return new DeviceAuthInitiationResult
             {
                 Result = DeviceAuthInitiationResult.ResultType.Failure,
+                Error = "Unexpected error while initiating device authorization",
                 Exception = e
             };
         }
@@ -126,7 +127,8 @@ internal class PulsoidAuthenticator : IDisposable
                     return new TokenPollResult
                     {
                         Result = TokenPollResult.ResultType.Success,
-                        AccessToken = success.AccessToken!
+                        AccessToken = success.AccessToken!,
+                        ExpiresIn = success.ExpiresIn
                     };
                 }
 
@@ -162,7 +164,7 @@ internal class PulsoidAuthenticator : IDisposable
                         CurrentState = State.Failed;
                         return new TokenPollResult
                         {
-                            Result = TokenPollResult.ResultType.Failure,
+                            Result = TokenPollResult.ResultType.Denied,
                             Error = "Authorization is denied"
                         };
                     case TokenErrorResponse.ErrorType.TokenAlreadyIssued:
@@ -211,6 +213,7 @@ internal class PulsoidAuthenticator : IDisposable
                 return new TokenPollResult
                 {
                     Result = TokenPollResult.ResultType.Failure,
+                    Error = "Unexpected error while polling for Pulsoid access token",
                     Exception = e
                 };
             }
