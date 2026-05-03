@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using HRCounter.Configuration;
+using HRCounter.Data.DataSources;
+using HRCounter.Data.DataSources.Base;
+using HRCounter.UI;
 using HRCounter.Utils;
 using HRCounter.Web.HTTP;
 using HRCounter.Web.HTTP.Handlers;
@@ -31,7 +32,12 @@ public class AppInstaller : Installer<AppInstaller>
 
     public override void InstallBindings()
     {
-        BindLoggers();
+        Container.Bind<Logger>().FromMethod(CreateChildLogger).AsTransient().When(ShouldBindLogger);
+        Container.Bind<Logger>().WithId(typeof(BaseConfigViewController)).FromMethod(CreateChildLogger).AsTransient();
+        Container.Bind<Logger>().WithId(typeof(DataSource)).FromMethod(CreateChildLogger).AsTransient();
+        Container.Bind<Logger>().WithId(typeof(HRProxyBase)).FromMethod(CreateChildLogger).AsTransient();
+        Container.Bind<Logger>().WithId(typeof(WebSocketSource)).FromMethod(CreateChildLogger).AsTransient();
+        Container.Bind<Logger>().WithId(typeof(HRCounter)).FromMethod(CreateChildLogger).AsTransient();
 
         Container.BindInstance(_config).AsSingle();
         Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
@@ -47,31 +53,10 @@ public class AppInstaller : Installer<AppInstaller>
         Container.BindInterfacesAndSelfTo<OscHRHandler>().AsSingle();
     }
 
-    private void BindLoggers()
-    {
-        // Default logger binding 
-        Container.Bind<Logger>().FromMethod(CreateChildLogger).AsTransient().When(ShouldBindLogger);
-
-        // ID-ed logger binding
-        var ids = _pluginMetadata.Assembly.GetTypes()
-            .SelectMany(type => type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly))
-            .Where(field => field.FieldType == typeof(Logger))
-            .Select(field => field.GetCustomAttribute<InjectAttribute>()?.Id)
-            .Where(type => type != null)
-            .Distinct();
-
-        foreach (var id in ids)
-        {
-            _logger.Trace($"Binding Logger with ID {id}");
-            Container.Bind<Logger>().WithId(id!).FromMethod(CreateChildLogger).AsTransient().When(ShouldBindLogger);
-        }
-    }
-
     private Logger CreateChildLogger(InjectContext context)
     {
-        var id = context.Identifier;
-        var name = (id as Type)?.Name ?? id?.ToString() ?? context.ObjectType.Name;
-
+        var type = context.Identifier as Type ?? context.ObjectType;
+        var name = type.Name;
         if (_loggers.TryGetValue(name, out var logger))
         {
             _logger.Spam($"Using cached child logger for {name}");
