@@ -18,8 +18,8 @@ public class ReplayHRRecorder : IInitializable, IDisposable
     [Inject]
     private readonly AudioTimeSyncController _audioTimeSyncController = null!;
 
-    [Inject]
-    private readonly ReplayRecorder _replayRecorder = null!;
+    [InjectOptional]
+    private readonly ReplayRecorder? _replayRecorder = null;
 
     [InjectOptional]
     private readonly HRDataManager? _hrDataManager = null;
@@ -40,6 +40,13 @@ public class ReplayHRRecorder : IInitializable, IDisposable
     {
         _logger.Trace("ReplayHRRecorder Initialize");
         if (_hrDataManager is null || !_hrDataManager.AllowReplayRecording) return;
+
+        if (_replayRecorder is null)
+        {
+            _logger.Warn("BeatLeader ReplayRecorder is not found, not recording heart rate");
+            return;
+        }
+        
         _logger.Debug("Data source allows replay recording");
         var songLength = _audioTimeSyncController.songLength;
         // preallocate size for 2 hr updates per second
@@ -52,7 +59,10 @@ public class ReplayHRRecorder : IInitializable, IDisposable
     void IDisposable.Dispose()
     {
         _logger.Trace("ReplayHRRecorder Dispose");
-        _replayRecorder.OnFinalizeReplay -= OnFinalizeReplay;
+        if (_replayRecorder != null)
+        {
+            _replayRecorder.OnFinalizeReplay -= OnFinalizeReplay;
+        }
         if (_hrDataManager != null)
         {
             _hrDataManager.OnHRUpdate -= OnHRUpdated;
@@ -76,6 +86,7 @@ public class ReplayHRRecorder : IInitializable, IDisposable
 
     private void OnFinalizeReplay()
     {
+        if (_replayRecorder is null) return;
         _logger.Debug("Preparing heart rate custom data to save into replay");
         _replayRecorder.OnFinalizeReplay -= OnFinalizeReplay;
 
