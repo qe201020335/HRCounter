@@ -1,4 +1,5 @@
 ﻿using System;
+using BeatLeader.Models;
 using BeatLeader.Replayer;
 using HRCounter.Configuration;
 using HRCounter.Data;
@@ -6,6 +7,7 @@ using HRCounter.Data.Replay;
 using HRCounter.Utils;
 using IPA.Logging;
 using Zenject;
+using Version = Hive.Versioning.Version;
 
 namespace HRCounter.Installers;
 
@@ -21,6 +23,8 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
     private readonly UserInfoHelper _userInfoHelper = null!;
 
     private const string COUNTERS_PLUS_MOD_ID = "Counters+";
+
+    private static readonly Version BeatLeaderAbstractPlayerVersion = new(0, 9, 34);
 
     public override void InstallBindings()
     {
@@ -52,20 +56,56 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
         Container.BindInterfacesTo<HRCounterStandalone>().AsSingle().NonLazy();
     }
 
-    private ReplayHRData? GetBeatLeaderReplayHRData()
+    private static string? GetMember(object? obj, params string[] names)
     {
-        if (!_config.ReplayPlaybackSelfHr && !_config.ReplayPlaybackOthersHr) return null;
-        var playerData = ReplayerLauncher.LaunchData?.MainReplay.ReplayData.Player;
+        if (obj == null) return null;
+        var t = obj.GetType();
+        foreach (var n in names)
+        {
+            var p = t.GetProperty(n)?.GetValue(obj) ?? t.GetField(n)?.GetValue(obj);
+            if (p != null) return p.ToString();
+        }
+
+        return null;
+    }
+
+    private byte[]? GetReplayHeartRateCustomData()
+    {
+        if (Plugin.Instance.BeatLeaderMeta?.HVersion is null) return null;
+        var blVersion = Plugin.Instance.BeatLeaderMeta.HVersion;
+
+        // I didn't want to use this kind of reflection mess here but BeatLeader introduced api + abi breaking changes...
+        var replayData = ReplayerLauncher.LaunchData?.MainReplay.ReplayData;
+        var playerData = replayData?.GetType().GetProperty(nameof(replayData.Player))?.GetValue(replayData);
+        string? playerId = null;
         if (playerData == null)
         {
             _logger.Warn("BeatLeader replay player data is null");
         }
         else
         {
-            _logger.Spam($"BeatLeader replay player: {playerData.name} ({playerData.id})");
+            string? playerName;
+
+            if (blVersion < BeatLeaderAbstractPlayerVersion)
+            {
+                _logger.Debug("BeatLeader old replay player api");
+                // old api
+                var type = playerData.GetType();
+                playerName = type.GetField("name")?.GetValue(playerData) as string;
+                playerId = type.GetField("id")?.GetValue(playerData) as string;
+            }
+            else
+            {
+                _logger.Debug("BeatLeader new replay player api");
+                // new api from abstracted player
+                var type = typeof(IPlayer);
+                playerName = type.GetProperty("Name")?.GetValue(playerData) as string;
+                playerId = type.GetProperty("Id")?.GetValue(playerData) as string;
+            }
+
+            _logger.Spam($"BeatLeader replay player: {playerName} ({playerId})");
         }
 
-        //todo
         var currenUser = _userInfoHelper.UserInfo;
         if (currenUser == null)
         {
@@ -76,7 +116,7 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
             _logger.Spam($"Current user: {currenUser.userName} ({currenUser.platformUserId})");
         }
 
-        var replayPlayer = playerData?.id;
+        var replayPlayer = playerId;
         var currentPlayer = currenUser?.platformUserId;
         var idMatch = replayPlayer == currentPlayer;
         var shouldLoadHr = (idMatch && _config.ReplayPlaybackSelfHr) || (!idMatch && _config.ReplayPlaybackOthersHr);
@@ -93,10 +133,18 @@ public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
             return null;
         }
 
-        _logger.Info("Loading HR data from BeatLeader replay");
+        return rawData;
+    }
+
+    private ReplayHRData? GetBeatLeaderReplayHRData()
+    {
+        if (!_config.ReplayPlaybackSelfHr && !_config.ReplayPlaybackOthersHr) return null;
+
         try
         {
-            return ReplayHRDataConverter.Decode(rawData);
+            _logger.Info("Loading HR data from BeatLeader replay");
+            var rawData = GetReplayHeartRateCustomData();
+            return rawData == null ? null : ReplayHRDataConverter.Decode(rawData);
         }
         catch (Exception e)
         {
