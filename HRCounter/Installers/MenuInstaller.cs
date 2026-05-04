@@ -1,23 +1,15 @@
-﻿using IPA.Logging;
+﻿using HRCounter.UI;
 using Zenject;
 
 namespace HRCounter.Installers;
 
 public class MenuInstaller : Installer<MenuInstaller>
 {
-    [Inject]
-    private readonly Logger _logger = null!;
-
     public override void InstallBindings()
     {
-        if (Plugin.Instance.BSMLMeta != null)
-        {
-            _logger.Debug("BSML is installed, installing the menus");
-            Container.Install<BSMLInstaller>();
-        }
-        else
-        {
-            _logger.Warn("BSML is not installed, not installing the menus");
-        }
+        Container.BindInterfacesAndSelfTo<SettingMenuController>().FromNewComponentAsViewController().AsSingle();
+        Container.BindInterfacesAndSelfTo<ServiceStatusViewController>().FromNewComponentAsViewController().AsSingle();
+        Container.BindInterfacesAndSelfTo<DataSourceMenu>().FromNewComponentAsViewController().AsSingle();
+        Container.BindInterfacesAndSelfTo<ConfigViewFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
     }
 }

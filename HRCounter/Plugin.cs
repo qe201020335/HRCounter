@@ -19,7 +19,6 @@ public class Plugin
     // private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
 
     internal PluginMetadata Metadata { get; }
-    internal PluginMetadata? BSMLMeta { get; }
     internal PluginMetadata? ScoreSaberMeta { get; }
     internal PluginMetadata? BeatLeaderMeta { get; }
 
@@ -38,7 +37,6 @@ public class Plugin
         Config = config;
 
         Metadata = metadata;
-        BSMLMeta = Utils.Utils.FindEnabledPluginMetadata(BSMLId);
         ScoreSaberMeta = Utils.Utils.FindEnabledPluginMetadata(ScoreSaberId);
         BeatLeaderMeta = Utils.Utils.FindEnabledPluginMetadata(BeatLeaderId);
 
