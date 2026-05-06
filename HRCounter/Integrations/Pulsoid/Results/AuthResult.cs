@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 
 namespace HRCounter.Integrations.Pulsoid.Results;
 
-internal class TokenPollResult
+internal class AuthResult
 {
     public ResultType Result { get; set; }
 
@@ -17,9 +17,9 @@ internal class TokenPollResult
     public enum ResultType
     {
         Success,
-        Failure,
         Denied,
         Timeout,
+        Failure,
         Cancelled
     }
 }

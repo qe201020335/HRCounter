@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace HRCounter.Integrations.Pulsoid.Models;
 
-public class TokenResponse
+public class ObtainTokenResponse
 {
     [JsonProperty("access_token")]
     public string? AccessToken { get; private set; }

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 namespace HRCounter.Integrations.Pulsoid.Models;
 
 [method: JsonConstructor]
-public class TokenErrorResponse(string? errorRaw, string? errorDescription)
+public class ObtainTokenErrorResponse(string? errorRaw, string? errorDescription)
 {
     [JsonProperty("error")]
     public string? ErrorRaw { get; } = errorRaw;

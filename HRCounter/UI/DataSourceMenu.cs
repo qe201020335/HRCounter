@@ -228,72 +228,50 @@ internal class DataSourceMenu : BaseConfigViewController
         {
             try
             {
-                _pulsoidAuthenticator.Reset();
-                var initiationResult = await _pulsoidAuthenticator.InitiateDeviceAuthorizationAsync(_pulsoidAuthCts.Token);
-                if (initiationResult.Result == DeviceAuthInitiationResult.ResultType.Cancelled)
+                var authResult = await _pulsoidAuthenticator.AuthenticateAsync(url =>
+                {
+                    _logger.Debug($"Pulsoid device authorization started, opening browser to {url.Redact()}");
+                    // launch browser
+                    Process.Start(new ProcessStartInfo { FileName = url, Verb = "open" });
+                    ShowModalText("Browser has been opened for authorization.\n\nWaiting for authorization...");
+                }, _pulsoidAuthCts.Token);
+
+                if (authResult.Result == AuthResult.ResultType.Cancelled)
                 {
                     return;
                 }
-                if (initiationResult.Result != DeviceAuthInitiationResult.ResultType.Success)
-                {
-                    var text = $"<color=yellow>Failed to start Pulsoid authorization</color>\n{initiationResult.Error}";
-                    if (initiationResult.Exception != null)
-                    {
-                        text += $"\n{initiationResult.Exception.Message}";
-                    }
 
-                    text += "\nCheck logs for details.";
-                    ShowModalText(text);
-                    return;
-                }
+                string text;
 
-                var url = initiationResult.VerificationUri!;
-                _logger.Debug($"Pulsoid device authorization initiated, opening browser to {url.Redact()}");
-                // launch browser
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = url,
-                    Verb = "open"
-                });
-
-                ShowModalText("Browser has been opened for authorization.\n\nWaiting for authorization...");
-
-                var authResult = await _pulsoidAuthenticator.PollForTokenAsync(_pulsoidAuthCts.Token);
-                if (authResult.Result == TokenPollResult.ResultType.Cancelled)
-                {
-                    return;
-                }
-                if (authResult.Result == TokenPollResult.ResultType.Success && authResult.AccessToken != null)
+                if (authResult.Result == AuthResult.ResultType.Success && authResult.AccessToken != null)
                 {
                     _logger.Notice("Pulsoid authorization successful");
                     _logger.Notice($"Pulsoid token: {authResult.AccessToken.Redact()}");
                     Config.PulsoidToken = authResult.AccessToken!;
-                    var text = "<color=green>Pulsoid authorization successful</color>";
+                    text = "<color=green>Pulsoid authorization successful</color>";
                     if (authResult.ExpiresIn > 0)
                     {
                         var timeSpan = TimeSpan.FromSeconds(authResult.ExpiresIn);
                         text += $"\nToken expires in {timeSpan.TotalDays} days";
                     }
-
-                    ShowModalText(text);
                 }
                 else
                 {
                     _logger.Warn(
                         $"Pulsoid authorization failed: {authResult.Result} {(string.IsNullOrWhiteSpace(authResult.Error) ? "" : $"({authResult.Error})")}");
-                    var text = $"<color=yellow>Pulsoid authorization failed</color>\n{authResult.Error}";
+                    text = $"<color=yellow>Pulsoid authorization failed</color>\n{authResult.Error}";
                     if (authResult.Exception != null)
                     {
                         text += $"\n{authResult.Exception.Message}";
                     }
 
-                    if (authResult.Result != TokenPollResult.ResultType.Denied)
+                    if (authResult.Result != AuthResult.ResultType.Denied)
                     {
                         text += "\nCheck logs for details.";
                     }
-
-                    ShowModalText(text);
                 }
+
+                ShowModalText(text);
             }
             catch (Exception e)
             {

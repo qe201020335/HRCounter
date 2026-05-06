@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using HRCounter.Integrations.Pulsoid.Models;
@@ -16,104 +16,87 @@ internal class PulsoidAuthenticator : IDisposable
 
     private readonly PulsoidOAuthClient _client = new("a81a9e16-2960-487d-a741-92e22b757c85");
 
-    public enum State
-    {
-        New,
-        Initiated,
-        Polling,
-        TimedOut,
-        Cancelled,
-        Failed,
-        Success
-    }
-
-    public State CurrentState { get; private set; } = State.New;
-
-    private DeviceAuthorizationInitiationResponse? _initiationResponse;
-
     public void Dispose()
     {
         _client.Dispose();
     }
 
-    public void Reset()
+    public async Task<AuthResult> AuthenticateAsync(Action<string> onVerificationUriReceived, CancellationToken ct)
     {
-        CurrentState = State.New;
-        _initiationResponse = null;
-    }
-
-    public async Task<DeviceAuthInitiationResult> InitiateDeviceAuthorizationAsync(CancellationToken ct)
-    {
-        if (CurrentState != State.New)
-        {
-            throw new InvalidOperationException("Device authorization already initiated.");
-        }
-
-        _logger.Info("Initiating Pulsoid device authorization");
-
-        _initiationResponse = null;
-
+        _logger.Info("Starting Pulsoid device authorization");
+        StartDeviceAuthorizationResponse? initiationResponse;
         try
         {
-            _initiationResponse = await _client.StartDeviceAuthorization(ct);
+            (initiationResponse, var errorResponse) = await _client.StartDeviceAuthorization(ct);
+            if (errorResponse is not null)
+            {
+                var message = errorResponse.Error ?? "Unknown Error";
+                if (!string.IsNullOrWhiteSpace(errorResponse.ErrorDescription))
+                {
+                    message += $": {errorResponse.ErrorDescription}";
+                }
+
+                _logger.Warn($"Failed to start Pulsoid device authorization: {message}");
+                return new AuthResult
+                {
+                    Result = AuthResult.ResultType.Failure,
+                    Error = message
+                };
+            }
         }
         catch (OperationCanceledException)
         {
             _logger.Debug("Pulsoid device authorization initiation canceled");
-            CurrentState = State.Cancelled;
-            return new DeviceAuthInitiationResult
-            {
-                Result = DeviceAuthInitiationResult.ResultType.Cancelled
-            };
+            return new AuthResult { Result = AuthResult.ResultType.Cancelled };
         }
         catch (Exception e)
         {
-            _logger.Error("Failed to initiate device authorization");
+            _logger.Error("Failed to start device authorization");
             _logger.Error(e);
-            CurrentState = State.Failed;
-            return new DeviceAuthInitiationResult
+            return new AuthResult
             {
-                Result = DeviceAuthInitiationResult.ResultType.Failure,
+                Result = AuthResult.ResultType.Failure,
                 Error = "Unexpected error while initiating device authorization",
                 Exception = e
             };
         }
 
-        if (_initiationResponse is { IsValid: true })
+        if (initiationResponse is not { IsValid: true })
         {
-            _logger.Info("Pulsoid device authorization initiated");
-            _logger.Debug($"UserCode: {_initiationResponse.UserCode?.Redact()}");
-            _logger.Debug($"DeviceCode: {_initiationResponse.DeviceCode?.Redact()}");
-            _logger.Debug($"Verification URI expires in {_initiationResponse.ExpiresIn} seconds");
-            CurrentState = State.Initiated;
-            return new DeviceAuthInitiationResult
+            _logger.Warn("Failed to start Pulsoid device authorization, response is null or invalid");
+            return new AuthResult
             {
-                Result = DeviceAuthInitiationResult.ResultType.Success,
-                VerificationUri = _initiationResponse.VerificationUriComplete!
+                Result = AuthResult.ResultType.Failure,
+                Error = "Device authorization response is null or invalid"
             };
         }
 
-        _logger.Warn("Failed to initiate Pulsoid device authorization, response is null or not invalid");
-        CurrentState = State.Failed;
-        return new DeviceAuthInitiationResult
-        {
-            Result = DeviceAuthInitiationResult.ResultType.Failure,
-            Error = "Response is null or invalid"
-        };
-    }
+        _logger.Info("Pulsoid device authorization initiated");
+        _logger.Debug($"UserCode: {initiationResponse.UserCode?.Redact()}");
+        _logger.Debug($"DeviceCode: {initiationResponse.DeviceCode?.Redact()}");
+        _logger.Debug($"Verification URI expires in {initiationResponse.ExpiresIn} seconds");
 
-    public async Task<TokenPollResult> PollForTokenAsync(CancellationToken ct)
-    {
-        if (CurrentState != State.Initiated)
+        try
         {
-            throw new InvalidOperationException("Device authorization not initiated.");
+            onVerificationUriReceived(initiationResponse.VerificationUriComplete!);
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Verification URI callback threw");
+            _logger.Error(e);
+            return new AuthResult
+            {
+                Result = AuthResult.ResultType.Failure,
+                Error = "Verification URI callback threw",
+                Exception = e
+            };
         }
 
-        _logger.Info("Polling Pulsoid auth token");
-        CurrentState = State.Polling;
+        return await PollForTokenAsync(initiationResponse.DeviceCode!, TimeSpan.FromSeconds(initiationResponse.Interval!.Value), ct);
+    }
 
-        var interval = TimeSpan.FromSeconds(_initiationResponse!.Interval!.Value);
-        var deviceCode = _initiationResponse.DeviceCode!;
+    private async Task<AuthResult> PollForTokenAsync(string deviceCode, TimeSpan interval, CancellationToken ct)
+    {
         _logger.Debug($"Polling for access token every {interval.TotalSeconds} seconds with device code {deviceCode.Redact()}");
         while (true)
         {
@@ -123,10 +106,9 @@ internal class PulsoidAuthenticator : IDisposable
                 if (success is { IsValid: true })
                 {
                     _logger.Info("Successfully obtained Pulsoid access token");
-                    CurrentState = State.Success;
-                    return new TokenPollResult
+                    return new AuthResult
                     {
-                        Result = TokenPollResult.ResultType.Success,
+                        Result = AuthResult.ResultType.Success,
                         AccessToken = success.AccessToken!,
                         ExpiresIn = success.ExpiresIn
                     };
@@ -135,10 +117,9 @@ internal class PulsoidAuthenticator : IDisposable
                 if (success is { IsValid: false })
                 {
                     _logger.Warn("Invalid Pulsoid access token received");
-                    CurrentState = State.Failed;
-                    return new TokenPollResult
+                    return new AuthResult
                     {
-                        Result = TokenPollResult.ResultType.Failure,
+                        Result = AuthResult.ResultType.Failure,
                         Error = "Invalid Pulsoid access token received"
                     };
                 }
@@ -146,50 +127,42 @@ internal class PulsoidAuthenticator : IDisposable
                 if (error is null)
                 {
                     _logger.Warn("Unknown error while polling for Pulsoid access token, error is null");
-                    CurrentState = State.Failed;
-                    return new TokenPollResult
+                    return new AuthResult
                     {
-                        Result = TokenPollResult.ResultType.Failure,
+                        Result = AuthResult.ResultType.Failure,
                         Error = "Unknown error while polling for Pulsoid access token"
                     };
                 }
 
                 switch (error.Error)
                 {
-                    case TokenErrorResponse.ErrorType.AuthorizationPending:
+                    case ObtainTokenErrorResponse.ErrorType.AuthorizationPending:
                         _logger.Trace("Pulsoid authorization pending...");
                         break;
-                    case TokenErrorResponse.ErrorType.AccessDenied:
+                    case ObtainTokenErrorResponse.ErrorType.AccessDenied:
                         _logger.Warn("Pulsoid authorization denied");
-                        CurrentState = State.Failed;
-                        return new TokenPollResult
+                        return new AuthResult
                         {
-                            Result = TokenPollResult.ResultType.Denied,
+                            Result = AuthResult.ResultType.Denied,
                             Error = "Authorization is denied"
                         };
-                    case TokenErrorResponse.ErrorType.TokenAlreadyIssued:
+                    case ObtainTokenErrorResponse.ErrorType.TokenAlreadyIssued:
                         _logger.Warn("Pulsoid access token already issued");
-                        CurrentState = State.Failed;
-                        return new TokenPollResult
+                        return new AuthResult
                         {
-                            Result = TokenPollResult.ResultType.Failure,
+                            Result = AuthResult.ResultType.Failure,
                             Error = "Access token already issued"
                         };
-                    case TokenErrorResponse.ErrorType.ExpiredToken:
+                    case ObtainTokenErrorResponse.ErrorType.ExpiredToken:
                         _logger.Warn("Device authorization polling time out");
-                        CurrentState = State.TimedOut;
-                        return new TokenPollResult
-                        {
-                            Result = TokenPollResult.ResultType.Timeout
-                        };
+                        return new AuthResult { Result = AuthResult.ResultType.Timeout };
                     default:
                         _logger.Warn("Unexpected error while polling for Pulsoid access token");
                         var message = $"{error.ErrorRaw ?? "Unknown Error"}: {error.ErrorDescription ?? "Unknown error description"}";
                         _logger.Warn(message);
-                        CurrentState = State.Failed;
-                        return new TokenPollResult
+                        return new AuthResult
                         {
-                            Result = TokenPollResult.ResultType.Failure,
+                            Result = AuthResult.ResultType.Failure,
                             Error = message
                         };
                 }
@@ -199,20 +172,15 @@ internal class PulsoidAuthenticator : IDisposable
             catch (OperationCanceledException)
             {
                 _logger.Debug("Pulsoid auth token polling canceled");
-                CurrentState = State.Cancelled;
-                return new TokenPollResult
-                {
-                    Result = TokenPollResult.ResultType.Cancelled
-                };
+                return new AuthResult { Result = AuthResult.ResultType.Cancelled };
             }
             catch (Exception e)
             {
                 _logger.Error("Failed to poll for access token");
                 _logger.Error(e);
-                CurrentState = State.Failed;
-                return new TokenPollResult
+                return new AuthResult
                 {
-                    Result = TokenPollResult.ResultType.Failure,
+                    Result = AuthResult.ResultType.Failure,
                     Error = "Unexpected error while polling for Pulsoid access token",
                     Exception = e
                 };

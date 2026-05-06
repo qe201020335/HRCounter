@@ -28,7 +28,8 @@ internal class PulsoidOAuthClient : IDisposable
         _httpClient.Dispose();
     }
 
-    public async Task<DeviceAuthorizationInitiationResponse?> StartDeviceAuthorization(CancellationToken cancellationToken)
+    public async Task<(StartDeviceAuthorizationResponse? Response, StartDeviceAuthorizationErrorResponse? Error)> StartDeviceAuthorization(
+        CancellationToken cancellationToken)
     {
         var content = new FormUrlEncodedContent([
             new KeyValuePair<string, string>("client_id", _clientId),
@@ -36,13 +37,18 @@ internal class PulsoidOAuthClient : IDisposable
         ]);
 
         var response = await _httpClient.PostAsync("device_authorization", content, cancellationToken);
-        response.EnsureSuccessStatusCode();
-
         var json = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<DeviceAuthorizationInitiationResponse>(json);
+
+        if (response.IsSuccessStatusCode)
+        {
+            return (JsonConvert.DeserializeObject<StartDeviceAuthorizationResponse>(json), null);
+        }
+
+        return (null, JsonConvert.DeserializeObject<StartDeviceAuthorizationErrorResponse>(json));
     }
 
-    public async Task<(TokenResponse? Token, TokenErrorResponse? Error)> TryObtainAccessToken(string deviceCode, CancellationToken cancellationToken)
+    public async Task<(ObtainTokenResponse? Token, ObtainTokenErrorResponse? Error)> TryObtainAccessToken(string deviceCode,
+        CancellationToken cancellationToken)
     {
         var content = new FormUrlEncodedContent([
             new KeyValuePair<string, string>("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
@@ -55,9 +61,9 @@ internal class PulsoidOAuthClient : IDisposable
 
         if (response.IsSuccessStatusCode)
         {
-            return (JsonConvert.DeserializeObject<TokenResponse>(json), null);
+            return (JsonConvert.DeserializeObject<ObtainTokenResponse>(json), null);
         }
 
-        return (null, JsonConvert.DeserializeObject<TokenErrorResponse>(json));
+        return (null, JsonConvert.DeserializeObject<ObtainTokenErrorResponse>(json));
     }
 }

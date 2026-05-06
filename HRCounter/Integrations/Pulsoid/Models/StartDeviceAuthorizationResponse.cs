@@ -2,7 +2,7 @@
 
 namespace HRCounter.Integrations.Pulsoid.Models;
 
-public class DeviceAuthorizationInitiationResponse
+public class StartDeviceAuthorizationResponse
 {
     [JsonProperty("device_code")]
     public string? DeviceCode { get; private set; }
