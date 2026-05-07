@@ -17,7 +17,7 @@ public static class DataSourceUtils
         return processes.Length > 0;
     }
 
-    private const string PULSOID_VALIDATE = "https://dev.pulsoid.net/api/v1/token/validate";
+    private const string PULSOID_VALIDATE = "https://pulsoid.net/api/v1/token/validate";
 
     //TODO migrate to use PulsoidAuthenticator
     internal static async Task<string> CheckPulsoidToken(string token)

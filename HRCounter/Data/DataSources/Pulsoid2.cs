@@ -9,7 +9,7 @@ namespace HRCounter.Data.DataSources;
 
 public class Pulsoid2 : WebSocketSource
 {
-    private const string URL = "wss://dev.pulsoid.net/api/v1/data/real_time?response_mode=text_plain_only_heart_rate";
+    private const string URL = "wss://pulsoid.net/api/v1/data/real_time?response_mode=text_plain_only_heart_rate";
 
     [Inject]
     private readonly PluginConfig _config = null!;
