@@ -73,6 +73,12 @@ internal class PulsoidAuthenticator : IDisposable
             };
         }
 
+        if (!Uri.TryCreate(initiationResponse.VerificationUriComplete, UriKind.Absolute, out var u) || u.Scheme != Uri.UriSchemeHttps)
+        {
+            _logger.Warn("Pulsoid device authorization initiation returned malformed verification url, rejecting authorization");
+            return new AuthResult { Result = AuthResult.ResultType.Failure, Error = "Malformed verification url" };
+        }
+
         _logger.Info("Pulsoid device authorization initiated");
         _logger.Debug($"UserCode: {initiationResponse.UserCode?.Redact()}");
         _logger.Debug($"DeviceCode: {initiationResponse.DeviceCode?.Redact()}");
