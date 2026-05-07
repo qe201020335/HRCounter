@@ -11,6 +11,10 @@ using Zenject;
 
 namespace HRCounter.Data.DataSources;
 
+/// <summary>
+///     Legacy Pulsoid data source using HTTP polling
+/// </summary>
+[Obsolete("Use Pulsoid2 instead.", true)]
 internal class Pulsoid : DataSource
 {
     [Inject]
@@ -21,7 +25,7 @@ internal class Pulsoid : DataSource
 
     private bool _updating;
 
-    private const string PULSOID_API = "https://dev.pulsoid.net/api/v1/data/heart_rate/latest";
+    private const string PULSOID_API = "https://pulsoid.net/api/v1/data/heart_rate/latest";
 
     private static readonly HttpClient HttpClient = new();
 

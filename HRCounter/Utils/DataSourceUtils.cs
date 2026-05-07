@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using IPA.Loader;
 using Newtonsoft.Json.Linq;
 
 namespace HRCounter.Utils;
@@ -18,12 +17,14 @@ public static class DataSourceUtils
         return processes.Length > 0;
     }
 
-    private const string PULSOID_VALIDATE = "https://dev.pulsoid.net/api/v1/token/validate";
+    private const string PULSOID_VALIDATE = "https://pulsoid.net/api/v1/token/validate";
 
+    //TODO migrate to use PulsoidAuthenticator
     internal static async Task<string> CheckPulsoidToken(string token)
     {
         using var httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}");
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Plugin.Instance.UserAgent);
         try
         {
             var res = await httpClient.GetAsync(PULSOID_VALIDATE);
