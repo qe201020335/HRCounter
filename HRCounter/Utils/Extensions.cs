@@ -30,15 +30,14 @@ public static class Extensions
 
         var totalDays = (int)timeSpan.TotalDays;
         var years = totalDays / 365;
-        totalDays -= years * 365;
-        var months = totalDays / 30;
-        var days = totalDays - months * 30;
+        var days = totalDays % 365;
+        var hours = timeSpan.Hours;
 
         var yearsStr = years > 0 ? $"{years} years " : "";
-        var monthsStr = months > 0 ? $"{months} months " : "";
-        var daysStr = days > 0 ? $"{days} days" : "";
+        var daysStr = days > 0 ? $"{days} days " : "";
+        var hoursStr = days > 0 ? $"{hours} hours" : "";
 
-        return $"{yearsStr}{monthsStr}{daysStr}".TrimEnd();
+        return $"{yearsStr}{daysStr}{hoursStr}".TrimEnd();
     }
 
     [Conditional("DEBUG")]
