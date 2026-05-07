@@ -11,7 +11,7 @@ using Version = Hive.Versioning.Version;
 
 namespace HRCounter.Installers;
 
-public class GameplayCoreInstaller : Installer<GameplayCoreInstaller>
+public class GameInstaller : Installer<GameInstaller>
 {
     [Inject]
     private readonly PluginConfig _config = null!;

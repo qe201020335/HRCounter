@@ -6,7 +6,7 @@ using IPALogger = IPA.Logging.Logger;
 
 namespace HRCounter.Installers;
 
-public class GameplayHearRateInstaller : Installer<GameplayHearRateInstaller>
+public class GameplayHeartRateInstaller : Installer<GameplayHeartRateInstaller>
 {
     [Inject]
     private readonly PluginConfig _config = null!;

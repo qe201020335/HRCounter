@@ -48,8 +48,8 @@ public class Plugin
 
         zenject.Install<AppInstaller>(Location.App, config, GetChildLogger(nameof(AppInstaller)), metadata);
         zenject.Install<MenuInstaller>(Location.Menu);
-        zenject.Install<GameplayHearRateInstaller>(Location.Player);  // TODO check Campaign
-        zenject.Install<Installers.GameplayCoreInstaller>(Location.Player);
+        zenject.Install<GameplayHeartRateInstaller>(Location.Player);
+        zenject.Install<GameInstaller>(Location.Player);
         // we don't want to popup the pause menu during multiplayer, that's not gonna help anything!
         zenject.Install<GamePauseInstaller>(Location.StandardPlayer | Location.CampaignPlayer);
 
