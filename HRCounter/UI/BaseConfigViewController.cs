@@ -16,13 +16,13 @@ internal abstract class BaseConfigViewController : BSMLAutomaticViewController
     [Inject]
     protected readonly PluginConfig Config = null!;
 
-    protected bool Parse { get; private set; }
+    protected bool Parsed { get; private set; }
 
     [UIAction("#post-parse")]
     protected virtual void OnParsed()
     {
-        Parse = true;
-        RefreshUI();
+        Parsed = true;
+        RefreshUI(false);
     }
 
     protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -47,24 +47,27 @@ internal abstract class BaseConfigViewController : BSMLAutomaticViewController
         base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
     }
 
-    private void RefreshUI(bool fullRefresh = false)
+    private void RefreshUI(bool notifyAll)
     {
-        if (!Parse) return;
-        if (fullRefresh) NotifyPropertyChanged(null);
+        if (!Parsed) return;
+        if (notifyAll) NotifyPropertyChanged(null);
         RefreshNoBindUI();
     }
 
+    /**
+     * Refreshes UI elements that doesn't have value binding.
+     */
     protected abstract void RefreshNoBindUI();
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {
-        if (!Parse) return;
+        if (!Parsed) return;
         UnityMainThreadTaskScheduler.Factory.StartNew(() =>
         {
             NotifyPropertyChanged(args.PropertyName);
             if (string.IsNullOrEmpty(args.PropertyName))
             {
-                RefreshUI();
+                RefreshUI(false);
             }
             else
             {
@@ -73,5 +76,9 @@ internal abstract class BaseConfigViewController : BSMLAutomaticViewController
         });
     }
 
+    /**
+     * Called when a config property changes. Only called for the changed property, not for all properties.
+     * NotifyPropertyChanged is already called for the changed property at this point.
+     */
     protected abstract void OnConfigChanged(string propertyName);
 }

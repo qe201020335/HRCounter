@@ -58,7 +58,7 @@ internal class DataSourceMenu : BaseConfigViewController
 
     protected override void OnParsed()
     {
-        if (!Parse)
+        if (!Parsed)
         {
             ((RectTransform)gameObject.transform).offsetMax = new Vector2(0, 22);
         }

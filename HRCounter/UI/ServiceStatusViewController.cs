@@ -43,7 +43,7 @@ internal class ServiceStatusViewController : BaseConfigViewController
 
     protected override void OnParsed()
     {
-        if (!Parse)
+        if (!Parsed)
         {
             ((RectTransform)gameObject.transform).offsetMax = new Vector2(0, 22);
         }
@@ -97,13 +97,13 @@ internal class ServiceStatusViewController : BaseConfigViewController
 
     private void RefreshHttpStatus()
     {
-        if (!Parse) return;
+        if (!Parsed) return;
         _httpStatusText.text = GetHttpStatusText();
     }
 
     private void RefreshOscStatus()
     {
-        if (!Parse) return;
+        if (!Parsed) return;
         _oscStatusText.text = GetOscStatusText();
     }
 
