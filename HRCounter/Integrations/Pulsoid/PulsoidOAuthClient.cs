@@ -66,4 +66,14 @@ internal class PulsoidOAuthClient : IDisposable
 
         return (null, JsonConvert.DeserializeObject<ObtainTokenErrorResponse>(json));
     }
+
+    public async Task RevokeAccessToken(string token, CancellationToken cancellationToken)
+    {
+        var content = new FormUrlEncodedContent([
+            new KeyValuePair<string, string>("token", token)
+        ]);
+
+        var response = await _httpClient.PostAsync("revoke", content, cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
 }

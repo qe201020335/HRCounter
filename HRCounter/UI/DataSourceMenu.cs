@@ -82,6 +82,7 @@ internal class DataSourceMenu : BaseConfigViewController
     protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
         CloseAuthorizeModal();
+        CancelTokenValidation();
 
         base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
     }
@@ -102,6 +103,7 @@ internal class DataSourceMenu : BaseConfigViewController
                 UpdateHypeRateSessionIDText();
                 break;
             case nameof(Config.PulsoidToken):
+                _ = ValidatePulsoidToken();
                 // TODO proper data source info update event
                 if (DataSource == DataSourceManager.Pulsoid.Key)
                 {
@@ -116,6 +118,7 @@ internal class DataSourceMenu : BaseConfigViewController
     {
         UpdateDataSourceInfoText();
         UpdateHypeRateSessionIDText();
+        _ = ValidatePulsoidToken();
     }
 
     [UIAction("UpdateDataSourceInfoText")]
@@ -157,6 +160,82 @@ internal class DataSourceMenu : BaseConfigViewController
 
     #region PulsoidAuth
 
+    private bool PulsoidTokenValid
+    {
+        get;
+        set
+        {
+            field = value;
+            if (Parsed)
+            {
+                _deauthorizePulsoidButton.interactable = value;
+            }
+        }
+    }
+
+    [UIValue("PulsoidTokenStatusText")]
+    private string PulsoidTokenStatusText
+    {
+        get;
+        set
+        {
+            field = value;
+            NotifyPropertyChanged();
+        }
+    } = "";
+
+    private CancellationTokenSource? _pulsoidTokenCts;
+
+    private async Task ValidatePulsoidToken()
+    {
+        var token = Config.PulsoidToken;
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            PulsoidTokenStatusText = "No Pulsoid token.\nClick <i><b><smallcaps>Authorize Pulsoid</smallcaps></b></i> to get one.";
+            PulsoidTokenValid = false;
+            return;
+        }
+
+        CancelTokenValidation();
+        _pulsoidTokenCts = new CancellationTokenSource();
+        var result = await _pulsoidAuthenticator.ValidateTokenAsync(token, _pulsoidTokenCts.Token).ConfigureAwait(true);
+        if (result.Result == TokenValidationResult.ResultType.Cancelled) return;
+        PulsoidTokenValid = result.Result == TokenValidationResult.ResultType.Valid;
+        switch (result.Result)
+        {
+            case TokenValidationResult.ResultType.Valid:
+                PulsoidTokenStatusText =
+                    $"<color=green>Token valid</color>\nExpires in {TimeSpan.FromSeconds(result.ExpiresIn).ToReadableString()}";
+                break;
+            case TokenValidationResult.ResultType.NotFound:
+                PulsoidTokenStatusText = "<color=yellow>Token not found</color>";
+                break;
+            case TokenValidationResult.ResultType.Expired:
+                PulsoidTokenStatusText = "<color=yellow>Token expired</color>";
+                break;
+            case TokenValidationResult.ResultType.Failure:
+                var text = $"<color=red>Token validation failed</color>\n{result.Error}";
+                if (result.Exception != null)
+                {
+                    text += $"\n{result.Exception.Message}\nCheck logs for details.";
+                }
+
+                PulsoidTokenStatusText = text;
+                break;
+        }
+    }
+
+    private void CancelTokenValidation()
+    {
+        if (_pulsoidTokenCts != null)
+        {
+            _logger.Debug("Cancelling Pulsoid token validation");
+            _pulsoidTokenCts.Cancel();
+            _pulsoidTokenCts.Dispose();
+            _pulsoidTokenCts = null;
+        }
+    }
+
     [UIComponent("modal-authorize-button")]
     private Button _modalAuthorizeBtn = null!;
 
@@ -188,7 +267,9 @@ internal class DataSourceMenu : BaseConfigViewController
     private void OpenAuthorizeModal()
     {
         CancelAuthorization();
-        ModalText = "Click Authorize button to begin authorizing with Pulsoid.";
+        ModalText = PulsoidTokenValid
+            ? "Existing token is valid.\nAuthorize again will replace the current one.\nClick Authorize button to re-authorize with Pulsoid."
+            : "Click Authorize button to begin authorizing with Pulsoid.";
         ModalCloseButtonText = "Cancel";
         _modalAuthorizeBtn.interactable = true;
         _parserParams.EmitEvent("show-pulsoid-authorize-modal");
@@ -247,12 +328,13 @@ internal class DataSourceMenu : BaseConfigViewController
                 {
                     _logger.Notice("Pulsoid authorization successful");
                     _logger.Notice($"Pulsoid token: {authResult.AccessToken.Redact()}");
+                    await UnityMainThreadTaskScheduler.Factory.StartNew(CancelTokenValidation);
                     Config.PulsoidToken = authResult.AccessToken!;
                     text = "<color=green>Pulsoid authorization successful</color>";
                     if (authResult.ExpiresIn > 0)
                     {
                         var timeSpan = TimeSpan.FromSeconds(authResult.ExpiresIn);
-                        text += $"\nToken expires in {timeSpan.TotalDays} days";
+                        text += $"\nToken expires in {timeSpan.ToReadableString()} days";
                     }
                 }
                 else
@@ -285,6 +367,28 @@ internal class DataSourceMenu : BaseConfigViewController
                 _ = UnityMainThreadTaskScheduler.Factory.StartNew(() => { ModalCloseButtonText = "Close"; });
             }
         });
+    }
+
+    [UIComponent("deauthorize-pulsoid-btn")]
+    private Button _deauthorizePulsoidButton = null!;
+
+    [UIAction("DeauthorizePulsoid")]
+    private async Task DeauthorizePulsoid()
+    {
+        var token = Config.PulsoidToken;
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return;
+        }
+
+        _deauthorizePulsoidButton.interactable = false;
+        CancelAuthorization();
+        CancelTokenValidation();
+
+        var success = await _pulsoidAuthenticator.RevokeTokenAsync(token, CancellationToken.None).ConfigureAwait(true);
+        Config.PulsoidToken = success ? "" : token; // force a refresh
+        _parserParams.EmitEvent("close-modal");
+        _deauthorizePulsoidButton.interactable = true;
     }
 
     #endregion

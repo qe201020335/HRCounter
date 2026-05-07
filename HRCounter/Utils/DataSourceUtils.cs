@@ -19,6 +19,7 @@ public static class DataSourceUtils
 
     private const string PULSOID_VALIDATE = "https://dev.pulsoid.net/api/v1/token/validate";
 
+    //TODO migrate to use PulsoidAuthenticator
     internal static async Task<string> CheckPulsoidToken(string token)
     {
         using var httpClient = new HttpClient();
@@ -30,7 +31,6 @@ public static class DataSourceUtils
 
             if (res.IsSuccessStatusCode)
             {
-                //TODO return a result with expire time
                 return "";
             }
 

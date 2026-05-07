@@ -14,11 +14,13 @@ internal class PulsoidAuthenticator : IDisposable
     [Inject]
     private readonly Logger _logger = null!;
 
-    private readonly PulsoidOAuthClient _client = new("a81a9e16-2960-487d-a741-92e22b757c85");
+    private readonly PulsoidOAuthClient _authClient = new("a81a9e16-2960-487d-a741-92e22b757c85");
+    private readonly PulsoidApiClient _apiClient = new();
 
     public void Dispose()
     {
-        _client.Dispose();
+        _authClient.Dispose();
+        _apiClient.Dispose();
     }
 
     public async Task<AuthResult> AuthenticateAsync(Action<string> onVerificationUriReceived, CancellationToken ct)
@@ -27,7 +29,7 @@ internal class PulsoidAuthenticator : IDisposable
         StartDeviceAuthorizationResponse? initiationResponse;
         try
         {
-            (initiationResponse, var errorResponse) = await _client.StartDeviceAuthorization(ct);
+            (initiationResponse, var errorResponse) = await _authClient.StartDeviceAuthorization(ct);
             if (errorResponse is not null)
             {
                 var message = errorResponse.Error ?? "Unknown Error";
@@ -102,7 +104,7 @@ internal class PulsoidAuthenticator : IDisposable
         {
             try
             {
-                var (success, error) = await _client.TryObtainAccessToken(deviceCode, ct);
+                var (success, error) = await _authClient.TryObtainAccessToken(deviceCode, ct);
                 if (success is { IsValid: true })
                 {
                     _logger.Info("Successfully obtained Pulsoid access token");
@@ -185,6 +187,85 @@ internal class PulsoidAuthenticator : IDisposable
                     Exception = e
                 };
             }
+        }
+    }
+
+    public async Task<TokenValidationResult> ValidateTokenAsync(string token, CancellationToken ct)
+    {
+        _logger.Info("Validating Pulsoid token");
+        ValidateTokenResponse? validation;
+        TokenErrorResponse? error;
+        try
+        {
+            (validation, error) = await _apiClient.ValidateTokenAsync(token, ct);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.Debug("Pulsoid token validation canceled");
+            return new TokenValidationResult { Result = TokenValidationResult.ResultType.Cancelled };
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Failed to validate Pulsoid token");
+            _logger.Error(e);
+            return new TokenValidationResult
+            {
+                Result = TokenValidationResult.ResultType.Failure,
+                Error = "Unexpected error while validating token",
+                Exception = e
+            };
+        }
+
+        if (validation is not null)
+        {
+            _logger.Notice($"Pulsoid token is valid, expiring in {validation.ExpiresIn} seconds");
+            return new TokenValidationResult
+            {
+                Result = TokenValidationResult.ResultType.Valid,
+                ExpiresIn = validation.ExpiresIn
+            };
+        }
+
+        if (error is null)
+        {
+            _logger.Warn("Unknown error while validating Pulsoid token, error is null");
+            return new TokenValidationResult
+            {
+                Result = TokenValidationResult.ResultType.Failure,
+                Error = "Unknown error while validating Pulsoid token"
+            };
+        }
+
+        var message = $"{error.ErrorCode ?? "Unknown error code"}: {error.ErrorMessage ?? "Unknown error"}";
+        _logger.Warn($"Pulsoid token validation failed: {message}");
+
+        return error.Error switch
+        {
+            TokenErrorResponse.ErrorType.NotFound => new TokenValidationResult { Result = TokenValidationResult.ResultType.NotFound },
+            TokenErrorResponse.ErrorType.Expired => new TokenValidationResult { Result = TokenValidationResult.ResultType.Expired },
+            _ => new TokenValidationResult { Result = TokenValidationResult.ResultType.Failure, Error = message }
+        };
+    }
+
+    public async Task<bool> RevokeTokenAsync(string token, CancellationToken ct)
+    {
+        _logger.Info($"Revoking Pulsoid token {token.Redact()}");
+        try
+        {
+            await _authClient.RevokeAccessToken(token, ct);
+            _logger.Info("Pulsoid token revoked");
+            return true;
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.Debug("Pulsoid token revocation canceled");
+            return false;
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Failed to revoke Pulsoid token");
+            _logger.Error(e);
+            return false;
         }
     }
 }

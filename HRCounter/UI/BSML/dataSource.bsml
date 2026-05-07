@@ -27,7 +27,11 @@
     </tab>
     <tab tab-name="Pulsoid" tags="tabs">
         <vertical child-control-height="false" spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
-            <button id="authorize-pulsoid-btn" text="Authorize with Pulsoid" on-click="OpenAuthorizeModal"/>
+            <horizontal pad-left="2" pad-right="2" pref-height="16" vertical-fit="PreferredSize" child-align="MiddleLeft" child-expand-height="false">
+                <text text="~PulsoidTokenStatusText"/>
+            </horizontal>
+            <button id="authorize-pulsoid-btn" text="Authorize Pulsoid" on-click="OpenAuthorizeModal"/>
+            <button id="deauthorize-pulsoid-btn" text="Deauthorize Pulsoid" click-event="show-pulsoid-deauthorize-modal"/>
         </vertical>
         <modal id="pulsoid-authorize-modal" show-event="show-pulsoid-authorize-modal" hide-event="close-modal" size-delta-x="80"
                size-delta-y="50" click-off-closes="false" move-to-center="true">
@@ -39,9 +43,26 @@
                 <horizontal pad-left="4" pad-right="4">
                     <text text="~ModalText" bold="false" align="Center" word-wrapping="true"/>
                 </horizontal>
-                <horizontal pref-width="40" horizontal-fit="PreferredSize">
+                <horizontal pref-width="40" horizontal-fit="PreferredSize" spacing="20">
                     <button id="modal-close-button" text="~ModalCloseButtonText" on-click="CloseAuthorizeModal"/>
                     <action-button id="modal-authorize-button" text="Authorize" on-click="AuthorizePulsoid"/>
+                </horizontal>
+            </vertical>
+        </modal>
+        <modal show-event="show-pulsoid-deauthorize-modal" hide-event="close-modal" size-delta-x="80" size-delta-y="40" click-off-closes="true"
+               move-to-center="true">
+            <vertical pref-width="80" horizontal-fit="PreferredSize" pref-height="40" vertical-fit="PreferredSize" spacing="1"
+                      background="round-rect-panel">
+                <horizontal>
+                    <text text="Deauthorize Pulsoid" font-size="5" align="Center"/>
+                </horizontal>
+                <horizontal pad-left="4" pad-right="4">
+                    <text text="Are you sure you want to deauthorize Pulsoid?&#xA;This will invalidate the Pulsoid token." bold="false"
+                          align="Center" word-wrapping="true"/>
+                </horizontal>
+                <horizontal pref-width="40" horizontal-fit="PreferredSize" spacing="20">
+                    <button id="modal-close-button" text="Cancel" click-event="close-modal"/>
+                    <button face-color="red" id="modal-deauthorize-button" text="Deauthorize" on-click="DeauthorizePulsoid"/>
                 </horizontal>
             </vertical>
         </modal>
