@@ -116,7 +116,7 @@ BeatLeader replay custom data ("HeartBeatQuest")
 |---|---|
 | `HRCounter/Plugin.cs` | BSIPA entry point. Detects optional deps, installs Zenject installers at App/Menu/Player scopes. |
 | `HRCounter/Configuration/PluginConfig.cs` | BSIPA config object (`INotifyPropertyChanged`). Hot-reloads. |
-| `HRCounter/Installers/` | Zenject installers per scope: `AppInstaller` (singletons + servers + Pulsoid auth), `MenuInstaller` (chains to `BSMLInstaller` if BSML is installed), `BSMLInstaller` (BSML view controllers + flow coordinator), `GameplayHeartRateInstaller` (data source + `HRDataManager`), `GameplayCoreInstaller` (HR provider + standalone counter), `GamePauseInstaller`, `ReplayRecorderInstaller`. Note the class declared in `GameplayHeartRateInstaller.cs` is spelled `GameplayHearRateInstaller` (typo: missing `t`). |
+| `HRCounter/Installers/` | Zenject installers per scope: `AppInstaller` (singletons + servers + Pulsoid auth), `MenuInstaller` (chains to `BSMLInstaller` if BSML is installed), `BSMLInstaller` (BSML view controllers + flow coordinator), `GameplayHeartRateInstaller` (data source + `HRDataManager`), `GameplayCoreInstaller` (HR provider + standalone counter), `GamePauseInstaller`, `ReplayRecorderInstaller`. |
 | `HRCounter/Data/` | `HRDataManager`, `BPM`, `IHRDataSource`, `IInGameHRProvider`, replay subsystem. |
 | `HRCounter/Data/DataSources/` | All HR source implementations. `Base/DataSource.cs` and `Base/WebSocketSource.cs` are the abstract bases. |
 | `HRCounter/Integrations/Pulsoid/` | OAuth2 device flow + API + domain logic for Pulsoid. |
