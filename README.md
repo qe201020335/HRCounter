@@ -86,7 +86,7 @@ Open an [issue](https://github.com/qe201020335/HRCounter/issues) if there's a de
 > [!IMPORTANT]
 > Due to a BSIPA bug, edits made to the config file while the game is running won't be detected. Exit the game before editing.
 
-Most options can be changed in-game; the config file at `Beat Saber/UserData/HRCounter.json` is for everything else. Full field reference:
+Most options can be changed in-game but if you want to edit the config directly, the config file is at `Beat Saber/UserData/HRCounter.json`. See the full field reference below
 
 | Field                    |   Type    |       Default        | Description                                                                                            |
 |--------------------------|:---------:|:--------------------:|--------------------------------------------------------------------------------------------------------|
