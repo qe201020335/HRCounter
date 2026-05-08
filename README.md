@@ -1,153 +1,126 @@
 # HRCounter <a href="https://github.com/qe201020335/HRCounter/releases"><img src="https://img.shields.io/github/v/release/qe201020335/HRCounter?include_prereleases&style=for-the-badge&label=PRE-RELEASE" align="right"></a> <a href="https://github.com/qe201020335/HRCounter/releases/latest"><img src="https://img.shields.io/github/v/release/qe201020335/HRCounter?style=for-the-badge&label=RELEASE" align="right"></a>
 A Beat Saber custom counter that displays your heart rate in-game.
 
-![HR Counter 2.0](Assets/hrc2.0_cmp.png)
+![HR Counter](Assets/hrc2.0_cmp.png)
 
-**Supports BLE HR Monitor, Apple Watch, Fitbit, Galaxy Watch, WearOS and more!** Check out instructions on [HR monitors](#hr-monitors).
+## Features
 
-It also supports **anything** that **Pulsoid**, **HypeRate**, **YUR Desktop App / MOD** support! Check out instructions on [data sources](#data-sources).
-
-It can even **pause** the game for you if your heart is beating **too fast**!
+- Supports [Pulsoid](https://pulsoid.net/), [HypeRate](https://www.hyperate.io/), **OSC**, and more (see [Data Sources](#data-sources))
+- Automatically **pauses the game** when your heart rate goes too high
+- Configurable gradient colored heart rate text with customizable counter icon
+- **Counters+** custom counter support alongside a world-space standalone counter
+- Records heart rate into BeatLeader replays and plays it back when watching
 
 ## Requirements
-These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using [Mod Assistant](https://github.com/Assistant/ModAssistant/releases/latest) (Recommended!).
 
-Alternatively, you can also download them from their own site.
-* [BSIPA](https://github.com/bsmg/BeatSaber-IPA-Reloaded) v4.2.0+
-* [BSML](https://github.com/monkeymanboy/BeatSaberMarkupLanguage) v1.6.0+
+Install via mod installers like [ModAssistant](https://github.com/Assistant/ModAssistant/releases/latest) and [BSManager](https://www.bsmanager.io/)
+
+* [BSIPA](https://github.com/bsmg/BeatSaber-IPA-Reloaded) v4.3.6+
+* [BSML](https://github.com/monkeymanboy/BeatSaberMarkupLanguage) v1.12.0+
 * [SiraUtil](https://github.com/Auros/SiraUtil) v3.0.0+
-* [Counters+](https://github.com/Caeden117/CountersPlus) v2.0.0+ (Recommended Optional, install if you want to use Counters+ custom counter system)
-* YUR Mod (Optional, install if you want to enable YUR Mod support)
-* [YUR Desktop App](https://store.steampowered.com/app/1188920/YUR/) (Optional, install if you want to enable YUR App support)
+* [Counters+](https://github.com/Caeden117/CountersPlus) v2.0.0+ (*optional, recommended* Required to use the Counters+ custom counter system)
+* YUR Mod (*optional* Required for the YUR Mod data source)
+* [YUR Desktop App](https://store.steampowered.com/app/1188920/YUR/) (*optional* Required for the YUR App data source)
 
-## HOW TO INSTALL
-> [!IMPORTANT]  
-> Ensure all the required mods are working correctly before installing this mod!
+## How to Use
 
-### First-Time Install/Configure
-#### Auto Config Generator for Pulsoid and HypeRate
-1. Head over to the [**Config Generator**](https://hrcounter.skyqe.net/) and download the mod with config included.
-2. Extract the files into your `Beat Saber` game directory.
-3. Run the game and read [HOW TO USE](#how-to-use) if you don't know how to use it.
-
-#### Manual Config Editing
 > [!IMPORTANT]
-> Remember to exit the game first before editing config files.
+> Make sure all required mods are working before installing HRCounter.
 
-1. Download the [latest release](https://github.com/qe201020335/HRCounter/releases/latest) and extract the files into your `Beat Saber` game directory.
-2. Run the game once
-3. Depending on your devices, follow the instructions below to configure the auto-generated config file.
-4. Run the game and read [HOW TO USE](#how-to-use) if you don't know how to use it.
+1. Download the [latest release](https://github.com/qe201020335/HRCounter/releases/latest).
+2. Extract into your `Beat Saber` game directory.
+3. Launch the game.
+4. Open the **HRCounter** settings menu from the main menu's mods section.
+5. Pick a data source in the right panel and configure it. See [Data Sources](#data-sources) for details.
+    - Pulsoid users: click **Authorize Pulsoid** to sign in via OAuth, no manual token editing needed.
+    - HypeRate users: enter your session ID (the few characters at the end of your overlay link).
+6. *(Optional)* Toggle **Auto Pause** in the **Safety** tab to pause the game when your heart rate is too high.
+7. If you have Counters+ installed, enable the **Heart Rate Counter** in the Counters+ configuration page.
 
-The config file is at `Beat Saber/UserData/HRCounter.json`. You can use notepad to open and edit it.
-
-### Update from Old Versions
-1. Download the [latest release](https://github.com/qe201020335/HRCounter/releases/latest) and extract the files into your `Beat Saber` game directory.
-2. Choose Overwrite if asked.
-3. Done!
-
-## HOW TO USE
-1. Install or update it first. Instructions [above](#how-to-install).
-2. **If you are using Counters+, enable this counter in Counter+'s counter configuration page**
-3. Check out the full configuration page of the mod under the "HRCounter" button in the main menu mods section.
-4. Toggle on **Auto Pause** in the "Health & Safety" tab if you want the mod to pause the game for you. Also, set the **Pause Heart Rate** for yourself!
 > [!NOTE]
-> Please open an [issue](https://github.com/qe201020335/HRCounter/issues) if you have any problem using this mod or found a bug.
+> Please open an [issue](https://github.com/qe201020335/HRCounter/issues) if you run into a problem or find a bug.
 
-## DATA SOURCES
-### Pulsoid
-1. Get you self a token [**HERE**](https://pulsoid.net/oauth2/authorize?response_type=token&client_id=0025a50e-9449-4aa5-9c68-36d2903cb6a5&redirect_uri=&scope=data:heart_rate:read&state=&response_mode=web_page) for free or [**HERE if you are a BRO**](https://pulsoid.net/ui/keys).
-2. Keep that token in a safe place because it will not expire in a short time. You can always reuse the token in the future.
-3. Paste the token in the config file as below and set the value of `DataSource` to `Pulsoid Token`.
-![pulsoid token config screenshot](https://i.imgur.com/lEUzf8D.png)
+## Data Sources
 
-### HypeRate
-1. In the HypeRate app on your phone or watch, there is the session ID, which is also the few hex digits at the end of your overlay link.
-2. Change the value of `HypeRateSessionID` to yours in the config file.
-3. Set the value of `DataSource` to `"HypeRate"`.
+Support matrix for common devices and services:
 
-For example, if your overlay link is `https://app.hyperate.io/12ab`, then your session ID is `12ab` and the config will look like `"HypeRateSessionID": "12ab"`
+| Device Type    | Pulsoid | HypeRate | YUR App |
+|----------------|:-------:|:--------:|:-------:|
+| BLE HR Monitor |    ✅    |    ✅     |    ✅    |
+| Apple Watch    |    ✅    |    ✅     |    ❓    |
+| WearOS Watch   |   ✅*    |   ✅**    |    ❓    |
+| Fitbit         |   ✅*    |   ✅**    |    ❓    |
 
-### Fitbit
+*Check whether your device is supported by [Pulsoid](https://blog.pulsoid.net/monitors?from=mheader).
 
-#### Pulsoid Support
+**Check whether your device is supported by [HypeRate](https://www.hyperate.io/supported-devices.html).
 
-Check whether your device is supported by [Pulsoid](https://blog.pulsoid.net/monitors?from=mheader). If so, follow the instructions for
-Pulsoid [above](#Pulsoid).
+### Other Sources
 
-#### HypeRate Support
+#### WebRequest
 
-Check whether your device is supported by [HypeRate](https://www.hyperate.io/supported-devices.html). If so, follow the instructions for
-HypeRate [above](#HypeRate).
+Polls an http/https endpoint that returns HR data in either of these formats:
 
-### YUR App
-1. Download and start YUR from [Steam](https://store.steampowered.com/app/1188920/YUR/)
-2. Set the value of `DataSource` to `"YUR APP"`
+* A JSON object containing `bpm` (int), with an optional `measured_at` (string)
+* A plain integer body (regex `^\d+$`)
 
-## HR MONITORS
+Set `FeedLink` to your URL in the config file. See [Manual Config Editing](#manual-config-editing).
 
-### BLE Compatible HR Monitor
-There are 2 options
-1. Download [Pulsoid](https://pulsoid.net/) on your phone and set up heart rate broadcast. Then follow instruction for Pulsoid [above](#Pulsoid).
-2. Download [HypeRate](https://www.hyperate.io/#download) on your phone and connect to your BLE device. Then follow instructions for HypeRate [above](#HypeRate)
+#### HTTP Server
 
+HRCounter runs a built-in HTTP server that by default listens on `http://localhost:65302`.
+Select `HttpServer` as your data source. This data source expects `POST` requests with an integer body.
 
-### Apple Watch
-1. Download [HypeRate](https://www.hyperate.io/#download) on your iPhone and Apple Watch.
-2. Follow instructions for HypeRate [above](#HypeRate)
+#### OSC Protocol
 
+HRCounter runs a built-in OSC server that by default listens on UDP port `9000` on all interfaces.
+Select `OSC Protocol` as your data source to see the accepted OSC addresses. Addresses can be edited
+via [Manual Config Editing](#manual-config-editing).
 
-### WearOS Smart Watch
-There are 3 options.
-1. Check if your WearOS device is supported by [Pulsoid](https://pulsoid.net/)! If so, follow the instructions for Pulsoid [above](#Pulsoid).
-2. Use [Heart for Bluetooth](https://play.google.com/store/apps/details?id=lukas.the.coder.heartforbluetooth) on your watch and use it as a BLE heart rate monitor. Then follow the instructions for BLE Compatible HR Monitor [above](#ble-compatible-hr-monitor)
-3. Install [HypeRate](https://hyperate.io/) on your watch, which you can download on the [play store](https://play.google.com/store/apps/details?id=de.locxserv.hyperatewearos) and follow instructions for HypeRate [above](#HypeRate)
+### More?
 
-Depending on your watch, monitoring quality may not be as good as a dedicated heart rate monitor. 
+Open an [issue](https://github.com/qe201020335/HRCounter/issues) if there's a device or service you'd like supported.
 
-### Galaxy Watch
-1. Use [HeartRateToWeb](https://github.com/loic2665/HeartRateToWeb) and [this](https://galaxystore.samsung.com/geardetail/tUhSWQRbmv) app on your watch.
-2. Follow the instrucrion on [their github page](https://github.com/loic2665/HeartRateToWeb) to set up heart rate broadcast. Make sure you download the [**first**](https://github.com/loic2665/HeartRateToWeb/releases/tag/v1.0.0) realease, the csharp one is bugged (filelock issue, and requires admin for no reason).
-3. Ensure your watch and computer are on the **SAME** network.
-4. Use [from /hr endpoint](https://github.com/loic2665/HeartRateToWeb#from-hr-endpoint) in the [OBS](https://github.com/loic2665/HeartRateToWeb#obs) section of HeartRateToWeb instructions.
-    - Enter the feedlink as `http://YOUR_IP:YOUR_PORT/hr`
-    - For example `"FeedLink": "http://192.168.1.100:6547/hr",`
+## Manual Config Editing
 
+> [!IMPORTANT]
+> Due to a BSIPA bug, edits made to the config file while the game is running won't be detected. Exit the game before editing.
 
-### Others
-When this mod is requesting hr data, it expects a string containing one of these:
-* A json contains key `bpm` with int type value and an optional key `measured_at` with string type value.
-* Only numerical digits. (Regex `^\d+$`)
+Most options can be changed in-game; the config file at `Beat Saber/UserData/HRCounter.json` is for everything else. Full field reference:
 
-It needs to be accessible from an http/https link. Then set `DataSource` to `"WebRequest"` and the link.
-
-More data sources and devices are planned to be supported. See [below](#Data-Dources-To-Be-Supported).
-
-Open an [issue](https://github.com/qe201020335/HRCounter/issues) if there is a device or data source you want me to support!
-
-
-## Settings
-### Most options can be changed in game. 
-Here is a table for all the setting options if you want to edit config file instead.
-| Field       	  | Type      | Default       	    | Description |
-| --------------- |:---------:|:-------------------:| ----------- |
-| `ModEnable`     | bool      | `true`           	| DUH |
-| `LogHR`         | bool      | `false`           	| Whether the received HR data will be logged |
-| `DataSource`    | string    | `"YUR MOD"`         | The data source you want to use to get hr data. Use `Random` if you want to test things|
-| `HypeRateSessionID`| string | `"-1"`              | Session ID for HypeRate, it is also the the few hex digits at the end of your overlay link. |
-| `PulsoidWidgetID`| string   | `"NotSet"`          | Widget ID for HypeRate, it is also the last part of your widget link. |
-| `FeedLink`      | string    | `"NotSet"`   	   	| Your pulsoid feed link |
-| `NoBloom`       | bool      | `false`             | Do you want no bloom on the text? |
-| `Colorize`      | bool      | `true`   	       	| Whether the hr value will be colorized by the following 4 detail settings |
-| `HideDuringReplay`| bool    | `true`   	       	| Hide this counter while in a replay |
-| `HRLow`         | int       | `120`           		| The lower bound heart rate for when the color gredient will start |
-| `HRHigh`        | int       | `180`              	| The upper bound heart rate for when the color gredient will end |
-| `LowColor`      | string    | `"#00FF00"` (Green)	| The RGB color in hex that where your hr is not higher than `HRLow`. This is also the starting point of color gredient. |
-| `MidColor`      | string    | `"#FFFF00"` (Yellow)| The RGB color in hex which is the middle point of color gredient. |
-| `HighColor`     | string    | `"#FF0000"` (Red) 	| The RGB color in hex that where your hr is higher than `HRHigh`. This is also the end point of color gredient.  |
-| `PauseHR`       | int       | `200`              	| The heart rate that game pause will be triggered |
-| `AutoPause`     | bool      | `false`             | Whether the mod will pause the game if heart rate reaches `PauseHR` |
-| `IgnoreCountersPlus`| bool  | `false`             | Ignore whether Counters+ is installed, ignore it to allow 2 hr counters to present at the same time |
-| `DebugSpam`     | bool      | `false`             | Only effective in Debug build, toggle spamming of debug message in logs |
-| `StaticCounterPosition` | 3D Vector | `(0, 1.2, 7)` | Location of the standalone static counter, has no effect on the counters+ counter |
+| Field                    |   Type    |       Default        | Description                                                                                            |
+|--------------------------|:---------:|:--------------------:|--------------------------------------------------------------------------------------------------------|
+| `ModEnable`              |   bool    |        `true`        | Enables the mod (DUH).                                                                                 |
+| `DataSource`             |  string   |   `"OSC Protocol"`   | Data source used to get heart rate.                                                                    |
+| `StreamerMode`           |   bool    |        `true`        | Hide tokens and ids in the data source menu.                                                           |
+| `PulsoidToken`           |  string   |         `""`         | Pulsoid OAuth access token.                                                                            |
+| `HypeRateSessionID`      |  string   |         `""`         | HypeRate session ID (the few characters at the end of your overlay link)                               |
+| `PulsoidWidgetID`        |  string   |         `""`         | Widget ID for the experimental `PulsoidWidget` data source (the last part of your widget link)         |
+| `HRProxyID`              |  string   |         `""`         | Custom reader ID for the `HRProxy` data source.                                                        |
+| `FeedLink`               |  string   |         `""`         | URL for the `WebRequest` data source.                                                                  |
+| `NoBloom`                |   bool    |       `false`        | Do you want no bloom on the text?                                                                      |
+| `Colorize`               |   bool    |        `true`        | Colorize the heart rate number.                                                                        |
+| `HRLow`                  |    int    |        `120`         | Start of the color gradient.                                                                           |
+| `HRHigh`                 |    int    |        `180`         | End of the color gradient.                                                                             |
+| `LowColor`               |  string   | `"#00FF00"` (Green)  | Color for HR ≤ `HRLow`; gradient start.                                                                |
+| `MidColor`               |  string   | `"#FFFF00"` (Yellow) | Middle color of the gradient.                                                                          |
+| `HighColor`              |  string   |  `"#FF0000"` (Red)   | Color for HR ≥ `HRHigh`; gradient end.                                                                 |
+| `AutoPause`              |   bool    |       `false`        | Automatically pause the game if your heart rate is too high.                                           |
+| `PauseHR`                |    int    |        `200`         | Pause heart rate threshold for auto-pause.                                                             |
+| `IgnoreCountersPlus`     |   bool    |       `false`        | Always show the standalone counter regardless whether Counters+ is installed.                          |
+| `IgnoreZeroValues`       |   bool    |        `true`        | Ignore zero heart rate values as if the data did not exist.                                            |
+| `CustomIcon`             |  string   |         `""`         | Filename of a custom icon under `UserData/HRCounter/Icons/`. Empty string uses the default heart icon. |
+| `StaticCounterPosition`  | 3D Vector |    `(0, 1.2, 7)`     | World-space position of the standalone counter. No effect on the Counters+ counter.                    |
+| `ReplayRecordHr`         |   bool    |        `true`        | Record heart rate into BeatLeader replays.                                                             |
+| `ReplayPlaybackSelfHr`   |   bool    |        `true`        | Allow heart rate recorded in your own replays to be shown.                                             |
+| `ReplayPlaybackOthersHr` |   bool    |       `false`        | Allow heart rate recorded in other players' replays to be shown.                                       |
+| `ReplayFallbackLiveHr`   |   bool    |       `false`        | Show your live heart rate when recorded replay data is not available or not used.                      |
+| `EnableHttpServer`       |   bool    |        `true`        | Enable the built-in HTTP server (Required for the `HTTPServer` data source).                           |
+| `HttpLocalOnly`          |   bool    |        `true`        | Restrict the built-in HTTP server to localhost only.                                                   |
+| `HttpPort`               |    int    |       `65302`        | TCP port the built-in HTTP server listens on.                                                          |
+| `EnableOscServer`        |   bool    |        `true`        | Enable the built-in OSC server (Required for the `OSC Protocol` data source).                          |
+| `OscBindIP`              |  string   |     `"0.0.0.0"`      | IP address the OSC server binds to. `0.0.0.0` listens on all interfaces.                               |
+| `OscPort`                |    int    |        `9000`        | UDP port the OSC server listens on.                                                                    |
+| `OscAddress`             |   list    |       `[...]`        | OSC address paths the server accepts heart rate messages on. Each message must carry a single `int32`. |
+| `DebugSpam`              |   bool    |       `false`        | Toggle trace-level log spamming. Only effective in DEBUG builds.                                       |
 
