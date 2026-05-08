@@ -32,7 +32,8 @@ Standard BSIPA mod build:
 1. Restore NuGet packages — SDK references game assemblies via `BeatSaberModdingTools.Tasks` / `BeatSaberDir`.
 2. Build the `HRCounter` project. Output goes to the configured Beat Saber install.
 3. Launch Beat Saber; logs land in `Logs/_latest.log` under the install root.
-4. The asset bundle is regenerated from `HRCounterBundle/` (Unity project) via the `AssetBundleExporter` editor script and copied into `HRCounter/Resources/hrcounter`.
+
+The asset bundle (`HRCounter/Resources/hrcounter`) is **not** built as part of the C# project. It is committed to the repo and only rebuilt manually from the `HRCounterBundle/` Unity project when the prefab/font/shaders change. See the `HRCounterBundle/` section below.
 
 ## Sub-projects in the repo
 
@@ -43,8 +44,9 @@ These live alongside the main `HRCounter/` plugin project but build/deploy indep
 Unity project that produces the counter prefab asset bundle. The Unity version is pinned to match Beat Saber's runtime — see `HRCounterBundle/ProjectSettings/ProjectVersion.txt`. Don't upgrade Unity casually.
 
 - Contains `Assets/HRCounter.prefab` (the in-game counter layout — TextMeshPro number + heart icon + replay icon), the custom font (`Heartbit-Bold SDF`), and embedded TextMesh Pro shaders.
-- `Assets/Editor/AssetBundleExporter.cs` is the editor script that builds the bundle. Output is the binary file copied to `HRCounter/Resources/hrcounter` and embedded in the plugin DLL as a manifest resource.
-- Loaded at runtime by `AssetBundleManager`. Re-export the bundle whenever the prefab layout, font, or shaders change.
+- `Assets/Editor/AssetBundleExporter.cs` is the editor script that builds the bundle.
+- **Manual build only.** Open the project in Unity, run the exporter, and copy/commit the output to `HRCounter/Resources/hrcounter`. The C# build does not invoke Unity. Only re-export when the prefab layout, font, or shaders change.
+- Loaded at runtime by `AssetBundleManager` from the embedded manifest resource.
 
 ### `ConfigGenerator/`
 
