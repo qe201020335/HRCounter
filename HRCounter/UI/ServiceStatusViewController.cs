@@ -82,7 +82,7 @@ internal class ServiceStatusViewController : BaseConfigViewController
         }
     }
 
-    protected override void RefreshNoBindUI()
+    protected override void RefreshUI()
     {
         RefreshHttpStatus();
         RefreshOscStatus();

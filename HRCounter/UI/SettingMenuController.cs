@@ -53,7 +53,7 @@ internal class SettingMenuController : BaseConfigViewController
         _ = LoadIconList(false);
     }
 
-    protected override void RefreshNoBindUI()
+    protected override void RefreshUI()
     {
         UpdateCustomIconSelection();
         UpdateColorText();

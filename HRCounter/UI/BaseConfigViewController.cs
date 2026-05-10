@@ -51,13 +51,13 @@ internal abstract class BaseConfigViewController : BSMLAutomaticViewController
     {
         if (!Parsed) return;
         if (notifyAll) NotifyPropertyChanged(null);
-        RefreshNoBindUI();
+        RefreshUI();
     }
 
     /**
-     * Refreshes UI elements that doesn't have value binding.
+     * Refreshes any ui elements that won't be updated automatically.
      */
-    protected abstract void RefreshNoBindUI();
+    protected abstract void RefreshUI();
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {

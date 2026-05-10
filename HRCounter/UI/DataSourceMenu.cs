@@ -114,7 +114,7 @@ internal class DataSourceMenu : BaseConfigViewController
         }
     }
 
-    protected override void RefreshNoBindUI()
+    protected override void RefreshUI()
     {
         UpdateDataSourceInfoText();
         UpdateHypeRateSessionIDText();
