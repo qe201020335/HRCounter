@@ -29,7 +29,7 @@ internal class PulsoidAuthenticator : IDisposable
         StartDeviceAuthorizationResponse? initiationResponse;
         try
         {
-            (initiationResponse, var errorResponse) = await _authClient.StartDeviceAuthorization(ct);
+            (initiationResponse, var errorResponse) = await _authClient.StartDeviceAuthorization(ct).ConfigureAwait(false);
             if (errorResponse is not null)
             {
                 var message = errorResponse.Error ?? "Unknown Error";
@@ -110,7 +110,7 @@ internal class PulsoidAuthenticator : IDisposable
         {
             try
             {
-                var (success, error) = await _authClient.TryObtainAccessToken(deviceCode, ct);
+                var (success, error) = await _authClient.TryObtainAccessToken(deviceCode, ct).ConfigureAwait(false);
                 if (success is { IsValid: true })
                 {
                     _logger.Info("Successfully obtained Pulsoid access token");

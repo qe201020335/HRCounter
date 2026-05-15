@@ -9,12 +9,12 @@
     "gameVersion": "1.40.8",
     "dependsOn": {
         "BSIPA": "^4.3.6",
+        "BeatSaberMarkupLanguage": "^1.12.0",
         "SiraUtil": "^3.0.0"
     },
     "loadAfter": [
         "Counters+",
         "BeatLeader",
-        "BeatSaberMarkupLanguage",
         "ScoreSaber"
     ],
     "links": {

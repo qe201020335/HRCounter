@@ -17,11 +17,11 @@
                     <text text="Data Source Info ↓" align="Center" italics="true"/>
                 </horizontal>
                 <horizontal horizontal-fit='PreferredSize' child-align='MiddleRight' pref-width="40">
-                    <button text="Refresh" id="data-source-info-refresh-btn" on-click="UpdateDataSourceInfoText"/>
+                    <button text="Refresh" on-click="UpdateDataSourceInfoText" interactable="~DataSourceInfoRefreshBtnInteractable"/>
                 </horizontal>
             </horizontal>
             <horizontal pad-left="3" pref-height="45" background="round-rect-panel">
-                <text-page id="data-source-info-text" italics="false"/>
+                <text-page text="~DataSourceInfoText" italics="false"/>
             </horizontal>
         </vertical>
     </tab>
@@ -30,8 +30,8 @@
             <horizontal pad-left="2" pad-right="2" pref-height="16" vertical-fit="PreferredSize" child-align="MiddleLeft" child-expand-height="false">
                 <text text="~PulsoidTokenStatusText"/>
             </horizontal>
-            <button id="authorize-pulsoid-btn" text="Authorize Pulsoid" on-click="OpenAuthorizeModal"/>
-            <button id="deauthorize-pulsoid-btn" text="Deauthorize Pulsoid" click-event="show-pulsoid-deauthorize-modal"/>
+            <button text="Authorize Pulsoid" on-click="OpenAuthorizeModal"/>
+            <button text="Deauthorize Pulsoid" click-event="show-pulsoid-deauthorize-modal" interactable="~PulsoidTokenValid"/>
         </vertical>
         <modal id="pulsoid-authorize-modal" show-event="show-pulsoid-authorize-modal" hide-event="close-modal" size-delta-x="80"
                size-delta-y="50" click-off-closes="false" move-to-center="true">
@@ -41,11 +41,11 @@
                     <text text="Authorize with Pulsoid" font-size="5" align="Center"/>
                 </horizontal>
                 <horizontal pad-left="4" pad-right="4">
-                    <text text="~ModalText" bold="false" align="Center" word-wrapping="true"/>
+                    <text text="~AuthModalText" bold="false" align="Center" word-wrapping="true"/>
                 </horizontal>
                 <horizontal pref-width="40" horizontal-fit="PreferredSize" spacing="20">
-                    <button id="modal-close-button" text="~ModalCloseButtonText" on-click="CloseAuthorizeModal"/>
-                    <action-button id="modal-authorize-button" text="Authorize" on-click="AuthorizePulsoid"/>
+                    <button text="~AuthModalCloseBtnText" on-click="CloseAuthorizeModal"/>
+                    <action-button text="Authorize" on-click="AuthorizePulsoid" interactable="~AuthModalAuthBtnInteractable"/>
                 </horizontal>
             </vertical>
         </modal>
@@ -61,8 +61,8 @@
                           align="Center" word-wrapping="true"/>
                 </horizontal>
                 <horizontal pref-width="40" horizontal-fit="PreferredSize" spacing="20">
-                    <button id="modal-close-button" text="Cancel" click-event="close-modal"/>
-                    <button face-color="red" id="modal-deauthorize-button" text="Deauthorize" on-click="DeauthorizePulsoid"/>
+                    <button text="Cancel" click-event="close-modal"/>
+                    <button text="Deauthorize" face-color="red" on-click="DeauthorizePulsoid" interactable="~DeauthModalDeauthBtnInteractable"/>
                 </horizontal>
             </vertical>
         </modal>
@@ -74,7 +74,7 @@
                     <text text="HypeRate ID" align="MidlineLeft" italics="true"/>
                 </horizontal>
                 <horizontal spacing="3" horizontal-fit="MinSize" min-width="60" child-alignment="MiddleRight" child-expand-width="false">
-                    <text id="hyperate-session-id-text" align="Midline" italics="true"/>
+                    <text text="~HypeRateSessionIDText" align="Midline" italics="true"/>
                     <button text="Edit" click-event="open-hyperate-id-keyboard" interactable="~AllowEdit"/>
                 </horizontal>
                 <modal-keyboard value='HypeRateSessionID' show-event="open-hyperate-id-keyboard" click-off-closes="true" clear-on-open="false"/>

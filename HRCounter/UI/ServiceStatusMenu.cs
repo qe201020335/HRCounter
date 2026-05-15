@@ -1,7 +1,7 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Attributes;
 using HRCounter.Web.HTTP;
 using HRCounter.Web.OSC;
-using TMPro;
+using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using Logger = IPA.Logging.Logger;
@@ -10,7 +10,7 @@ namespace HRCounter.UI;
 
 [HotReload(RelativePathToLayout = @"BSML\serviceStatus.bsml")]
 [ViewDefinition("HRCounter.UI.BSML.serviceStatus.bsml")]
-internal class ServiceStatusViewController : BaseConfigViewController
+internal class ServiceStatusMenu : BaseConfigViewController
 {
     [Inject]
     private readonly Logger _logger = null!;
@@ -21,25 +21,47 @@ internal class ServiceStatusViewController : BaseConfigViewController
     [Inject]
     private readonly SimpleHttpServer _httpServer = null!;
 
-    [UIComponent("http_status_text")]
-    private TMP_Text _httpStatusText = null!;
-
-    [UIComponent("osc_status_text")]
-    private TMP_Text _oscStatusText = null!;
-
-    [UIValue("EnableHttpServer")]
-    private bool EnableHttpServer
+    [UIValue(nameof(Config.EnableHttpServer))]
+    public bool EnableHttpServer
     {
         get => Config.EnableHttpServer;
-        set => Config.EnableHttpServer = value;
+        set
+        {
+            if (Config.EnableHttpServer != value) Config.EnableHttpServer = value;
+        }
     }
 
-    [UIValue("EnableOscServer")]
-    private bool EnableOscServer
+    [UIValue(nameof(HttpStatusText))]
+    public string HttpStatusText
+    {
+        get;
+        private set
+        {
+            field = value;
+            NotifyPropertyChanged();
+        }
+    } = "";
+
+    [UIValue(nameof(Config.EnableOscServer))]
+    public bool EnableOscServer
     {
         get => Config.EnableOscServer;
-        set => Config.EnableOscServer = value;
+        set
+        {
+            if (Config.EnableOscServer != value) Config.EnableOscServer = value;
+        }
     }
+
+    [UIValue(nameof(OscStatusText))]
+    public string OscStatusText
+    {
+        get;
+        private set
+        {
+            field = value;
+            NotifyPropertyChanged();
+        }
+    } = "";
 
     protected override void OnParsed()
     {
@@ -53,7 +75,7 @@ internal class ServiceStatusViewController : BaseConfigViewController
 
     protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
-        _logger.Trace("ServiceStatusViewController DidActivate");
+        _logger.Trace("ServiceStatusMenu DidActivate");
         base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
 
         _httpServer.StatusChanged += RefreshHttpStatus;
@@ -62,7 +84,7 @@ internal class ServiceStatusViewController : BaseConfigViewController
 
     protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
-        _logger.Trace("ServiceStatusViewController DidDeactivate");
+        _logger.Trace("ServiceStatusMenu DidDeactivate");
 
         _httpServer.StatusChanged -= RefreshHttpStatus;
         _oscServer.StatusChanged -= RefreshOscStatus;
@@ -82,13 +104,14 @@ internal class ServiceStatusViewController : BaseConfigViewController
         }
     }
 
-    protected override void RefreshNoBindUI()
+    protected override void RefreshUI()
     {
         RefreshHttpStatus();
         RefreshOscStatus();
     }
 
-    [UIAction("RefreshStatus")]
+    [UIAction(nameof(RefreshStatus))]
+    [UsedImplicitly]
     private void RefreshStatus()
     {
         RefreshHttpStatus();
@@ -97,14 +120,12 @@ internal class ServiceStatusViewController : BaseConfigViewController
 
     private void RefreshHttpStatus()
     {
-        if (!Parsed) return;
-        _httpStatusText.text = GetHttpStatusText();
+        HttpStatusText = GetHttpStatusText();
     }
 
     private void RefreshOscStatus()
     {
-        if (!Parsed) return;
-        _oscStatusText.text = GetOscStatusText();
+        OscStatusText = GetOscStatusText();
     }
 
     private string GetHttpStatusText()

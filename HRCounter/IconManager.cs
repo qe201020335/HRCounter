@@ -32,6 +32,8 @@ internal class IconManager : IInitializable, IDisposable
     
     internal Sprite? DefaultIcon { get; private set; }
 
+    internal event Action? IconsLoaded;
+
     internal IconManager()
     {
         _iconDir.Create();
@@ -118,6 +120,20 @@ internal class IconManager : IInitializable, IDisposable
         }
 
         _logger.Debug($"Loaded {_loadedIcons.Count} icons");
+
+        _ = UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+        {
+            try
+            {
+                var action = IconsLoaded;
+                action?.Invoke();
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Failed to invoke IconsLoaded event");
+                _logger.Error(e);
+            }
+        });
     }
 
     private async Task<Sprite?> LoadIconSpriteAsync(FileInfo file)

@@ -13,7 +13,7 @@ The mod ingests heart rate from many possible sources, broadcasts the value thro
 - **Language**: C# (see `<LangVersion>` in `HRCounter/HRCounter.csproj`), targets `net472`. The actual runtime is Unity's bundled Mono, not Microsoft .NET Framework — so `HRCounter.csproj` sets `<FrameworkPathOverride>$(BeatSaberDir)\Beat Saber_Data\Managed</FrameworkPathOverride>` to compile against the Mono framework DLLs the game ships with. This avoids runtime surprises from API differences between Mono and the real .NET Framework. Don't disable that override.
 - **Plugin framework**: BSIPA + SiraUtil. Versions pinned in `HRCounter/manifest.json` (`dependsOn`).
 - **DI**: Zenject (Beat Saber bundles it), wired via SiraUtil installers.
-- **UI**: BeatSaberMarkupLanguage (BSML) — optional; the mod degrades gracefully without it.
+- **UI**: BeatSaberMarkupLanguage (BSML).
 - **Optional integrations**: Counters+, BeatLeader, ScoreSaber, YUR.
 - **JSON**: Newtonsoft.Json. Custom converters live in `HRCounter/Utils/Converters/`.
 - **Asset bundle**: counter prefab is built in the separate `HRCounterBundle/` Unity project and shipped as `HRCounter/Resources/hrcounter`.
@@ -118,7 +118,7 @@ BeatLeader replay custom data ("HeartBeatQuest")
 |---|---|
 | `HRCounter/Plugin.cs` | BSIPA entry point. Detects optional deps, installs Zenject installers at App/Menu/Player scopes. |
 | `HRCounter/Configuration/PluginConfig.cs` | BSIPA config object (`INotifyPropertyChanged`). Hot-reloads. |
-| `HRCounter/Installers/` | Zenject installers per scope: `AppInstaller` (singletons + servers + Pulsoid auth), `MenuInstaller` (chains to `BSMLInstaller` if BSML is installed), `BSMLInstaller` (BSML view controllers + flow coordinator), `GameplayHeartRateInstaller` (data source + `HRDataManager`), `GameplayCoreInstaller` (HR provider + standalone counter), `GamePauseInstaller`, `ReplayRecorderInstaller`. |
+| `HRCounter/Installers/` | Zenject installers per scope: `AppInstaller` (singletons + servers + Pulsoid auth), `MenuInstaller` (BSML view controllers + flow coordinator), `GameplayHeartRateInstaller` (data source + `HRDataManager`), `GameInstaller` (HR provider + standalone counter), `GamePauseInstaller`, `ReplayRecorderInstaller`. |
 | `HRCounter/Data/` | `HRDataManager`, `BPM`, `IHRDataSource`, `IInGameHRProvider`, replay subsystem. |
 | `HRCounter/Data/DataSources/` | All HR source implementations. `Base/DataSource.cs` and `Base/WebSocketSource.cs` are the abstract bases. |
 | `HRCounter/Integrations/Pulsoid/` | OAuth2 device flow + API + domain logic for Pulsoid. |
@@ -192,21 +192,26 @@ private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
 }
 ```
 
-**Important convention**: when a `[UIValue("X")]` property is backed by a config property, **name the BSML key identically to the config property name**. The forwarded `NotifyPropertyChanged(args.PropertyName)` then lights up the BSML binding automatically with no per-property switch in the controller.
+**Important convention**: when a `[UIValue]` property is backed by a config property, **name the BSML key identically to the config property name** and use `nameof(Config.X)` so that a `Config` rename produces a compile error instead of a silent UI break. The forwarded `NotifyPropertyChanged(args.PropertyName)` then lights up the BSML binding automatically with no per-property switch in the controller. The setter must guard with a value-equality check to avoid feedback loops when BSML writes back unchanged values.
 
-Example (matches existing code style — the codebase uses string literals, not `nameof(...)`):
+Example:
 ```csharp
-[UIValue("StreamerMode")]  // matches PluginConfig.StreamerMode
+[UIValue(nameof(Config.StreamerMode))]
 public bool StreamerMode
 {
     get => Config.StreamerMode;
-    set => Config.StreamerMode = value;
+    set
+    {
+        if (Config.StreamerMode != value) Config.StreamerMode = value;
+    }
 }
 ```
 
 Only override the per-property `OnConfigChanged(string propertyName)` hook in the subclass when the change requires extra work beyond a simple BSML notify (refreshing derived text, kicking off network calls, etc.).
 
-For UI state that isn't config-backed (button enabled state, status text, modal text), use plain `[UIValue("...")]` properties and call `NotifyPropertyChanged()` from the setter — the `field` keyword keeps the boilerplate minimal.
+For UI state that isn't config-backed (button enabled state, status text, modal text), use `[UIValue(nameof(SelfProp))]` properties and call `NotifyPropertyChanged()` from the setter. `nameof(SelfProp)` keeps the attribute and the `[CallerMemberName]` notify in sync on rename. The `field` keyword keeps the boilerplate minimal.
+
+`[UIAction]` follows the same rule: use `nameof(MethodName)` when the BSML id matches the C# method name. Existing kebab-case BSML ids that don't match the method name (e.g. `"reset-low-color"`) are left as string literals.
 
 ## Memory file
 

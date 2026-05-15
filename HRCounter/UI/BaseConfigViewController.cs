@@ -4,6 +4,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
 using IPA.Logging;
 using IPA.Utilities.Async;
+using JetBrains.Annotations;
 using Zenject;
 
 namespace HRCounter.UI;
@@ -19,6 +20,7 @@ internal abstract class BaseConfigViewController : BSMLAutomaticViewController
     protected bool Parsed { get; private set; }
 
     [UIAction("#post-parse")]
+    [UsedImplicitly]
     protected virtual void OnParsed()
     {
         Parsed = true;
@@ -51,13 +53,13 @@ internal abstract class BaseConfigViewController : BSMLAutomaticViewController
     {
         if (!Parsed) return;
         if (notifyAll) NotifyPropertyChanged(null);
-        RefreshNoBindUI();
+        RefreshUI();
     }
 
     /**
-     * Refreshes UI elements that doesn't have value binding.
+     * Refreshes any ui elements that won't be updated automatically.
      */
-    protected abstract void RefreshNoBindUI();
+    protected abstract void RefreshUI();
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {

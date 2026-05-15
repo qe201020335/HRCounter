@@ -1,20 +1,17 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Parser;
-using HMUI;
 using HRCounter.Data;
 using HRCounter.Integrations.Pulsoid;
 using HRCounter.Integrations.Pulsoid.Results;
 using HRCounter.Utils;
 using IPA.Utilities.Async;
 using JetBrains.Annotations;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using Zenject;
 using Logger = IPA.Logging.Logger;
 
@@ -33,41 +30,67 @@ internal class DataSourceMenu : BaseConfigViewController
     [UIParams]
     private BSMLParserParams _parserParams = null!;
 
-    [UIValue("DataSourceOptions")]
+    [UIValue(nameof(DataSourceOptions))]
+    [UsedImplicitly]
     public List<object> DataSourceOptions => [..DataSourceManager.DataSourceTypes.Keys];
 
-    [UIValue("DataSource")]
+    [UIValue(nameof(Config.DataSource))]
     public string DataSource
     {
         get => Config.DataSource;
-        set => Config.DataSource = value;
+        set
+        {
+            if (Config.DataSource != value) Config.DataSource = value;
+        }
     }
 
-    [UIValue("StreamerMode")]
+    [UIValue(nameof(Config.StreamerMode))]
     public bool StreamerMode
     {
         get => Config.StreamerMode;
-        set => Config.StreamerMode = value;
+        set
+        {
+            if (Config.StreamerMode != value) Config.StreamerMode = value;
+        }
     }
 
-    [UIValue("AllowEdit")]
+    [UIValue(nameof(AllowEdit))]
     public bool AllowEdit => !StreamerMode;
 
-    [UIValue("HypeRateSessionID")]
+    [UIValue(nameof(DataSourceInfoRefreshBtnInteractable))]
+    public bool DataSourceInfoRefreshBtnInteractable
+    {
+        get;
+        private set
+        {
+            field = value;
+            NotifyPropertyChanged();
+        }
+    } = true;
+
+    [UIValue(nameof(DataSourceInfoText))]
+    public string DataSourceInfoText
+    {
+        get;
+        private set
+        {
+            field = value;
+            NotifyPropertyChanged();
+        }
+    } = "";
+
+    [UIValue(nameof(Config.HypeRateSessionID))]
     public string HypeRateSessionID
     {
         get => Config.HypeRateSessionID;
-        set => Config.HypeRateSessionID = value;
+        set
+        {
+            if (Config.HypeRateSessionID != value) Config.HypeRateSessionID = value;
+        }
     }
 
-    [UIComponent("data-source-info-text")]
-    private TextPageScrollView _dataSourceInfoText = null!;
-
-    [UIComponent("data-source-info-refresh-btn")]
-    private Button _dataSourceInfoRefreshBtn = null!;
-
-    [UIComponent("hyperate-session-id-text")]
-    private TMP_Text _HypeRateSessionIDText = null!;
+    [UIValue(nameof(HypeRateSessionIDText))]
+    public string HypeRateSessionIDText => StreamerMode ? "********" : Config.HypeRateSessionID;
 
     protected override void OnParsed()
     {
@@ -96,11 +119,11 @@ internal class DataSourceMenu : BaseConfigViewController
                 break;
             case nameof(Config.StreamerMode):
                 NotifyPropertyChanged(nameof(AllowEdit));
+                NotifyPropertyChanged(nameof(HypeRateSessionIDText));
                 UpdateDataSourceInfoText();
-                UpdateHypeRateSessionIDText();
                 break;
             case nameof(Config.HypeRateSessionID):
-                UpdateHypeRateSessionIDText();
+                NotifyPropertyChanged(nameof(HypeRateSessionIDText));
                 break;
             case nameof(Config.PulsoidToken):
                 _ = ValidatePulsoidToken();
@@ -114,25 +137,24 @@ internal class DataSourceMenu : BaseConfigViewController
         }
     }
 
-    protected override void RefreshNoBindUI()
+    protected override void RefreshUI()
     {
         UpdateDataSourceInfoText();
-        UpdateHypeRateSessionIDText();
         _ = ValidatePulsoidToken();
     }
 
-    [UIAction("UpdateDataSourceInfoText")]
+    [UIAction(nameof(UpdateDataSourceInfoText))]
     private void UpdateDataSourceInfoText()
     {
         var known = DataSourceManager.TryGetFromKey(Config.DataSource, out var source);
         if (!known)
         {
-            _dataSourceInfoText.SetText("Unknown Data Source");
+            DataSourceInfoText = "Unknown Data Source";
             return;
         }
 
-        _dataSourceInfoText.SetText("Loading Data Source Info...");
-        _dataSourceInfoRefreshBtn.interactable = false;
+        DataSourceInfoText = "Loading Data Source Info...";
+        DataSourceInfoRefreshBtnInteractable = false;
 
         UnityMainThreadTaskScheduler.Factory.StartNew(async () =>
         {
@@ -147,44 +169,92 @@ internal class DataSourceMenu : BaseConfigViewController
                 newText = "<color=#FF0000>Failed to load info, check logs for details.</color>";
             }
 
-            _dataSourceInfoText.SetText(newText);
+            DataSourceInfoText = newText;
             await Task.Delay(500); // no spamming the button
-            _dataSourceInfoRefreshBtn.interactable = true;
+            DataSourceInfoRefreshBtnInteractable = true;
         });
     }
 
-    private void UpdateHypeRateSessionIDText()
-    {
-        _HypeRateSessionIDText.text = StreamerMode ? "********" : Config.HypeRateSessionID;
-    }
+    #region PulsoidTab
 
-    #region PulsoidAuth
-
-    private bool PulsoidTokenValid
+    [UIValue(nameof(PulsoidTokenValid))]
+    public bool PulsoidTokenValid
     {
         get;
-        set
+        private set
         {
             field = value;
-            if (Parsed)
-            {
-                _deauthorizePulsoidButton.interactable = value;
-            }
+            NotifyPropertyChanged();
         }
     }
 
-    [UIValue("PulsoidTokenStatusText")]
-    private string PulsoidTokenStatusText
+    [UIValue(nameof(PulsoidTokenStatusText))]
+    public string PulsoidTokenStatusText
     {
         get;
-        set
+        private set
         {
             field = value;
             NotifyPropertyChanged();
         }
     } = "";
 
+    [UIValue(nameof(AuthModalText))]
+    public string AuthModalText
+    {
+        get;
+        private set
+        {
+            field = value;
+            NotifyPropertyChanged();
+        }
+    } = "";
+
+    [UIValue(nameof(AuthModalCloseBtnText))]
+    public string AuthModalCloseBtnText
+    {
+        get;
+        private set
+        {
+            field = value;
+            NotifyPropertyChanged();
+        }
+    } = "";
+
+    [UIValue(nameof(AuthModalAuthBtnInteractable))]
+    public bool AuthModalAuthBtnInteractable
+    {
+        get;
+        private set
+        {
+            field = value;
+            NotifyPropertyChanged();
+        }
+    } = true;
+
+    [UIValue(nameof(DeauthModalDeauthBtnInteractable))]
+    public bool DeauthModalDeauthBtnInteractable
+    {
+        get;
+        private set
+        {
+            field = value;
+            NotifyPropertyChanged();
+        }
+    } = true;
+
     private CancellationTokenSource? _pulsoidTokenCts;
+
+    private void CancelTokenValidation()
+    {
+        if (_pulsoidTokenCts != null)
+        {
+            _logger.Debug("Cancelling Pulsoid token validation");
+            _pulsoidTokenCts.Cancel();
+            _pulsoidTokenCts.Dispose();
+            _pulsoidTokenCts = null;
+        }
+    }
 
     private async Task ValidatePulsoidToken()
     {
@@ -225,62 +295,7 @@ internal class DataSourceMenu : BaseConfigViewController
         }
     }
 
-    private void CancelTokenValidation()
-    {
-        if (_pulsoidTokenCts != null)
-        {
-            _logger.Debug("Cancelling Pulsoid token validation");
-            _pulsoidTokenCts.Cancel();
-            _pulsoidTokenCts.Dispose();
-            _pulsoidTokenCts = null;
-        }
-    }
-
-    [UIComponent("modal-authorize-button")]
-    private Button _modalAuthorizeBtn = null!;
-
     private CancellationTokenSource? _pulsoidAuthCts;
-
-    [UIValue("ModalText")]
-    private string ModalText
-    {
-        get;
-        set
-        {
-            field = value;
-            NotifyPropertyChanged();
-        }
-    } = "";
-
-    [UIValue("ModalCloseButtonText")]
-    private string ModalCloseButtonText
-    {
-        get;
-        set
-        {
-            field = value;
-            NotifyPropertyChanged();
-        }
-    } = "";
-
-    [UIAction("OpenAuthorizeModal")]
-    private void OpenAuthorizeModal()
-    {
-        CancelAuthorization();
-        ModalText = PulsoidTokenValid
-            ? "Existing token is valid.\nAuthorize again will replace the current one.\nClick Authorize button to re-authorize with Pulsoid."
-            : "Click Authorize button to begin authorizing with Pulsoid.";
-        ModalCloseButtonText = "Cancel";
-        _modalAuthorizeBtn.interactable = true;
-        _parserParams.EmitEvent("show-pulsoid-authorize-modal");
-    }
-
-    [UIAction("CloseAuthorizeModal")]
-    private void CloseAuthorizeModal()
-    {
-        CancelAuthorization();
-        _parserParams.EmitEvent("close-modal");
-    }
 
     private void CancelAuthorization()
     {
@@ -293,86 +308,100 @@ internal class DataSourceMenu : BaseConfigViewController
         }
     }
 
-    private void ShowModalText(string text)
-    {
-        UnityMainThreadTaskScheduler.Factory.StartNew(() => { ModalText = text; });
-    }
-
-    [UIAction("AuthorizePulsoid")]
+    [UIAction(nameof(OpenAuthorizeModal))]
     [UsedImplicitly]
-    private void AuthorizePulsoid()
+    private void OpenAuthorizeModal()
     {
         CancelAuthorization();
-        _pulsoidAuthCts = new CancellationTokenSource();
-        _modalAuthorizeBtn.interactable = false;
-        Task.Run(async () =>
-        {
-            try
-            {
-                var authResult = await _pulsoidAuthenticator.AuthenticateAsync(url =>
-                {
-                    _logger.Debug($"Pulsoid device authorization started, opening browser to {url.Redact()}");
-                    // launch browser
-                    Process.Start(new ProcessStartInfo { FileName = url, Verb = "open" });
-                    ShowModalText("Browser has been opened for authorization.\n\nWaiting for authorization...");
-                }, _pulsoidAuthCts.Token);
-
-                if (authResult.Result == AuthResult.ResultType.Cancelled)
-                {
-                    return;
-                }
-
-                string text;
-
-                if (authResult.Result == AuthResult.ResultType.Success && authResult.AccessToken != null)
-                {
-                    _logger.Notice("Pulsoid authorization successful");
-                    _logger.Notice($"Pulsoid token: {authResult.AccessToken.Redact()}");
-                    await UnityMainThreadTaskScheduler.Factory.StartNew(CancelTokenValidation);
-                    Config.PulsoidToken = authResult.AccessToken!;
-                    text = "<color=green>Pulsoid authorization successful</color>";
-                    if (authResult.ExpiresIn > 0)
-                    {
-                        var timeSpan = TimeSpan.FromSeconds(authResult.ExpiresIn);
-                        text += $"\nToken expires in {timeSpan.ToReadableString()} days";
-                    }
-                }
-                else
-                {
-                    _logger.Warn(
-                        $"Pulsoid authorization failed: {authResult.Result} {(string.IsNullOrWhiteSpace(authResult.Error) ? "" : $"({authResult.Error})")}");
-                    text = $"<color=yellow>Pulsoid authorization failed</color>\n{authResult.Error}";
-                    if (authResult.Exception != null)
-                    {
-                        text += $"\n{authResult.Exception.Message}";
-                    }
-
-                    if (authResult.Result != AuthResult.ResultType.Denied)
-                    {
-                        text += "\nCheck logs for details.";
-                    }
-                }
-
-                ShowModalText(text);
-            }
-            catch (Exception e)
-            {
-                _logger.Error("Failed to authorize Pulsoid");
-                _logger.Error(e);
-                var text = $"<color=red>Unexpected error during Pulsoid authorization</color>\n{e.Message}\nCheck logs for details.";
-                ShowModalText(text);
-            }
-            finally
-            {
-                _ = UnityMainThreadTaskScheduler.Factory.StartNew(() => { ModalCloseButtonText = "Close"; });
-            }
-        });
+        AuthModalText = PulsoidTokenValid
+            ? "Existing token is valid.\nAuthorize again will replace the current one.\nClick Authorize button to re-authorize with Pulsoid."
+            : "Click Authorize button to begin authorizing with Pulsoid.";
+        AuthModalCloseBtnText = "Cancel";
+        AuthModalAuthBtnInteractable = true;
+        _parserParams.EmitEvent("show-pulsoid-authorize-modal");
     }
 
-    [UIComponent("deauthorize-pulsoid-btn")]
-    private Button _deauthorizePulsoidButton = null!;
+    [UIAction(nameof(CloseAuthorizeModal))]
+    [UsedImplicitly]
+    private void CloseAuthorizeModal()
+    {
+        CancelAuthorization();
+        _parserParams.EmitEvent("close-modal");
+    }
 
-    [UIAction("DeauthorizePulsoid")]
+    [UIAction(nameof(AuthorizePulsoid))]
+    [UsedImplicitly]
+    private async Task AuthorizePulsoid()
+    {
+        AuthModalAuthBtnInteractable = false;
+        CancelAuthorization();
+        _pulsoidAuthCts = new CancellationTokenSource();
+        try
+        {
+            var authResult = await Task.Run(() => _pulsoidAuthenticator.AuthenticateAsync(url =>
+            {
+                _logger.Debug($"Pulsoid device authorization started, opening browser to {url.Redact()}");
+                // launch browser
+                Process.Start(new ProcessStartInfo { FileName = url, Verb = "open" });
+                UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+                {
+                    AuthModalText = "Browser has been opened for authorization.\n\nWaiting for authorization...";
+                });
+            }, _pulsoidAuthCts.Token)).ConfigureAwait(true);
+
+            if (authResult.Result == AuthResult.ResultType.Cancelled)
+            {
+                return;
+            }
+
+            string text;
+
+            if (authResult.Result == AuthResult.ResultType.Success && authResult.AccessToken != null)
+            {
+                _logger.Notice("Pulsoid authorization successful");
+                _logger.Notice($"Pulsoid token: {authResult.AccessToken.Redact()}");
+                CancelTokenValidation();
+                Config.PulsoidToken = authResult.AccessToken!;
+                text = "<color=green>Pulsoid authorization successful</color>";
+                if (authResult.ExpiresIn > 0)
+                {
+                    var timeSpan = TimeSpan.FromSeconds(authResult.ExpiresIn);
+                    text += $"\nToken expires in {timeSpan.ToReadableString()}";
+                }
+            }
+            else
+            {
+                _logger.Warn(
+                    $"Pulsoid authorization failed: {authResult.Result} {(string.IsNullOrWhiteSpace(authResult.Error) ? "" : $"({authResult.Error})")}");
+                text = $"<color=yellow>Pulsoid authorization failed</color>\n{authResult.Error}";
+                if (authResult.Exception != null)
+                {
+                    text += $"\n{authResult.Exception.Message}";
+                }
+
+                if (authResult.Result != AuthResult.ResultType.Denied)
+                {
+                    text += "\nCheck logs for details.";
+                }
+            }
+
+            AuthModalText = text;
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Failed to authorize Pulsoid");
+            _logger.Error(e);
+            var text = $"<color=red>Unexpected error during Pulsoid authorization</color>\n{e.Message}\nCheck logs for details.";
+            AuthModalText = text;
+        }
+        finally
+        {
+            AuthModalCloseBtnText = "Close";
+        }
+    }
+
+    [UIAction(nameof(DeauthorizePulsoid))]
+    [UsedImplicitly]
     private async Task DeauthorizePulsoid()
     {
         var token = Config.PulsoidToken;
@@ -381,14 +410,14 @@ internal class DataSourceMenu : BaseConfigViewController
             return;
         }
 
-        _deauthorizePulsoidButton.interactable = false;
+        DeauthModalDeauthBtnInteractable = false;
         CancelAuthorization();
         CancelTokenValidation();
 
         var success = await _pulsoidAuthenticator.RevokeTokenAsync(token, CancellationToken.None).ConfigureAwait(true);
         Config.PulsoidToken = success ? "" : token; // force a refresh
         _parserParams.EmitEvent("close-modal");
-        _deauthorizePulsoidButton.interactable = true;
+        DeauthModalDeauthBtnInteractable = true;
     }
 
     #endregion

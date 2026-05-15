@@ -13,10 +13,10 @@ public class ConfigViewFlowCoordinator : FlowCoordinator
     private readonly MenuButtons _menuButtons = null!;
 
     [Inject]
-    private readonly SettingMenuController _mainPanel = null!;
+    private readonly MainConfigMenu _mainPanel = null!;
     
     [Inject]
-    private readonly ServiceStatusViewController _serviceStatusView = null!;
+    private readonly ServiceStatusMenu _serviceStatusView = null!;
 
     [Inject]
     private readonly DataSourceMenu _dataSourceMenu = null!;
