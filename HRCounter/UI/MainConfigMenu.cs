@@ -1,12 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using HMUI;
 using HRCounter.Configuration;
-using HRCounter.Utils;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -24,31 +23,27 @@ internal class MainConfigMenu : BaseConfigViewController
     [Inject]
     private readonly IconManager _iconManager = null!;
 
+    [Inject]
+    [UsedImplicitly]
+    private void Init(AssetBundleManager abm, DiContainer di)
+    {
+        _logger.Trace("MainConfigMenu Init");
+        SetupPreviewCounter(abm, di);
+    }
+
     protected override void OnParsed()
     {
         base.OnParsed();
         _ = LoadIconList(false);
     }
 
-    protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
-    {
-        if (_colorVisualizerCoroutine != null)
-        {
-            VisualizeColorsBtnPressed(); // stop the visualization and reset the text
-        }
-
-        base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
-    }
-
     protected override void RefreshUI()
     {
         UpdateCustomIconSelection();
-        UpdateColorText();
     }
 
     protected override void OnConfigChanged(string propertyName)
     {
-        UpdateColorText();
         switch (propertyName)
         {
             case nameof(Config.CustomIcon):
@@ -279,6 +274,9 @@ internal class MainConfigMenu : BaseConfigViewController
         }
     } = "Visualize";
 
+    [UIValue(nameof(PreviewCounter))]
+    public Transform PreviewCounter { get; private set; } = null!;
+
     [UIAction(nameof(ResetLowColor))]
     [UsedImplicitly]
     private void ResetLowColor()
@@ -300,52 +298,30 @@ internal class MainConfigMenu : BaseConfigViewController
         Config.HighColor = PluginConfig.DefaultValues.HighColor;
     }
 
-    private string DefaultColorText =>
-        $"<color=#{ColorUtility.ToHtmlStringRGBA(Config.LowColor)}>Low</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(Config.MidColor)}>Middle</color> -> <color=#{ColorUtility.ToHtmlStringRGBA(Config.HighColor)}>High</color>";
-
-    private void UpdateColorText()
+    private void SetupPreviewCounter(AssetBundleManager abm, DiContainer di)
     {
-        if (_colorVisualizerCoroutine == null)
+        _logger.Debug("Setting up preview counter");
+        var counter = abm.SetupCustomCounter(false);
+        if (!counter.HasValue)
         {
-            ColorInfoText = DefaultColorText;
+            _logger.Warn("Failed to setup preview counter");
+            var text = BeatSaberUI.CreateText(transform as RectTransform, "Failed to load preview counter", new Vector2(0.5f, 0.5f));
+            text.color = Color.red;
+            PreviewCounter = text.transform;
+            return;
         }
-    }
 
-    private IEnumerator VisualizeColorsCoroutine()
-    {
-        var start = Config.HRLow;
+        var container = counter.Value.Container;
+        PreviewCounter = container;
+        container.SetParent(transform, false);
+        Destroy(counter.Value.Canvas);
+        container.gameObject.name = "HRCounter Preview Counter";
+        container.localScale = Vector3.one / 12;
 
-        while (isActivated)
-        {
-            ColorInfoText = $"<size=+5><color=#{ColorUtility.ToHtmlStringRGB(RenderUtils.DetermineColor(start))}>{start}</color></size>";
-            start++;
-            if (start > Config.HRHigh)
-            {
-                start = Config.HRLow;
-            }
-
-            yield return new WaitForSeconds(0.05f);
-        }
-    }
-
-    private Coroutine? _colorVisualizerCoroutine;
-
-    [UIAction(nameof(VisualizeColorsBtnPressed))]
-    [UsedImplicitly]
-    private void VisualizeColorsBtnPressed()
-    {
-        if (_colorVisualizerCoroutine != null)
-        {
-            StopCoroutine(_colorVisualizerCoroutine);
-            _colorVisualizerCoroutine = null;
-            ColorInfoText = DefaultColorText;
-            VisualizeColorsBtnText = "Visualize";
-        }
-        else
-        {
-            _colorVisualizerCoroutine = StartCoroutine(VisualizeColorsCoroutine());
-            VisualizeColorsBtnText = "Stop";
-        }
+        var go = container.gameObject;
+        go.SetActive(false);
+        di.InstantiateComponent<HRCounterPreview>(go);
+        go.SetActive(true);
     }
 
     #endregion

@@ -52,11 +52,8 @@
                 <color-setting text="High Color" value="HighColor" apply-on-change="true" bind-value="true"/>
                 <button text="Reset" on-click="ResetHighColor" pad-left="2"/>
             </horizontal>
-            <horizontal horizontal-fit="PreferredSize">
-                <horizontal horizontal-fit="PreferredSize" pref-width="50" pref-height="10" child-align="MiddleCenter">
-                    <text text="~ColorInfoText" italics="false" align="Center"/>
-                </horizontal>
-                <button text="~VisualizeColorsBtnText" on-click="VisualizeColorsBtnPressed" pad-left="2" pref-width="20"/>
+            <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-height="5" child-align="MiddleCenter">
+                <macro.reparent transform="PreviewCounter"/>
             </horizontal>
         </vertical>
     </tab>

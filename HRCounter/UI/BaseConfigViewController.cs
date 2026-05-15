@@ -4,6 +4,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
 using IPA.Logging;
 using IPA.Utilities.Async;
+using JetBrains.Annotations;
 using Zenject;
 
 namespace HRCounter.UI;
@@ -19,6 +20,7 @@ internal abstract class BaseConfigViewController : BSMLAutomaticViewController
     protected bool Parsed { get; private set; }
 
     [UIAction("#post-parse")]
+    [UsedImplicitly]
     protected virtual void OnParsed()
     {
         Parsed = true;
