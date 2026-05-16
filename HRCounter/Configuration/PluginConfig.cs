@@ -53,7 +53,7 @@ internal class PluginConfig : INotifyPropertyChanged
     #region private backing fields
 
     private bool _modEnable = true;
-    private string _dataSource = DataSourceManager.PULSOID_KEY;
+    private string _dataSource = PulsoidSourceDescriptor.KEY;
     private bool _streamerMode = true;
     private string _pulsoidToken = "";
     private string _hypeRateSessionID = "";

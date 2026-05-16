@@ -131,7 +131,7 @@ internal class DataSourceMenu : BaseConfigViewController
             case nameof(Config.PulsoidToken):
                 _ = ValidatePulsoidToken();
                 // TODO proper data source info update event
-                if (DataSource == DataSourceManager.PULSOID_KEY)
+                if (DataSource == PulsoidSourceDescriptor.KEY)
                 {
                     UpdateDataSourceInfoText();
                 }
@@ -164,7 +164,7 @@ internal class DataSourceMenu : BaseConfigViewController
             string newText;
             try
             {
-                newText = await source.GetStatusText();
+                newText = await source.GetStatusText(CancellationToken.None);
             }
             catch (Exception e)
             {

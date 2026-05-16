@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using HRCounter.Configuration;
@@ -90,7 +91,7 @@ internal class SettingController : MonoBehaviour
         {
             try
             {
-                _dataSourceInfoText.SetText(await source.GetStatusText());
+                _dataSourceInfoText.SetText(await source.GetStatusText(CancellationToken.None));
             }
             catch (Exception e)
             {

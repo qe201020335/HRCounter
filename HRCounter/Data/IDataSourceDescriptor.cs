@@ -1,19 +1,29 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HRCounter.Data;
 
-public interface IDataSourceDescriptor
+/// <summary>
+///     Don't implement this directly. Implement <see cref="IDataSourceDescriptor{T}" /> instead.
+/// </summary>
+public interface IDataSourceDescriptor : IDisposable
 {
     string Key { get; }
 
-    Type DataSourceType { get; }
+    // mark internal so external data source descriptors cannot implement this interface directly
+    internal Type DataSourceType { get; }
 
     bool StreamerMode { set; }
 
     event EventHandler? StatusChanged;
 
-    Task<string> GetStatusText();
+    Task<string> GetStatusText(CancellationToken cancellationToken);
 
     bool PreconditionMet();
+}
+
+public interface IDataSourceDescriptor<T> : IDataSourceDescriptor where T : class, IHRDataSource
+{
+    Type IDataSourceDescriptor.DataSourceType => typeof(T);
 }

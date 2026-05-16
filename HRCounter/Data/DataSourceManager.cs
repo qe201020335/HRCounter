@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources;
 using HRCounter.Utils;
 using IPA.Loader;
 using JetBrains.Annotations;
+using UnityEngine;
 using Zenject;
 using Logger = IPA.Logging.Logger;
 #if DEBUG
@@ -14,17 +16,16 @@ using HRCounter.Data.DataSources.DebugSource;
 
 namespace HRCounter.Data;
 
-public sealed class DataSourceManager
+public sealed class DataSourceManager : IDisposable
 {
-    internal const string HYPERATE_KEY = "HypeRate";
-    internal const string PULSOID_KEY = "Pulsoid";
-    internal const string PULSOID_WIDEGT_KEY = "PulsoidWidget";
-    internal const string WEBREQUEST_KEY = "WebRequest";
-    internal const string HRPROXY_KEY = "HRProxy";
-    internal const string YUR_APP_KEY = "YUR APP";
-    internal const string YUR_MOD_KEY = "YUR MOD";
-    internal const string HTTP_SERVER_KEY = "HttpServer";
-    internal const string OSC_KEY = "OSC Protocol";
+    private const string HYPERATE_KEY = "HypeRate";
+    private const string PULSOID_WIDEGT_KEY = "PulsoidWidget";
+    private const string WEBREQUEST_KEY = "WebRequest";
+    private const string HRPROXY_KEY = "HRProxy";
+    private const string YUR_APP_KEY = "YUR APP";
+    private const string YUR_MOD_KEY = "YUR MOD";
+    private const string HTTP_SERVER_KEY = "HttpServer";
+    private const string OSC_KEY = "OSC Protocol";
 
     [Inject]
     private readonly Logger _logger = null!;
@@ -46,7 +47,7 @@ public sealed class DataSourceManager
         RegisterInternalDataSources();
     }
 
-    public IDataSourceDescriptor RegisterDataSource<T>(string key, Func<Task<string>> getStatusText,
+    public IDataSourceDescriptor RegisterDataSource<T>(string key, Func<CancellationToken, Task<string>> getStatusText,
         Func<bool> precondition) where T : class, IHRDataSource
     {
         var descriptor = new GenericSourceDescriptor<T>(key, getStatusText, precondition);
@@ -57,19 +58,54 @@ public sealed class DataSourceManager
     public IDataSourceDescriptor RegisterDataSource<T>(string key, Func<string> getStatusText, Func<bool> precondition)
         where T : class, IHRDataSource
     {
-        return RegisterDataSource<T>(key, () => Task.FromResult(getStatusText()), precondition);
+        return RegisterDataSource<T>(key, _ => Task.FromResult(getStatusText()), precondition);
     }
 
-    public void RegisterDataSource(IDataSourceDescriptor descriptor)
+    public void RegisterDataSource<T>(IDataSourceDescriptor<T> descriptor) where T : class, IHRDataSource
     {
         var key = descriptor.Key;
         if (SourceTypes.ContainsKey(key)) throw new ArgumentException($"Key {key} already exists!", nameof(key));
+        _logger.Debug("Registering data source: " + key);
         SourceTypes.Add(descriptor.Key, descriptor);
+    }
+
+    public void RegisterDataSource<TDesc, TSource>() where TDesc : class, IDataSourceDescriptor<TSource> where TSource : class, IHRDataSource
+    {
+        TDesc source;
+        if (typeof(Component).IsAssignableFrom(typeof(TDesc)))
+        {
+            var instance = _diContainer.InstantiateComponent(typeof(TDesc), _diContainer.CreateEmptyGameObject(typeof(TDesc).Name));
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            source = (TDesc)(object)instance;
+            instance.gameObject.name = $"HRCounter Data Source Descriptor - {source.Key}";
+        }
+        else
+        {
+            source = _diContainer.Instantiate<TDesc>();
+        }
+
+        RegisterDataSource(source);
     }
 
     internal IDataSourceDescriptor? GetFromKey(string str) => SourceTypes.GetValueOrDefault(str);
 
-    private bool GenericPrecondition(string s)
+    void IDisposable.Dispose()
+    {
+        foreach (var pair in SourceTypes)
+        {
+            try
+            {
+                pair.Value.Dispose();
+            }
+            catch (Exception e)
+            {
+                _logger.Warn($"Failed to dispose data source descriptor for {pair.Value.Key}: {e}");
+                _logger.Warn(e);
+            }
+        }
+    }
+
+    private static bool GenericPrecondition(string s)
     {
         return !string.IsNullOrWhiteSpace(s) && s != "NotSet" && s != "-1";
     }
@@ -85,18 +121,7 @@ public sealed class DataSourceManager
             () => GenericPrecondition(_config.HypeRateSessionID)
         );
 
-        RegisterDataSource<Pulsoid2>(PULSOID_KEY, async () =>
-            {
-                if (!GenericPrecondition(_config.PulsoidToken))
-                {
-                    return "Token Not Set";
-                }
-
-                var status = await DataSourceUtils.CheckPulsoidToken(_config.PulsoidToken);
-                return "Token Status: " + (status == "" ? "<color=#00FF00>OK</color>" : $"<color=#FF0000>{status}</color>");
-            },
-            () => GenericPrecondition(_config.PulsoidToken)
-        );
+        RegisterDataSource<PulsoidSourceDescriptor, Pulsoid2>();
 
         RegisterDataSource<WebRequest>(WEBREQUEST_KEY,
             () => $"Current URL: {(_config.StreamerMode ? "********" : _config.FeedLink)}",
