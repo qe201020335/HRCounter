@@ -25,36 +25,37 @@ public class DataSourceManager
 
     private static PluginConfig Config => Plugin.Config;
 
-    private static readonly Dictionary<string, DataSourceInfo> SourceTypes = new();
-    internal static IReadOnlyDictionary<string, DataSourceInfo> DataSourceTypes => SourceTypes;
+    private static readonly Dictionary<string, IDataSourceDescriptor> SourceTypes = new(StringComparer.InvariantCultureIgnoreCase);
 
-    public static DataSourceInfo RegisterDataSource<T>(string key, Func<Task<string>> sourceLinkTextCallback,
-        Func<bool> precondition) where T : IHRDataSource
+    internal static IReadOnlyDictionary<string, IDataSourceDescriptor> DataSourceTypes => SourceTypes;
+
+    public static IDataSourceDescriptor RegisterDataSource<T>(string key, Func<Task<string>> getStatusText,
+        Func<bool> precondition) where T : class, IHRDataSource
     {
-        if (SourceTypes.ContainsKey(key)) throw new ArgumentException($"Key {key} already exists!");
-        var type = new DataSourceInfo(key, typeof(T), sourceLinkTextCallback, precondition);
-        SourceTypes[key] = type;
-        return type;
+        var descriptor = new GenericSourceDescriptor<T>(key, getStatusText, precondition);
+        RegisterDataSource(descriptor);
+        return descriptor;
     }
 
-    public static DataSourceInfo RegisterDataSource<T>(string key, Func<string> sourceLinkTextCallback, Func<bool> precondition)
-        where T : IHRDataSource
+    public static IDataSourceDescriptor RegisterDataSource<T>(string key, Func<string> getStatusText, Func<bool> precondition)
+        where T : class, IHRDataSource
     {
-        return RegisterDataSource<T>(key, () => Task.FromResult(sourceLinkTextCallback()), precondition);
+        return RegisterDataSource<T>(key, () => Task.FromResult(getStatusText()), precondition);
     }
 
-    public static bool TryGetFromKey(string str, out DataSourceInfo outInfo)
+    public static void RegisterDataSource(IDataSourceDescriptor descriptor)
     {
-        var found = DataSourceTypes.TryGetValue(str, out var value);
-        outInfo = found ? value : default;
-        return found;
+        var key = descriptor.Key;
+        if (SourceTypes.ContainsKey(key)) throw new ArgumentException($"Key {key} already exists!", nameof(key));
+        SourceTypes.Add(descriptor.Key, descriptor);
     }
 
-    internal static string MigrateKey(string old)
+    internal static IDataSourceDescriptor? GetFromKey(string str) => DataSourceTypes.GetValueOrDefault(str, null);
+
+    internal static string MigrateKey(string key)
     {
-        if (DataSourceTypes.ContainsKey(old)) return old;
-        if (old.ToLower().StartsWith("pulsoid")) return Pulsoid.Key;
-        return old;
+        if (DataSourceTypes.ContainsKey(key)) return key;
+        return key.StartsWith("pulsoid", StringComparison.InvariantCultureIgnoreCase) ? Pulsoid.Key : key;
     }
 
     private static bool GenericPrecondition(string s)
@@ -64,12 +65,12 @@ public class DataSourceManager
 
     #region Some Instances
 
-    internal static DataSourceInfo HypeRate = RegisterDataSource<HypeRate2>(HYPERATE_KEY,
+    internal static IDataSourceDescriptor HypeRate = RegisterDataSource<HypeRate2>(HYPERATE_KEY,
         () => $"Current Session ID: {(Config.StreamerMode ? "********" : Config.HypeRateSessionID)}",
         () => GenericPrecondition(Config.HypeRateSessionID)
     );
 
-    internal static DataSourceInfo Pulsoid = RegisterDataSource<Pulsoid2>(PULSOID_KEY, async () =>
+    internal static IDataSourceDescriptor Pulsoid = RegisterDataSource<Pulsoid2>(PULSOID_KEY, async () =>
         {
             if (!GenericPrecondition(Config.PulsoidToken))
             {
@@ -82,44 +83,44 @@ public class DataSourceManager
         () => GenericPrecondition(Config.PulsoidToken)
     );
 
-    internal static DataSourceInfo WebRequest = RegisterDataSource<WebRequest>(WEBREQUEST_KEY,
+    internal static IDataSourceDescriptor WebRequest = RegisterDataSource<WebRequest>(WEBREQUEST_KEY,
         () => $"Current URL: {(Config.StreamerMode ? "********" : Config.FeedLink)}",
         () => GenericPrecondition(Config.FeedLink)
     );
 
-    internal static DataSourceInfo HRProxy = RegisterDataSource<HRProxyCustomReader>(HRPROXY_KEY,
+    internal static IDataSourceDescriptor HRProxy = RegisterDataSource<HRProxyCustomReader>(HRPROXY_KEY,
         () => $"Current HRProxy ID: {(Config.StreamerMode ? "********" : Config.HRProxyID)}",
         () => GenericPrecondition(Config.HRProxyID)
     );
 
-    internal static DataSourceInfo YURApp = RegisterDataSource<YURApp>(YUR_APP_KEY,
+    internal static IDataSourceDescriptor YURApp = RegisterDataSource<YURApp>(YUR_APP_KEY,
         () => DataSourceUtils.CheckYURProcess()
             ? "YUR App seems to be running."
             : "<color=#FFFF00>YUR App does not seem to be running.</color>",
         () => true
     );
 
-    internal static DataSourceInfo YURMod = RegisterDataSource<YURMod>(YUR_MOD_KEY,
+    internal static IDataSourceDescriptor YURMod = RegisterDataSource<YURMod>(YUR_MOD_KEY,
         () => PluginManager.GetPluginFromId(DataSourceUtils.YUR_MOD_ID) == null
             ? "<color=#FF0000>YUR MOD IS NOT INSTALLED OR ENABLED!</color>"
             : "YUR MOD Detected!",
         () => PluginManager.GetPluginFromId(DataSourceUtils.YUR_MOD_ID) != null
     );
 
-    internal static DataSourceInfo OscServer = RegisterDataSource<OscHR>(OSC_KEY,
+    internal static IDataSourceDescriptor OscServer = RegisterDataSource<OscHR>(OSC_KEY,
         () => Config.EnableOscServer
             ? $"Use addresses below (one Int32 value only)\n  {string.Join("\n  ", Config.OscAddress)}"
             : "<color=#FF0000>OSC Server is NOT enabled!</color>",
         () => true);
 
-    internal static DataSourceInfo HttpServer = RegisterDataSource<HttpServerDataSource>(HTTP_SERVER_KEY,
+    internal static IDataSourceDescriptor HttpServer = RegisterDataSource<HttpServerDataSource>(HTTP_SERVER_KEY,
         () => Config.EnableHttpServer
             ? "POST to the <color=#00FF00>/hr</color> endpoint"
             : "<color=#FF0000>HTTP Server is NOT enabled!</color>",
         () => true
     );
 
-    internal static DataSourceInfo PulsoidWidget = RegisterDataSource<PulsoidWidget>(PULSOID_WIDEGT_KEY, async () =>
+    internal static IDataSourceDescriptor PulsoidWidget = RegisterDataSource<PulsoidWidget>(PULSOID_WIDEGT_KEY, async () =>
         {
             var status =
                 $"Widget ID: {(GenericPrecondition(Config.PulsoidWidgetID) ? Config.StreamerMode ? "********" : Config.PulsoidWidgetID : "Not Set")}";
@@ -131,13 +132,13 @@ public class DataSourceManager
 #if DEBUG
 
     private const string DEBUG_RANDOM_KEY = "Random Debug";
-    internal static DataSourceInfo Random = RegisterDataSource<RandomHR>(DEBUG_RANDOM_KEY, () => LOREM_IPSUM, () => true);
+    internal static IDataSourceDescriptor Random = RegisterDataSource<RandomHR>(DEBUG_RANDOM_KEY, () => LOREM_IPSUM, () => true);
 
     private const string DEBUG_SWEEP_KEY = "Sweep Debug";
-    internal static DataSourceInfo Sweep = RegisterDataSource<SweepHR>(DEBUG_SWEEP_KEY, () => LOREM_IPSUM, () => true);
+    internal static IDataSourceDescriptor Sweep = RegisterDataSource<SweepHR>(DEBUG_SWEEP_KEY, () => LOREM_IPSUM, () => true);
 
     private const string DEBUG_FPS_KEY = "FPS Debug";
-    internal static DataSourceInfo FrameRate = RegisterDataSource<FrameRateHR>(DEBUG_FPS_KEY, () => LOREM_IPSUM, () => true);
+    internal static IDataSourceDescriptor FrameRate = RegisterDataSource<FrameRateHR>(DEBUG_FPS_KEY, () => LOREM_IPSUM, () => true);
 
     private const string LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer tristique posuere libero eu gravida. " +
                                        "Aenean sed urna ante. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus " +

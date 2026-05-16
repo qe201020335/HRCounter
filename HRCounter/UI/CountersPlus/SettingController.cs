@@ -75,8 +75,8 @@ internal class SettingController : MonoBehaviour
         _logger.Debug("Updating text");
         _previousDataSource = _config.DataSource;
         _dataSourceText.text = $"Current DataSource: {_config.DataSource}";
-        var known = DataSourceManager.TryGetFromKey(_config.DataSource, out var source);
-        if (!known)
+        var source = DataSourceManager.GetFromKey(_config.DataSource);
+        if (source is null)
         {
             _dataSourceInfoText.SetText("Unknown Data Source");
             return;
@@ -87,7 +87,7 @@ internal class SettingController : MonoBehaviour
         {
             try
             {
-                _dataSourceInfoText.SetText(await source.GetSourceLinkText());
+                _dataSourceInfoText.SetText(await source.GetStatusText());
             }
             catch (Exception e)
             {

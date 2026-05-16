@@ -21,32 +21,33 @@ public class GameplayHeartRateInstaller : Installer<GameplayHeartRateInstaller>
             return;
         }
 
-        if (!DataSourceManager.TryGetFromKey(_config.DataSource, out var dataSource))
+        var source = DataSourceManager.GetFromKey(_config.DataSource);
+        if (source is null)
         {
             _logger.Error($"Unknown data source: {_config.DataSource}");
             return;
         }
 
-        if (!dataSource.PreconditionSatisfied())
+        if (!source.PreconditionMet())
         {
-            _logger.Warn($"{dataSource} precondition not met! Did you set your link/id/token or install the required dependencies?");
+            _logger.Warn($"{source} precondition not met! Did you set your link/id/token or install the required dependencies?");
             return;
         }
 
         _logger.Debug("Binding BPM Downloader");
-        if (typeof(Component).IsAssignableFrom(dataSource.DataSourceType))
+        if (typeof(Component).IsAssignableFrom(source.DataSourceType))
         {
-            Container.BindInterfacesAndSelfTo(dataSource.DataSourceType)
+            Container.BindInterfacesAndSelfTo(source.DataSourceType)
                 .FromNewComponentOnNewGameObject()
-                .WithGameObjectName($"HRCounter {dataSource.Key} Data Source")
+                .WithGameObjectName($"HRCounter {source.Key} Data Source")
                 .AsSingle();
         }
         else
         {
-            Container.BindInterfacesAndSelfTo(dataSource.DataSourceType).AsSingle();
+            Container.BindInterfacesAndSelfTo(source.DataSourceType).AsSingle();
         }
 
-        _logger.Debug("binding hr controller");
+        _logger.Debug("Binding hr controller");
         Container.BindInterfacesAndSelfTo<HRDataManager>().AsSingle().NonLazy();
     }
 }

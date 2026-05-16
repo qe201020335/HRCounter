@@ -146,8 +146,8 @@ internal class DataSourceMenu : BaseConfigViewController
     [UIAction(nameof(UpdateDataSourceInfoText))]
     private void UpdateDataSourceInfoText()
     {
-        var known = DataSourceManager.TryGetFromKey(Config.DataSource, out var source);
-        if (!known)
+        var source = DataSourceManager.GetFromKey(Config.DataSource);
+        if (source is null)
         {
             DataSourceInfoText = "Unknown Data Source";
             return;
@@ -161,7 +161,7 @@ internal class DataSourceMenu : BaseConfigViewController
             string newText;
             try
             {
-                newText = await source.GetSourceLinkText();
+                newText = await source.GetStatusText();
             }
             catch (Exception e)
             {
