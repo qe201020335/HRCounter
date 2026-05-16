@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HRCounter.Configuration;
+using HRCounter.Data;
 using HRCounter.Data.DataSources;
 using HRCounter.Data.DataSources.Base;
 using HRCounter.Integrations.Pulsoid;
@@ -42,6 +43,7 @@ public class AppInstaller : Installer<AppInstaller>
 
         Container.BindInstance(_config).AsSingle();
         Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
+        Container.BindInterfacesAndSelfTo<DataSourceManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<IconManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<UserInfoHelper>().AsSingle();
         Container.BindInterfacesAndSelfTo<PulsoidAuthenticator>().AsSingle();

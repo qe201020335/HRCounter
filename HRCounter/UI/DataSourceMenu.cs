@@ -25,6 +25,9 @@ internal class DataSourceMenu : BaseConfigViewController
     private readonly Logger _logger = null!;
 
     [Inject]
+    private readonly DataSourceManager _dataSourceManager = null!;
+    
+    [Inject]
     private readonly PulsoidAuthenticator _pulsoidAuthenticator = null!;
 
     [UIParams]
@@ -32,7 +35,7 @@ internal class DataSourceMenu : BaseConfigViewController
 
     [UIValue(nameof(DataSourceOptions))]
     [UsedImplicitly]
-    public List<object> DataSourceOptions => [..DataSourceManager.DataSourceTypes.Keys];
+    public List<object> DataSourceOptions => [.._dataSourceManager.DataSourceTypes.Keys];
 
     [UIValue(nameof(Config.DataSource))]
     public string DataSource
@@ -128,7 +131,7 @@ internal class DataSourceMenu : BaseConfigViewController
             case nameof(Config.PulsoidToken):
                 _ = ValidatePulsoidToken();
                 // TODO proper data source info update event
-                if (DataSource == DataSourceManager.Pulsoid.Key)
+                if (DataSource == DataSourceManager.PULSOID_KEY)
                 {
                     UpdateDataSourceInfoText();
                 }
@@ -146,7 +149,7 @@ internal class DataSourceMenu : BaseConfigViewController
     [UIAction(nameof(UpdateDataSourceInfoText))]
     private void UpdateDataSourceInfoText()
     {
-        var source = DataSourceManager.GetFromKey(Config.DataSource);
+        var source = _dataSourceManager.GetFromKey(Config.DataSource);
         if (source is null)
         {
             DataSourceInfoText = "Unknown Data Source";

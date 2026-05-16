@@ -19,6 +19,8 @@ internal class SettingController : MonoBehaviour
 
     private IPALogger _logger = null!;
 
+    private DataSourceManager _dataSourceManager = null!;
+
     [UIComponent("data-source-text")]
     private TMP_Text _dataSourceText = null!;
 
@@ -30,10 +32,11 @@ internal class SettingController : MonoBehaviour
     private string _previousDataSource = "";
 
     [Inject]
-    private void Init(PluginConfig config, IPALogger logger)
+    private void Init(PluginConfig config, IPALogger logger, DataSourceManager dataSourceManager)
     {
         _config = config;
         _logger = logger;
+        _dataSourceManager = dataSourceManager;
         _logger.Trace("SettingController injection init");
     }
 
@@ -75,7 +78,7 @@ internal class SettingController : MonoBehaviour
         _logger.Debug("Updating text");
         _previousDataSource = _config.DataSource;
         _dataSourceText.text = $"Current DataSource: {_config.DataSource}";
-        var source = DataSourceManager.GetFromKey(_config.DataSource);
+        var source = _dataSourceManager.GetFromKey(_config.DataSource);
         if (source is null)
         {
             _dataSourceInfoText.SetText("Unknown Data Source");

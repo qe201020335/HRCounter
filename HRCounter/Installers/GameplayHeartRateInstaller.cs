@@ -14,6 +14,9 @@ public class GameplayHeartRateInstaller : Installer<GameplayHeartRateInstaller>
     [Inject]
     private readonly IPALogger _logger = null!;
 
+    [Inject]
+    private readonly DataSourceManager _dataSourceManager = null!;
+
     public override void InstallBindings()
     {
         if (!_config.ModEnable)
@@ -21,7 +24,7 @@ public class GameplayHeartRateInstaller : Installer<GameplayHeartRateInstaller>
             return;
         }
 
-        var source = DataSourceManager.GetFromKey(_config.DataSource);
+        var source = _dataSourceManager.GetFromKey(_config.DataSource);
         if (source is null)
         {
             _logger.Error($"Unknown data source: {_config.DataSource}");
