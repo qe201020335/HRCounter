@@ -15,6 +15,7 @@ using Component = UnityEngine.Component;
 using IPALogger = IPA.Logging.Logger;
 #if DEBUG
 using HRCounter.Data.DataSources.DebugSource;
+using HRCounter.Data.SourceDescriptors.DebugDescriptor;
 #endif
 
 namespace HRCounter.Data;
@@ -124,6 +125,7 @@ public sealed class DataSourceManager : IDisposable
         TDesc source;
         if (typeof(Component).IsAssignableFrom(typeof(TDesc)))
         {
+            _logger.Spam($"Instantiating {typeof(TDesc).Name} on new game object");
             var instance = _diContainer.InstantiateComponent(typeof(TDesc), _diContainer.CreateEmptyGameObject(typeof(TDesc).Name));
             // ReSharper disable once SuspiciousTypeConversion.Global
             source = (TDesc)(object)instance;
@@ -131,6 +133,7 @@ public sealed class DataSourceManager : IDisposable
         }
         else
         {
+            _logger.Spam($"Instantiating {typeof(TDesc).Name} as normal object");
             source = _diContainer.Instantiate<TDesc>();
         }
 
@@ -187,7 +190,7 @@ public sealed class DataSourceManager : IDisposable
 #if DEBUG
         RegisterDataSource<RandomHR>(DEBUG_RANDOM_KEY, () => LOREM_IPSUM, () => true);
         RegisterDataSource<SweepHR>(DEBUG_SWEEP_KEY, () => LOREM_IPSUM, () => true);
-        RegisterDataSource<FrameRateHR>(DEBUG_FPS_KEY, () => LOREM_IPSUM, () => true);
+        RegisterDataSource<FrameRateDescriptor, FrameRateHR>();
 #endif
     }
 
@@ -195,7 +198,6 @@ public sealed class DataSourceManager : IDisposable
 
     private const string DEBUG_RANDOM_KEY = "Random Debug";
     private const string DEBUG_SWEEP_KEY = "Sweep Debug";
-    private const string DEBUG_FPS_KEY = "FPS Debug";
     private const string LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer tristique posuere libero eu gravida. " +
                                        "Aenean sed urna ante. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus " +
                                        "mus. Nam nec nunc enim. Fusce porta condimentum tellus eu hendrerit. Duis semper nisl vitae euismod " +
