@@ -14,9 +14,12 @@ public interface IDataSourceDescriptor : IDisposable
     // mark internal so external data source descriptors cannot implement this interface directly
     internal Type DataSourceType { get; }
 
+    /// <summary>
+    ///     Setter will be called on the main thread
+    /// </summary>
     bool StreamerMode { set; }
 
-    event EventHandler? StatusChanged;
+    event Action? StatusChanged;
 
     Task<string> GetStatusText(CancellationToken cancellationToken);
 

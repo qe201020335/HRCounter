@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace HRCounter.Data;
+namespace HRCounter.Data.SourceDescriptors;
 
 internal sealed class GenericSourceDescriptor<T>(string key, Func<CancellationToken, Task<string>> getStatusText, Func<bool> precondition)
     : IDataSourceDescriptor<T> where T : class, IHRDataSource
@@ -15,7 +15,7 @@ internal sealed class GenericSourceDescriptor<T>(string key, Func<CancellationTo
         set { }
     }
 
-    public event EventHandler? StatusChanged;
+    public event Action? StatusChanged;
 
     public void Dispose()
     {

@@ -58,6 +58,7 @@ internal abstract class BaseConfigViewController : BSMLAutomaticViewController
 
     /**
      * Refreshes any ui elements that won't be updated automatically.
+     * Will also be called when all config properties have changed.
      */
     protected abstract void RefreshUI();
 

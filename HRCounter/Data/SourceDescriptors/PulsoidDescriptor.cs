@@ -11,9 +11,9 @@ using IPA.Utilities.Async;
 using JetBrains.Annotations;
 using Zenject;
 
-namespace HRCounter.Data;
+namespace HRCounter.Data.SourceDescriptors;
 
-internal class PulsoidSourceDescriptor : IDataSourceDescriptor<Pulsoid2>
+internal class PulsoidDescriptor : IDataSourceDescriptor<Pulsoid2>
 {
     internal const string KEY = "Pulsoid";
 
@@ -31,7 +31,9 @@ internal class PulsoidSourceDescriptor : IDataSourceDescriptor<Pulsoid2>
         set { }
     }
 
-    public event EventHandler? StatusChanged;
+    public event Action? StatusChanged;
+
+    private string? _token;
 
     [Inject]
     [UsedImplicitly]
@@ -45,11 +47,12 @@ internal class PulsoidSourceDescriptor : IDataSourceDescriptor<Pulsoid2>
         _config.PropertyChanged -= OnConfigChanged;
     }
 
-    private void OnConfigChanged(object sender, PropertyChangedEventArgs e)
+    private void OnConfigChanged(object? _, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(_config.PulsoidToken))
+        if ((string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(_config.PulsoidToken)) && _config.PulsoidToken != _token)
         {
-            UnityMainThreadTaskScheduler.Factory.StartNew(() => { StatusChanged?.Invoke(this, EventArgs.Empty); });
+            _token = _config.PulsoidToken;
+            UnityMainThreadTaskScheduler.Factory.StartNew(() => { StatusChanged?.Invoke(); });
         }
     }
 

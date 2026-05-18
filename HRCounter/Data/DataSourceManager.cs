@@ -1,15 +1,18 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources;
+using HRCounter.Data.SourceDescriptors;
 using HRCounter.Utils;
 using IPA.Loader;
+using IPA.Utilities.Async;
 using JetBrains.Annotations;
-using UnityEngine;
 using Zenject;
-using Logger = IPA.Logging.Logger;
+using Component = UnityEngine.Component;
+using IPALogger = IPA.Logging.Logger;
 #if DEBUG
 using HRCounter.Data.DataSources.DebugSource;
 #endif
@@ -28,7 +31,7 @@ public sealed class DataSourceManager : IDisposable
     private const string OSC_KEY = "OSC Protocol";
 
     [Inject]
-    private readonly Logger _logger = null!;
+    private readonly IPALogger _logger = null!;
 
     [Inject]
     private readonly PluginConfig _config = null!;
@@ -36,16 +39,63 @@ public sealed class DataSourceManager : IDisposable
     [Inject]
     private readonly DiContainer _diContainer = null!;
 
-    private readonly Dictionary<string, IDataSourceDescriptor> SourceTypes = new(StringComparer.InvariantCultureIgnoreCase);
+    private readonly Dictionary<string, IDataSourceDescriptor> _sources = new(StringComparer.InvariantCultureIgnoreCase);
 
-    internal IReadOnlyDictionary<string, IDataSourceDescriptor> DataSourceTypes => SourceTypes;
+    internal IReadOnlyDictionary<string, IDataSourceDescriptor> DataSources => _sources;
 
     [Inject]
     [UsedImplicitly]
     private void Init()
     {
         RegisterInternalDataSources();
+        UpdateStreamerMode();
+        _config.PropertyChanged += OnConfigChanged;
     }
+
+    void IDisposable.Dispose()
+    {
+        _config.PropertyChanged -= OnConfigChanged;
+        foreach (var pair in _sources)
+        {
+            try
+            {
+                pair.Value.Dispose();
+            }
+            catch (Exception e)
+            {
+                _logger.Warn($"Failed to dispose data source descriptor for {pair.Value.Key}: {e}");
+                _logger.Warn(e);
+            }
+        }
+    }
+
+    private void OnConfigChanged(object? _, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(_config.StreamerMode))
+        {
+            //TODO really should make config raise this on the main thread
+            UnityMainThreadTaskScheduler.Factory.StartNew(UpdateStreamerMode);
+        }
+    }
+
+    private void UpdateStreamerMode()
+    {
+        var streamerMode = _config.StreamerMode;
+        foreach (var pair in _sources)
+        {
+            try
+            {
+                pair.Value.StreamerMode = streamerMode;
+            }
+            catch (Exception exception)
+            {
+                _logger.Warn($"Failed to set streamer mode for data source descriptor {pair.Value.Key}");
+                _logger.Warn(exception);
+            }
+        }
+    }
+
+    internal IDataSourceDescriptor? GetFromKey(string str) => _sources.GetValueOrDefault(str);
 
     public IDataSourceDescriptor RegisterDataSource<T>(string key, Func<CancellationToken, Task<string>> getStatusText,
         Func<bool> precondition) where T : class, IHRDataSource
@@ -64,9 +114,9 @@ public sealed class DataSourceManager : IDisposable
     public void RegisterDataSource<T>(IDataSourceDescriptor<T> descriptor) where T : class, IHRDataSource
     {
         var key = descriptor.Key;
-        if (SourceTypes.ContainsKey(key)) throw new ArgumentException($"Key {key} already exists!", nameof(key));
+        if (_sources.ContainsKey(key)) throw new ArgumentException($"Key {key} already exists!", nameof(key));
         _logger.Debug("Registering data source: " + key);
-        SourceTypes.Add(descriptor.Key, descriptor);
+        _sources.Add(descriptor.Key, descriptor);
     }
 
     public void RegisterDataSource<TDesc, TSource>() where TDesc : class, IDataSourceDescriptor<TSource> where TSource : class, IHRDataSource
@@ -87,51 +137,22 @@ public sealed class DataSourceManager : IDisposable
         RegisterDataSource(source);
     }
 
-    internal IDataSourceDescriptor? GetFromKey(string str) => SourceTypes.GetValueOrDefault(str);
-
-    void IDisposable.Dispose()
-    {
-        foreach (var pair in SourceTypes)
-        {
-            try
-            {
-                pair.Value.Dispose();
-            }
-            catch (Exception e)
-            {
-                _logger.Warn($"Failed to dispose data source descriptor for {pair.Value.Key}: {e}");
-                _logger.Warn(e);
-            }
-        }
-    }
-
-    private static bool GenericPrecondition(string s)
-    {
-        return !string.IsNullOrWhiteSpace(s) && s != "NotSet" && s != "-1";
-    }
-
     #region Internal Data Sources
 
     private void RegisterInternalDataSources()
     {
         _logger.Debug("Registering internal data sources");
         // register internal sources
-        RegisterDataSource<HypeRate2>(HYPERATE_KEY,
-            () => $"Current Session ID: {(_config.StreamerMode ? "********" : _config.HypeRateSessionID)}",
-            () => GenericPrecondition(_config.HypeRateSessionID)
-        );
+        RegisterDataSource(new SimpleSourceDescriptor<HypeRate2>(HYPERATE_KEY, "HypeRate ID",
+            () => _config.HypeRateSessionID, _config, nameof(_config.HypeRateSessionID)));
 
-        RegisterDataSource<PulsoidSourceDescriptor, Pulsoid2>();
+        RegisterDataSource<PulsoidDescriptor, Pulsoid2>();
 
-        RegisterDataSource<WebRequest>(WEBREQUEST_KEY,
-            () => $"Current URL: {(_config.StreamerMode ? "********" : _config.FeedLink)}",
-            () => GenericPrecondition(_config.FeedLink)
-        );
+        RegisterDataSource(new SimpleSourceDescriptor<WebRequest>(WEBREQUEST_KEY, "Request URL",
+            () => _config.FeedLink, _config, nameof(_config.FeedLink)));
 
-        RegisterDataSource<HRProxyCustomReader>(HRPROXY_KEY,
-            () => $"Current HRProxy ID: {(_config.StreamerMode ? "********" : _config.HRProxyID)}",
-            () => GenericPrecondition(_config.HRProxyID)
-        );
+        RegisterDataSource(new SimpleSourceDescriptor<HRProxyCustomReader>(HRPROXY_KEY, "HRProxy ID",
+            () => _config.HRProxyID, _config, nameof(_config.HRProxyID)));
 
         RegisterDataSource<YURApp>(YUR_APP_KEY,
             () => DataSourceUtils.CheckYURProcess()
@@ -160,14 +181,8 @@ public sealed class DataSourceManager : IDisposable
             () => true
         );
 
-        RegisterDataSource<PulsoidWidget>(PULSOID_WIDEGT_KEY, () =>
-            {
-                var status =
-                    $"Widget ID: {(GenericPrecondition(_config.PulsoidWidgetID) ? _config.StreamerMode ? "********" : _config.PulsoidWidgetID : "Not Set")}";
-                return "<color=#FF5630>EXPERIMENTAL</color>\n" + status;
-            },
-            () => GenericPrecondition(_config.PulsoidToken)
-        );
+        RegisterDataSource(new SimpleSourceDescriptor<PulsoidWidget>(PULSOID_WIDEGT_KEY, "<color=#FF5630>EXPERIMENTAL</color>\nWidget ID",
+            () => _config.PulsoidWidgetID, _config, nameof(_config.PulsoidWidgetID)));
 
 #if DEBUG
         RegisterDataSource<RandomHR>(DEBUG_RANDOM_KEY, () => LOREM_IPSUM, () => true);

@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using HRCounter.Data;
+using HRCounter.Data.SourceDescriptors;
 using HRCounter.Utils;
 using HRCounter.Utils.Converters;
 using IPA.Config;
@@ -53,7 +53,7 @@ internal class PluginConfig : INotifyPropertyChanged
     #region private backing fields
 
     private bool _modEnable = true;
-    private string _dataSource = PulsoidSourceDescriptor.KEY;
+    private string _dataSource = PulsoidDescriptor.KEY;
     private bool _streamerMode = true;
     private string _pulsoidToken = "";
     private string _hypeRateSessionID = "";
@@ -339,6 +339,7 @@ internal class PluginConfig : INotifyPropertyChanged
     protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
     {
         _logger.Spam($"Property Changed: {propertyName}");
+        //TODO raise on main thread
         Task.Run(() =>
         {
             try
