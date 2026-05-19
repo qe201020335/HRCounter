@@ -1,11 +1,7 @@
-﻿using System;
-using System.ComponentModel;
-using System.Threading;
+﻿using System.ComponentModel;
 using BeatSaberMarkupLanguage.Attributes;
-using HMUI;
 using HRCounter.Configuration;
-using HRCounter.Data;
-using IPA.Utilities.Async;
+using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -13,33 +9,24 @@ using IPALogger = IPA.Logging.Logger;
 
 namespace HRCounter.UI.CountersPlus;
 
-// setting controller for Counters+ counter configuration page
+/// <summary>
+///     setting controller for Counters+ counter configuration page
+/// </summary>
 internal class SettingController : MonoBehaviour
 {
-    private PluginConfig _config = null!;
-
-    private IPALogger _logger = null!;
-
-    private DataSourceManager _dataSourceManager = null!;
-
-    [UIComponent("data-source-text")]
-    private TMP_Text _dataSourceText = null!;
-
-    [UIComponent("data-source-info-text")]
-    private TextPageScrollView _dataSourceInfoText = null!;
-
-    private bool _parsed = false;
-
-    private string _previousDataSource = "";
+    [Inject]
+    private readonly PluginConfig _config = null!;
 
     [Inject]
-    private void Init(PluginConfig config, IPALogger logger, DataSourceManager dataSourceManager)
-    {
-        _config = config;
-        _logger = logger;
-        _dataSourceManager = dataSourceManager;
-        _logger.Trace("SettingController injection init");
-    }
+    private readonly IPALogger _logger = null!;
+
+    [UIComponent("data-source-text")]
+    [UsedImplicitly(ImplicitUseKindFlags.Assign)]
+    private TMP_Text _dataSourceText = null!;
+
+    private bool _parsed;
+
+    private string _previousDataSource = "";
 
     private void OnEnable()
     {
@@ -58,6 +45,7 @@ internal class SettingController : MonoBehaviour
     }
 
     [UIAction("#post-parse")]
+    [UsedImplicitly]
     private void PostParse()
     {
         _logger.Trace("PostParse");
@@ -78,25 +66,5 @@ internal class SettingController : MonoBehaviour
         _logger.Debug("Updating text");
         _previousDataSource = _config.DataSource;
         _dataSourceText.text = $"Current DataSource: {_config.DataSource}";
-        var source = _dataSourceManager.GetFromKey(_config.DataSource);
-        if (source is null)
-        {
-            _dataSourceInfoText.SetText("Unknown Data Source");
-            return;
-        }
-
-        _dataSourceInfoText.SetText("Loading Data Source Info...");
-        UnityMainThreadTaskScheduler.Factory.StartNew(async () =>
-        {
-            try
-            {
-                _dataSourceInfoText.SetText(await source.GetStatusText(CancellationToken.None));
-            }
-            catch (Exception e)
-            {
-                _logger.Error($"Failed to update data source info text: {e}");
-                throw;
-            }
-        });
     }
 }
