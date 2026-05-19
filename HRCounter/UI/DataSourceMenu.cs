@@ -52,6 +52,12 @@ internal class DataSourceMenu : BaseConfigViewController
         CancelTokenValidation();
         CancelDataSourceInfoUpdate();
 
+        if (_sourceDescriptor != null)
+        {
+            _sourceDescriptor.StatusChanged -= UpdateDataSourceInfoText;
+            _sourceDescriptor = null;
+        }
+
         base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
     }
 
@@ -193,7 +199,12 @@ internal class DataSourceMenu : BaseConfigViewController
     private void UpdateDataSourceDescriptor()
     {
         var descriptor = _dataSourceManager.GetFromKey(Config.DataSource);
-        if (descriptor != _sourceDescriptor && _sourceDescriptor != null)
+        if (descriptor == _sourceDescriptor)
+        {
+            return;
+        }
+
+        if (_sourceDescriptor != null)
         {
             _sourceDescriptor.StatusChanged -= UpdateDataSourceInfoText;
         }
