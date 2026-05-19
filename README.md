@@ -122,5 +122,4 @@ Most options can be changed in-game but if you want to edit the config directly,
 | `OscBindIP`              |  string   |     `"0.0.0.0"`      | IP address the OSC server binds to. `0.0.0.0` listens on all interfaces.                               |
 | `OscPort`                |    int    |        `9000`        | UDP port the OSC server listens on.                                                                    |
 | `OscAddress`             |   list    |       `[...]`        | OSC address paths the server accepts heart rate messages on. Each message must carry a single `int32`. |
-| `DebugSpam`              |   bool    |       `false`        | Toggle trace-level log spamming. Only effective in DEBUG builds.                                       |
 

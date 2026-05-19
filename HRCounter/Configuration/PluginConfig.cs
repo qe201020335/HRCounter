@@ -71,7 +71,6 @@ internal class PluginConfig : INotifyPropertyChanged
     private bool _autoPause = false;
     private bool _ignoreCountersPlus = false;
     private bool _ignoreZeroValues = true;
-    private bool _debugSpam = false;
     private Vector3 _staticCounterPosition = new(0f, 1.2f, 7f);
     private bool _enableHttpServer = true;
     private bool _enableOscServer = true;
@@ -213,12 +212,6 @@ internal class PluginConfig : INotifyPropertyChanged
     {
         get => _ignoreZeroValues;
         set => _ignoreZeroValues = value;
-    }
-
-    public virtual bool DebugSpam
-    {
-        get => _debugSpam;
-        set => _debugSpam = value;
     }
 
     [JsonConverter(typeof(Vector3JsonConverter))]
@@ -383,7 +376,6 @@ internal class PluginConfig : INotifyPropertyChanged
         _autoPause = other._autoPause;
         _ignoreCountersPlus = other._ignoreCountersPlus;
         _ignoreZeroValues = other._ignoreZeroValues;
-        _debugSpam = other._debugSpam;
         _staticCounterPosition = other._staticCounterPosition;
         _enableHttpServer = other._enableHttpServer;
         _enableOscServer = other._enableOscServer;
