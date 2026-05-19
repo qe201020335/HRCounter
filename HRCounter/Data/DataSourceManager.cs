@@ -28,8 +28,6 @@ public sealed class DataSourceManager : IDisposable
     private const string HRPROXY_KEY = "HRProxy";
     private const string YUR_APP_KEY = "YUR APP";
     private const string YUR_MOD_KEY = "YUR MOD";
-    private const string HTTP_SERVER_KEY = "HttpServer";
-    private const string OSC_KEY = "OSC Protocol";
 
     [Inject]
     private readonly IPALogger _logger = null!;
@@ -98,18 +96,17 @@ public sealed class DataSourceManager : IDisposable
 
     internal IDataSourceDescriptor? GetFromKey(string str) => _sources.GetValueOrDefault(str);
 
-    public IDataSourceDescriptor RegisterDataSource<T>(string key, Func<CancellationToken, Task<string>> getStatusText,
+    public void RegisterDataSource<T>(string key, Func<CancellationToken, Task<string>> getStatusText,
         Func<bool> precondition) where T : class, IHRDataSource
     {
         var descriptor = new GenericSourceDescriptor<T>(key, getStatusText, precondition);
         RegisterDataSource(descriptor);
-        return descriptor;
     }
 
-    public IDataSourceDescriptor RegisterDataSource<T>(string key, Func<string> getStatusText, Func<bool> precondition)
+    public void RegisterDataSource<T>(string key, Func<string> getStatusText, Func<bool> precondition)
         where T : class, IHRDataSource
     {
-        return RegisterDataSource<T>(key, _ => Task.FromResult(getStatusText()), precondition);
+        RegisterDataSource<T>(key, _ => Task.FromResult(getStatusText()), precondition);
     }
 
     public void RegisterDataSource<T>(IDataSourceDescriptor<T> descriptor) where T : class, IHRDataSource
@@ -145,7 +142,6 @@ public sealed class DataSourceManager : IDisposable
     private void RegisterInternalDataSources()
     {
         _logger.Debug("Registering internal data sources");
-        // register internal sources
         RegisterDataSource(new SimpleSourceDescriptor<HypeRate2>(HYPERATE_KEY, "HypeRate ID",
             () => _config.HypeRateSessionID, _config, nameof(_config.HypeRateSessionID)));
 
@@ -171,18 +167,9 @@ public sealed class DataSourceManager : IDisposable
             () => PluginManager.GetPluginFromId(DataSourceUtils.YUR_MOD_ID) != null
         );
 
-        RegisterDataSource<OscHR>(OSC_KEY,
-            () => _config.EnableOscServer
-                ? $"Use addresses below (one Int32 value only)\n  {string.Join("\n  ", _config.OscAddress)}"
-                : "<color=#FF0000>OSC Server is NOT enabled!</color>",
-            () => true);
+        RegisterDataSource<OscDescriptor, OscHR>();
 
-        RegisterDataSource<HttpServerDataSource>(HTTP_SERVER_KEY,
-            () => _config.EnableHttpServer
-                ? "POST to the <color=#00FF00>/hr</color> endpoint"
-                : "<color=#FF0000>HTTP Server is NOT enabled!</color>",
-            () => true
-        );
+        RegisterDataSource<HttpServerDescriptor, HttpServerDataSource>();
 
         RegisterDataSource(new SimpleSourceDescriptor<PulsoidWidget>(PULSOID_WIDEGT_KEY, "<color=#FF5630>EXPERIMENTAL</color>\nWidget ID",
             () => _config.PulsoidWidgetID, _config, nameof(_config.PulsoidWidgetID)));

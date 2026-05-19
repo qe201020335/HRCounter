@@ -19,6 +19,9 @@ public interface IDataSourceDescriptor : IDisposable
     /// </summary>
     bool StreamerMode { set; }
 
+    /// <summary>
+    ///     This is not a "real-time" system, do not raise this with high frequency
+    /// </summary>
     event Action? StatusChanged;
 
     Task<string> GetStatusText(CancellationToken cancellationToken);
