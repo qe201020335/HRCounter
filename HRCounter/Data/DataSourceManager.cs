@@ -149,10 +149,14 @@ public sealed class DataSourceManager : IDisposable
     private void RegisterInternalDataSources()
     {
         _logger.Debug("Registering internal data sources");
+        RegisterDataSource<PulsoidDescriptor, Pulsoid2>();
+
         RegisterDataSource(new SimpleSourceDescriptor<HypeRate2>(HYPERATE_KEY, "HypeRate ID",
             () => _config.HypeRateSessionID, _config, nameof(_config.HypeRateSessionID)));
 
-        RegisterDataSource<PulsoidDescriptor, Pulsoid2>();
+        RegisterDataSource<OscDescriptor, OscHR>();
+
+        RegisterDataSource<HttpServerDescriptor, HttpServerDataSource>();
 
         RegisterDataSource(new SimpleSourceDescriptor<WebRequest>(WEBREQUEST_KEY, "Request URL",
             () => _config.FeedLink, _config, nameof(_config.FeedLink)));
@@ -173,10 +177,6 @@ public sealed class DataSourceManager : IDisposable
                 : "YUR MOD Detected!",
             () => PluginManager.GetPluginFromId(DataSourceUtils.YUR_MOD_ID) != null
         );
-
-        RegisterDataSource<OscDescriptor, OscHR>();
-
-        RegisterDataSource<HttpServerDescriptor, HttpServerDataSource>();
 
         RegisterDataSource(new SimpleSourceDescriptor<PulsoidWidget>(PULSOID_WIDEGT_KEY, "<color=#FF5630>EXPERIMENTAL</color>\nWidget ID",
             () => _config.PulsoidWidgetID, _config, nameof(_config.PulsoidWidgetID)));
