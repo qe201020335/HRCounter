@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources.DebugSource;
-using IPA.Utilities.Async;
 using UnityEngine;
 using Zenject;
 
@@ -54,10 +53,7 @@ public class FrameRateDescriptor : MonoBehaviour, IDataSourceDescriptor<FrameRat
 
     private void OnConfigChanged(object? _, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(_config.DataSource))
-        {
-            UnityMainThreadTaskScheduler.Factory.StartNew(() => { enabled = _config.DataSource == KEY; });
-        }
+        enabled = _config.DataSource == KEY;
     }
 
     public Task<string> GetStatusText(CancellationToken cancellationToken) => Task.FromResult($"FPS: {_fps:F1}");

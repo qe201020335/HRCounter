@@ -2,7 +2,6 @@
 using HRCounter.Configuration;
 using HRCounter.Data;
 using HRCounter.Utils;
-using IPA.Utilities.Async;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -82,7 +81,7 @@ internal abstract class HRCounter
 
     private void OnSettingChange(object? sender, PropertyChangedEventArgs args)
     {
-        UnityMainThreadTaskScheduler.Factory.StartNew(() => { OnSettingChange(args.PropertyName); });
+        OnSettingChange(args.PropertyName);
     }
 
     protected virtual void OnSettingChange(string propertyName)

@@ -2,7 +2,6 @@ using System.Collections;
 using System.ComponentModel;
 using HRCounter.Configuration;
 using HRCounter.Utils;
-using IPA.Utilities.Async;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
@@ -92,18 +91,15 @@ public class HRCounterPreview : MonoBehaviour
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {
-        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+        if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName == nameof(_config.NoBloom))
         {
-            if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName == nameof(_config.NoBloom))
-            {
-                _text.fontMaterial.shader = _config.NoBloom ? RenderUtils.TextNoGlow : RenderUtils.TextGlow;
-            }
+            _text.fontMaterial.shader = _config.NoBloom ? RenderUtils.TextNoGlow : RenderUtils.TextGlow;
+        }
 
-            if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName == nameof(_config.CustomIcon))
-            {
-                UpdateIcon();
-            }
-        });
+        if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName == nameof(_config.CustomIcon))
+        {
+            UpdateIcon();
+        }
     }
 
     private void UpdateIcon()

@@ -8,7 +8,6 @@ using HRCounter.Data.DataSources;
 using HRCounter.Data.SourceDescriptors;
 using HRCounter.Utils;
 using IPA.Loader;
-using IPA.Utilities.Async;
 using JetBrains.Annotations;
 using Zenject;
 using Component = UnityEngine.Component;
@@ -79,8 +78,7 @@ public sealed class DataSourceManager : IDisposable
     {
         if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(_config.StreamerMode))
         {
-            //TODO really should make config raise this on the main thread
-            UnityMainThreadTaskScheduler.Factory.StartNew(UpdateStreamerMode);
+            UpdateStreamerMode();
         }
     }
 

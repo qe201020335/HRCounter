@@ -69,8 +69,7 @@ internal class SettingController : MonoBehaviour
     {
         if (_parsed && _previousDataSource != _config.DataSource)
         {
-            // the event is not broadcast on main thread
-            UnityMainThreadTaskScheduler.Factory.StartNew(UpdateText);
+            UpdateText();
         }
     }
 

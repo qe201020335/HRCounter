@@ -76,7 +76,7 @@ internal class SimpleHttpServer : IInitializable, IDisposable
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(PluginConfig.EnableHttpServer))
+        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(PluginConfig.EnableHttpServer))
         {
             UpdateListener();
         }

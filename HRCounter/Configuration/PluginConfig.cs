@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using HRCounter.Data.SourceDescriptors;
 using HRCounter.Utils;
 using HRCounter.Utils.Converters;
@@ -11,6 +10,7 @@ using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using IPA.Config.Stores.Converters;
+using IPA.Utilities.Async;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -332,18 +332,22 @@ internal class PluginConfig : INotifyPropertyChanged
     protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
     {
         _logger.Spam($"Property Changed: {propertyName}");
-        //TODO raise on main thread
-        Task.Run(() =>
+        var @event = PropertyChanged;
+        if (@event == null) return;
+        var args = new PropertyChangedEventArgs(propertyName);
+
+        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
         {
-            try
+            foreach (var handler in @event.GetInvocationList())
             {
-                var e = PropertyChanged;
-                e?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-            catch (Exception e)
-            {
-                _logger.Critical($"Exception Caught while broadcasting settings changed event: {e.Message}");
-                _logger.Critical(e);
+                try
+                {
+                    ((PropertyChangedEventHandler)handler)(this, args);
+                }
+                catch (Exception e)
+                {
+                    _logger.Critical(e);
+                }
             }
         });
     }

@@ -17,7 +17,6 @@ internal class SimpleOscServer : IInitializable, IDisposable
 {
     private readonly PluginConfig _config;
     private readonly Logger _logger;
-    private readonly object _listenerLock = new();
     private readonly IReadOnlyDictionary<string, IOSCMessageHandler> _handlers;
 
     private UdpClient? _listener;
@@ -66,7 +65,7 @@ internal class SimpleOscServer : IInitializable, IDisposable
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(PluginConfig.EnableOscServer))
+        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(PluginConfig.EnableOscServer))
         {
             UpdateListener();
         }
@@ -86,73 +85,67 @@ internal class SimpleOscServer : IInitializable, IDisposable
 
     private void StartListener()
     {
-        lock (_listenerLock)
+        _logger.Debug("Starting OSC Server.");
+        if (_isListening)
         {
-            _logger.Debug("Starting OSC Server.");
-            if (_isListening)
+            _logger.Warn("OSC server is already listening.");
+            return;
+        }
+
+        try
+        {
+            _endPoint = new IPEndPoint(_config.OscBindIP, _config.OscPort);
+            var listener = new UdpClient(_endPoint)
             {
-                _logger.Warn("OSC server is already listening.");
-                return;
+                EnableBroadcast = true, // TODO: make it configurable?
+                MulticastLoopback = false
+            };
+
+            _listener = listener;
+            _isListening = true;
+            ErrorMessage = null;
+
+            Task.Run(() => ReceiveAndProcessMessages(listener, _endPoint));
+        }
+        catch (SocketException e)
+        {
+            if (e.SocketErrorCode == SocketError.AddressAlreadyInUse)
+            {
+                _logger.Error("The OSC (UDP) port is already in use.");
+                _logger.Debug(e);
+                ErrorMessage = "The OSC (UDP) port is already in use.";
+            }
+            else
+            {
+                _logger.Critical($"SocketException while trying to create UDP Client:  ({e.SocketErrorCode})");
+                _logger.Critical(e);
+                ErrorMessage = e.SocketErrorCode + "\n" + e.Message;
             }
 
-            try
-            {
-                _endPoint = new IPEndPoint(_config.OscBindIP, _config.OscPort);
-                var listener = new UdpClient(_endPoint)
-                {
-                    EnableBroadcast = true, // TODO: make it configurable?
-                    MulticastLoopback = false
-                };
-
-                _listener = listener;
-                _isListening = true;
-                ErrorMessage = null;
-
-                Task.Run(() => ReceiveAndProcessMessages(listener, _endPoint));
-            }
-            catch (SocketException e)
-            {
-                if (e.SocketErrorCode == SocketError.AddressAlreadyInUse)
-                {
-                    _logger.Error("The OSC (UDP) port is already in use.");
-                    _logger.Debug(e);
-                    ErrorMessage = "The OSC (UDP) port is already in use.";
-                }
-                else
-                {
-                    _logger.Critical($"SocketException while trying to create UDP Client:  ({e.SocketErrorCode})");
-                    _logger.Critical(e);
-                    ErrorMessage = e.SocketErrorCode + "\n" + e.Message;
-                }
-
-                _isListening = false;
-                CleanUpListener();
-            }
-            catch (Exception e)
-            {
-                _logger.Error("Failed to start OSC server: " + e.Message);
-                _logger.Error(e);
-                _isListening = false;
-                ErrorMessage = e.Message;
-                CleanUpListener();
-            }
-            finally
-            {
-                InvokeStatusChanged();
-            }
+            _isListening = false;
+            CleanUpListener();
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Failed to start OSC server: " + e.Message);
+            _logger.Error(e);
+            _isListening = false;
+            ErrorMessage = e.Message;
+            CleanUpListener();
+        }
+        finally
+        {
+            InvokeStatusChanged();
         }
     }
 
     private void StopAndDisposeListener(string? reason = null)
     {
-        lock (_listenerLock)
-        {
-            _logger.Debug("Stopping OSC Server.");
-            _isListening = false;
-            ErrorMessage = reason;
-            CleanUpListener();
-            InvokeStatusChanged();
-        }
+        _logger.Debug("Stopping OSC Server.");
+        _isListening = false;
+        ErrorMessage = reason;
+        CleanUpListener();
+        InvokeStatusChanged();
     }
 
     private void InvokeStatusChanged()
@@ -217,7 +210,7 @@ internal class SimpleOscServer : IInitializable, IDisposable
         if (_isListening)
         {
             _logger.Warn("UDP Socket was exceptionally interrupted, disposing.");
-            StopAndDisposeListener(exception?.Message ?? "Unknown error");
+            UnityMainThreadTaskScheduler.Factory.StartNew(() => StopAndDisposeListener(exception?.Message ?? "Unknown error"));
         }
     }
 

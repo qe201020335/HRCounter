@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Utils;
-using IPA.Utilities.Async;
 
 namespace HRCounter.Data.SourceDescriptors;
 
@@ -56,7 +55,7 @@ internal class SimpleSourceDescriptor<T> : IDataSourceDescriptor<T> where T : cl
     {
         if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == _configPropertyName)
         {
-            UnityMainThreadTaskScheduler.Factory.StartNew(() => { StatusChanged?.Invoke(); });
+            StatusChanged?.Invoke();
         }
     }
 

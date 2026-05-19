@@ -3,7 +3,6 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HRCounter.Configuration;
 using IPA.Logging;
-using IPA.Utilities.Async;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -65,18 +64,15 @@ internal abstract class BaseConfigViewController : BSMLAutomaticViewController
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs args)
     {
         if (!Parsed) return;
-        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+        NotifyPropertyChanged(args.PropertyName);
+        if (string.IsNullOrEmpty(args.PropertyName))
         {
-            NotifyPropertyChanged(args.PropertyName);
-            if (string.IsNullOrEmpty(args.PropertyName))
-            {
-                RefreshUI(false);
-            }
-            else
-            {
-                OnConfigChanged(args.PropertyName);
-            }
-        });
+            RefreshUI(false);
+        }
+        else
+        {
+            OnConfigChanged(args.PropertyName);
+        }
     }
 
     /**

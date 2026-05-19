@@ -7,7 +7,6 @@ using HRCounter.Data.DataSources;
 using HRCounter.Integrations.Pulsoid;
 using HRCounter.Integrations.Pulsoid.Results;
 using HRCounter.Utils;
-using IPA.Utilities.Async;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -52,7 +51,7 @@ internal class PulsoidDescriptor : IDataSourceDescriptor<Pulsoid2>
         if ((string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(_config.PulsoidToken)) && _config.PulsoidToken != _token)
         {
             _token = _config.PulsoidToken;
-            UnityMainThreadTaskScheduler.Factory.StartNew(() => { StatusChanged?.Invoke(); });
+            StatusChanged?.Invoke();
         }
     }
 
