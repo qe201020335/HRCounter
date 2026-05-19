@@ -13,6 +13,7 @@ using JetBrains.Annotations;
 using Zenject;
 using Component = UnityEngine.Component;
 using IPALogger = IPA.Logging.Logger;
+using Object = UnityEngine.Object;
 #if DEBUG
 using HRCounter.Data.DataSources.DebugSource;
 using HRCounter.Data.SourceDescriptors.DebugDescriptor;
@@ -59,13 +60,19 @@ public sealed class DataSourceManager : IDisposable
             try
             {
                 pair.Value.Dispose();
+                if (pair.Value is Component component)
+                {
+                    Object.Destroy(component.gameObject);
+                }
             }
             catch (Exception e)
             {
-                _logger.Warn($"Failed to dispose data source descriptor for {pair.Value.Key}: {e}");
-                _logger.Warn(e);
+                _logger.Error($"Failed to dispose data source descriptor for {pair.Value.Key}: {e}");
+                _logger.Error(e);
             }
         }
+
+        _sources.Clear();
     }
 
     private void OnConfigChanged(object? _, PropertyChangedEventArgs e)
