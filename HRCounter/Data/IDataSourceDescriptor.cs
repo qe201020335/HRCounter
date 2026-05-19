@@ -31,5 +31,10 @@ public interface IDataSourceDescriptor : IDisposable
 
 public interface IDataSourceDescriptor<T> : IDataSourceDescriptor where T : class, IHRDataSource
 {
+    /// <summary>
+    ///     Default implementation returning the generic type parameter <typeparamref name="T"/>.
+    ///     Do NOT re-implement. This guarantees <see cref="IDataSourceDescriptor.DataSourceType"/>
+    ///     is always an <see cref="IHRDataSource"/>.
+    /// </summary>
     Type IDataSourceDescriptor.DataSourceType => typeof(T);
 }
