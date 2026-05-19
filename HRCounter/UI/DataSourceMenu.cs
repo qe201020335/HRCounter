@@ -25,24 +25,73 @@ internal class DataSourceMenu : BaseConfigViewController
     private readonly Logger _logger = null!;
 
     [Inject]
+    private readonly DataSourceManager _dataSourceManager = null!;
+    
+    [Inject]
     private readonly PulsoidAuthenticator _pulsoidAuthenticator = null!;
 
     [UIParams]
     private BSMLParserParams _parserParams = null!;
 
-    [UIValue(nameof(DataSourceOptions))]
-    [UsedImplicitly]
-    public List<object> DataSourceOptions => [..DataSourceManager.DataSourceTypes.Keys];
+    [UIValue(nameof(AllowEdit))]
+    public bool AllowEdit => !StreamerMode;
 
-    [UIValue(nameof(Config.DataSource))]
-    public string DataSource
+    protected override void OnParsed()
     {
-        get => Config.DataSource;
-        set
+        if (!Parsed)
         {
-            if (Config.DataSource != value) Config.DataSource = value;
+            ((RectTransform)gameObject.transform).offsetMax = new Vector2(0, 22);
+        }
+
+        base.OnParsed();
+    }
+
+    protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
+    {
+        CloseAuthorizeModal();
+        CancelTokenValidation();
+        CancelDataSourceInfoUpdate();
+
+        if (_sourceDescriptor != null)
+        {
+            _sourceDescriptor.StatusChanged -= UpdateDataSourceInfoText;
+            _sourceDescriptor = null;
+        }
+
+        base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
+    }
+
+    protected override void OnConfigChanged(string propertyName)
+    {
+        switch (propertyName)
+        {
+            case nameof(Config.DataSource):
+                UpdateDataSourceDescriptor();
+                break;
+            case nameof(Config.StreamerMode):
+                NotifyPropertyChanged(nameof(AllowEdit));
+                NotifyPropertyChanged(nameof(HypeRateSessionIDText));
+                break;
+            case nameof(Config.HypeRateSessionID):
+                NotifyPropertyChanged(nameof(HypeRateSessionIDText));
+                break;
+            case nameof(Config.PulsoidToken):
+                _ = ValidatePulsoidToken();
+                break;
         }
     }
+
+    protected override void RefreshUI()
+    {
+        UpdateDataSourceDescriptor();
+        _ = ValidatePulsoidToken();
+    }
+
+    #region General Tab
+
+    private IDataSourceDescriptor? _sourceDescriptor;
+
+    private CancellationTokenSource? _sourceInfoCts;
 
     [UIValue(nameof(Config.StreamerMode))]
     public bool StreamerMode
@@ -53,9 +102,20 @@ internal class DataSourceMenu : BaseConfigViewController
             if (Config.StreamerMode != value) Config.StreamerMode = value;
         }
     }
+    
+    [UIValue(nameof(DataSourceOptions))]
+    [UsedImplicitly]
+    public List<object> DataSourceOptions => [.._dataSourceManager.DataSources.Keys];
 
-    [UIValue(nameof(AllowEdit))]
-    public bool AllowEdit => !StreamerMode;
+    [UIValue(nameof(Config.DataSource))]
+    public string DataSource
+    {
+        get => Config.DataSource;
+        set
+        {
+            if (Config.DataSource != value) Config.DataSource = value;
+        }
+    }
 
     [UIValue(nameof(DataSourceInfoRefreshBtnInteractable))]
     public bool DataSourceInfoRefreshBtnInteractable
@@ -79,103 +139,88 @@ internal class DataSourceMenu : BaseConfigViewController
         }
     } = "";
 
-    [UIValue(nameof(Config.HypeRateSessionID))]
-    public string HypeRateSessionID
-    {
-        get => Config.HypeRateSessionID;
-        set
-        {
-            if (Config.HypeRateSessionID != value) Config.HypeRateSessionID = value;
-        }
-    }
-
-    [UIValue(nameof(HypeRateSessionIDText))]
-    public string HypeRateSessionIDText => StreamerMode ? "********" : Config.HypeRateSessionID;
-
-    protected override void OnParsed()
-    {
-        if (!Parsed)
-        {
-            ((RectTransform)gameObject.transform).offsetMax = new Vector2(0, 22);
-        }
-
-        base.OnParsed();
-    }
-
-    protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
-    {
-        CloseAuthorizeModal();
-        CancelTokenValidation();
-
-        base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
-    }
-
-    protected override void OnConfigChanged(string propertyName)
-    {
-        switch (propertyName)
-        {
-            case nameof(Config.DataSource):
-                UpdateDataSourceInfoText();
-                break;
-            case nameof(Config.StreamerMode):
-                NotifyPropertyChanged(nameof(AllowEdit));
-                NotifyPropertyChanged(nameof(HypeRateSessionIDText));
-                UpdateDataSourceInfoText();
-                break;
-            case nameof(Config.HypeRateSessionID):
-                NotifyPropertyChanged(nameof(HypeRateSessionIDText));
-                break;
-            case nameof(Config.PulsoidToken):
-                _ = ValidatePulsoidToken();
-                // TODO proper data source info update event
-                if (DataSource == DataSourceManager.Pulsoid.Key)
-                {
-                    UpdateDataSourceInfoText();
-                }
-
-                break;
-        }
-    }
-
-    protected override void RefreshUI()
-    {
-        UpdateDataSourceInfoText();
-        _ = ValidatePulsoidToken();
-    }
-
     [UIAction(nameof(UpdateDataSourceInfoText))]
     private void UpdateDataSourceInfoText()
     {
-        var known = DataSourceManager.TryGetFromKey(Config.DataSource, out var source);
-        if (!known)
+        CancelDataSourceInfoUpdate();
+        var source = _sourceDescriptor;
+        if (source is null)
         {
             DataSourceInfoText = "Unknown Data Source";
             return;
         }
 
-        DataSourceInfoText = "Loading Data Source Info...";
+        var cts = new CancellationTokenSource();
+        _sourceInfoCts = cts;
+        var ct = cts.Token;
+
         DataSourceInfoRefreshBtnInteractable = false;
 
         UnityMainThreadTaskScheduler.Factory.StartNew(async () =>
         {
-            string newText;
+            _logger.Debug("Updating data source info text");
             try
             {
-                newText = await source.GetSourceLinkText();
+                var task = Task.Run(() => source.GetStatusText(ct), ct);
+                if (await Task.WhenAny(task, Task.Delay(50, ct)).ConfigureAwait(true) != task)
+                {
+                    // it is taking some time to get the text
+                    DataSourceInfoText = "Loading Data Source Info...";
+                }
+
+                DataSourceInfoText = await task.ConfigureAwait(true);
+                await Task.Delay(400, ct).ConfigureAwait(true); // no spamming the button
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.Trace("Data source info update cancelled");
+                DataSourceInfoText = "Data source info update cancelled";
             }
             catch (Exception e)
             {
-                _logger.Error($"Failed to update data source info text: {e}");
-                newText = "<color=#FF0000>Failed to load info, check logs for details.</color>";
+                _logger.Error("Failed to update data source info text");
+                _logger.Error(e);
+                DataSourceInfoText = $"<color=#FF0000>Failed to load info: {e.Message}\nCheck logs for details.</color>";
             }
-
-            DataSourceInfoText = newText;
-            await Task.Delay(500); // no spamming the button
-            DataSourceInfoRefreshBtnInteractable = true;
-        });
+            finally
+            {
+                DataSourceInfoRefreshBtnInteractable = true;
+            }
+        }, CancellationToken.None);
     }
 
-    #region PulsoidTab
+    private void CancelDataSourceInfoUpdate()
+    {
+        _sourceInfoCts?.Cancel();
+        _sourceInfoCts?.Dispose();
+        _sourceInfoCts = null;
+    }
+
+    private void UpdateDataSourceDescriptor()
+    {
+        var descriptor = _dataSourceManager.GetFromKey(Config.DataSource);
+        if (descriptor == _sourceDescriptor)
+        {
+            return;
+        }
+
+        if (_sourceDescriptor != null)
+        {
+            _sourceDescriptor.StatusChanged -= UpdateDataSourceInfoText;
+        }
+
+        _sourceDescriptor = descriptor;
+        if (_sourceDescriptor != null)
+        {
+            _sourceDescriptor.StatusChanged += UpdateDataSourceInfoText;
+        }
+
+        UpdateDataSourceInfoText();
+    }
+
+    #endregion
+
+    #region Pulsoid Tab
 
     [UIValue(nameof(PulsoidTokenValid))]
     public bool PulsoidTokenValid
@@ -414,11 +459,28 @@ internal class DataSourceMenu : BaseConfigViewController
         CancelAuthorization();
         CancelTokenValidation();
 
-        var success = await _pulsoidAuthenticator.RevokeTokenAsync(token, CancellationToken.None).ConfigureAwait(true);
-        Config.PulsoidToken = success ? "" : token; // force a refresh
+        await _pulsoidAuthenticator.RevokeTokenAsync(token, CancellationToken.None).ConfigureAwait(true);
+        Config.PulsoidToken = "";
         _parserParams.EmitEvent("close-modal");
         DeauthModalDeauthBtnInteractable = true;
     }
+
+    #endregion
+
+    #region HypeRate Tab
+
+    [UIValue(nameof(Config.HypeRateSessionID))]
+    public string HypeRateSessionID
+    {
+        get => Config.HypeRateSessionID;
+        set
+        {
+            if (Config.HypeRateSessionID != value) Config.HypeRateSessionID = value;
+        }
+    }
+
+    [UIValue(nameof(HypeRateSessionIDText))]
+    public string HypeRateSessionIDText => StreamerMode ? "********" : Config.HypeRateSessionID;
 
     #endregion
 }

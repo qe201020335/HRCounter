@@ -146,6 +146,7 @@
 
     <ItemGroup Condition=" '$(Configuration)' != 'Debug' ">
         <Compile Remove="Data\DataSources\DebugSource\**\*"/>
+        <Compile Remove="Data\SourceDescriptors\DebugDescriptor\**\*"/>
     </ItemGroup>
 
     <ItemGroup>

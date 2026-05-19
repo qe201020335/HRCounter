@@ -119,8 +119,9 @@ BeatLeader replay custom data ("HeartBeatQuest")
 | `HRCounter/Plugin.cs` | BSIPA entry point. Detects optional deps, installs Zenject installers at App/Menu/Player scopes. |
 | `HRCounter/Configuration/PluginConfig.cs` | BSIPA config object (`INotifyPropertyChanged`). Hot-reloads. |
 | `HRCounter/Installers/` | Zenject installers per scope: `AppInstaller` (singletons + servers + Pulsoid auth), `MenuInstaller` (BSML view controllers + flow coordinator), `GameplayHeartRateInstaller` (data source + `HRDataManager`), `GameInstaller` (HR provider + standalone counter), `GamePauseInstaller`, `ReplayRecorderInstaller`. |
-| `HRCounter/Data/` | `HRDataManager`, `BPM`, `IHRDataSource`, `IInGameHRProvider`, replay subsystem. |
+| `HRCounter/Data/` | `HRDataManager`, `BPM`, `IHRDataSource`, `IInGameHRProvider`, `IDataSourceDescriptor`, `DataSourceManager`, replay subsystem. |
 | `HRCounter/Data/DataSources/` | All HR source implementations. `Base/DataSource.cs` and `Base/WebSocketSource.cs` are the abstract bases. |
+| `HRCounter/Data/SourceDescriptors/` | Per-source `IDataSourceDescriptor<T>` implementations registered with `DataSourceManager`. `SimpleSourceDescriptor<T>` covers the "label + config field" sources; the rest are bespoke (Pulsoid token validation, HTTP/OSC server status, FPS debug). |
 | `HRCounter/Integrations/Pulsoid/` | OAuth2 device flow + API + domain logic for Pulsoid. |
 | `HRCounter/Web/` | `SimpleHttpServer`, `SimpleOscServer`, `SimpleWebSocketClient` — local servers for the HTTP/OSC data sources. |
 | `HRCounter/UI/` | BSML view controllers and config menu. `BSML/*.bsml` for layouts. |
@@ -154,20 +155,21 @@ Loose files in the project root (`HRCounter/`): `Plugin.cs`, `HRCounter.cs` (abs
 
 ## Adding a new HR data source
 
-1. Subclass `DataSource` (HTTP polling) or `WebSocketSource` (websocket).
-2. Implement `Start`/`Stop`, parse incoming HR, call `OnHeartRateDataReceived(hr)`.
-3. Register it in `DataSourceManager` with `RegisterDataSource<YourSource>(KEY, sourceLinkTextCallback, precondition)`. Signature is `(string key, Func<Task<string>> sourceLinkTextCallback, Func<bool> precondition)` (sync `Func<string>` overload also exists). The precondition is `Func<bool>` and returns whether the source can run (token set, dependency installed, etc.); the link-text callback returns a status/info string shown in the data source info panel.
-4. Add a config field if needed in `PluginConfig`.
-5. Add a UI block in `UI/BSML/dataSource.bsml` and wire it in `DataSourceMenu.cs`.
+`DataSourceManager` is a DI-bound singleton (`AppInstaller`). Each source is paired with an `IDataSourceDescriptor<TSource>` that owns the key, precondition, status text, and a `StatusChanged` event the UI subscribes to. In-tree sources register in `DataSourceManager.RegisterInternalDataSources`; external mods inject the manager and call the same `RegisterDataSource` overloads from their own installer.
 
-### Planned rewrite
-
-`DataSourceManager` is slated for a full rewrite. The current static registry is fine for in-tree sources but doesn't support external mods adding their own. The new design will:
-
-- Replace static `RegisterDataSource<T>(...)` calls with a per-source **descriptor class** owned by each source (precondition, status text, type info, etc.) that other mods can also instantiate and register.
-- Add a **status-change event** on each descriptor so UI (`DataSourceMenu`, info panels) can subscribe and refresh automatically instead of polling or relying on config-property change forwarding.
-
-When working in this area, prefer changes that don't entrench the static-registry assumption — e.g., don't add more `static DataSourceInfo Foo = RegisterDataSource(...)` lines than necessary, and avoid building UI logic that depends on the registry being static.
+1. Write the source: subclass `DataSource` (HTTP polling) or `WebSocketSource` (websocket), implement `Start`/`Stop`, parse incoming HR, call `OnHeartRateDataReceived(hr)`.
+2. Pick a registration form (in increasing order of effort — only reach for a custom descriptor when the simpler options don't fit):
+   - **Callback overload** — `RegisterDataSource<TSource>(key, getStatusText, precondition)`. `getStatusText` is either `Func<string>` or `Func<CancellationToken, Task<string>>`. Wrapped internally in a `GenericSourceDescriptor<T>`. Use when the status text is essentially static and there's no need to push updates to the UI — no `StatusChanged` is ever raised.
+   - **`SimpleSourceDescriptor<TSource>`** — `RegisterDataSource(new SimpleSourceDescriptor<TSource>(key, label, () => config.Field, config, nameof(config.Field)))`. The descriptor subscribes to `PluginConfig.PropertyChanged` for the named field and to streamer-mode changes, redacts the value when streamer mode is on, and raises `StatusChanged`. Use for "label + single config string" sources.
+   - **Custom `IDataSourceDescriptor<TSource>`** — write your own when you need to react to non-config events (server status, network validation result, FPS counter, etc.), pull in DI dependencies, or run as a `MonoBehaviour`. Register with `RegisterDataSource<TDesc, TSource>()` (Zenject instantiates the descriptor — and creates a GameObject if `TDesc` is a `MonoBehaviour`) or `RegisterDataSource(instance)` if you constructed it yourself. Implement `IDataSourceDescriptor<T>`, not the non-generic base — `DataSourceType` comes from the generic default impl and is intentionally `internal`. Members:
+     - `Key` — stable identifier stored in `PluginConfig.DataSource`.
+     - `StreamerMode { set; }` — main-thread setter; redact secrets in your status text when true. No-op if the source has nothing to redact.
+     - `event StatusChanged` — raise when the status text changes (don't spam: not real-time). The menu and the in-game info panel re-fetch `GetStatusText` off this.
+     - `GetStatusText(CancellationToken)` — what shows in the info panel. Honour the token for any I/O.
+     - `PreconditionMet()` — gates `GameplayHeartRateInstaller` from binding the source (token set, dependency installed, etc.).
+     - `Dispose()` — unsubscribe from any events you wired up. If the descriptor is a `MonoBehaviour`, `DataSourceManager` destroys the host GameObject for you after `Dispose`.
+3. Add a config field in `PluginConfig` if needed.
+4. Add a UI block to `UI/BSML/dataSource.bsml` and wire any custom controls in `DataSourceMenu.cs`. The data-source dropdown and info panel pick up new registrations automatically — no menu changes needed for the dropdown entry or status display.
 
 ## Async / cancellation patterns
 
