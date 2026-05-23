@@ -1,5 +1,6 @@
 using HRCounter.Configuration;
 using HRCounter.Installers;
+using HRCounter.Patches;
 using IPA;
 using IPA.Loader;
 using IPA.Logging;
@@ -16,13 +17,10 @@ public class Plugin
     internal static IPALogger Logger { get; private set; } = null!;
     internal static PluginConfig Config { get; private set; } = null!;
 
-    // private readonly HarmonyLib.Harmony _harmony = new HarmonyLib.Harmony("com.github.qe201020335.HRCounter");
-
     internal PluginMetadata Metadata { get; }
     internal PluginMetadata? ScoreSaberMeta { get; }
     internal PluginMetadata? BeatLeaderMeta { get; }
 
-    private const string BSMLId = "BeatSaberMarkupLanguage";
     private const string ScoreSaberId = "ScoreSaber";
     private const string BeatLeaderId = "BeatLeader";
 
@@ -54,6 +52,8 @@ public class Plugin
         if (BeatLeaderMeta != null) zenject.Install<ReplayRecorderInstaller>(Location.Player);
 
         zenject.Expose<FlyingGameHUDRotation>("Environment");
+
+        LocalizationPatch.Patch();
 
         Logger.Info("HRCounter initialized.");
     }

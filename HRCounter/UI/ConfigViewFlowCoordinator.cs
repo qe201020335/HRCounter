@@ -1,4 +1,5 @@
 ﻿using BeatSaberMarkupLanguage.MenuButtons;
+using BGLib.Polyglot;
 using HMUI;
 using Zenject;
 
@@ -23,7 +24,8 @@ public class ConfigViewFlowCoordinator : FlowCoordinator
 
     private readonly MenuButton _menuButton;
 
-    public ConfigViewFlowCoordinator() => _menuButton = new MenuButton("HRCounter", "Display your heart rate in game!", OnMenuButtonClick);
+    public ConfigViewFlowCoordinator() => _menuButton =
+        new MenuButton(Localization.Get("HRCOUNTER_MENU_BUTTON_TEXT"), Localization.Get("HRCOUNTER_MENU_BUTTON_HINT"), OnMenuButtonClick);
 
     private void Start()
     {

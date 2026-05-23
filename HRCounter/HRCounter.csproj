@@ -30,6 +30,10 @@
         <Reference Include="BGLib.AppFlow">
             <Private>false</Private>
         </Reference>
+        <Reference Include="BGLib.Polyglot">
+            <Publicize>true</Publicize>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="BSML">
             <Private>False</Private>
             <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
@@ -140,5 +144,13 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild">
+            <Version>0.4.3</Version>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Patches\"/>
     </ItemGroup>
 </Project>
