@@ -25,7 +25,7 @@ public class ConfigViewFlowCoordinator : FlowCoordinator
     private readonly MenuButton _menuButton;
 
     public ConfigViewFlowCoordinator() => _menuButton =
-        new MenuButton(Localization.Get("HRCOUNTER_MENU_BUTTON_TEXT"), Localization.Get("HRCOUNTER_MENU_BUTTON_HINT"), OnMenuButtonClick);
+        new MenuButton(Localization.Get("HRCOUNTER_HRCOUNTER"), Localization.Get("HRCOUNTER_MENU_BUTTON_HINT"), OnMenuButtonClick);
 
     private void Start()
     {
@@ -41,7 +41,7 @@ public class ConfigViewFlowCoordinator : FlowCoordinator
     {
         if (firstActivation)
         {
-            SetTitle("HR Counter");
+            SetTitle(Localization.Get("HRCOUNTER_CONFIG_MENU_TITLE"));
             showBackButton = true;
             ProvideInitialViewControllers(_mainPanel, _serviceStatusView, _dataSourceMenu);
         }
