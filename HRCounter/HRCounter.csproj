@@ -10,7 +10,7 @@
         <Nullable>enable</Nullable>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-        <!--    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <EnableFrameworkPathOverride>true</EnableFrameworkPathOverride>
         <FrameworkPathOverride>$(BeatSaberDir)\Beat Saber_Data\Managed</FrameworkPathOverride>
         <MarkPackageReferencesAsExternallyResolved>false</MarkPackageReferencesAsExternallyResolved>

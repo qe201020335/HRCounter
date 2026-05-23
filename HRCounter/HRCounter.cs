@@ -24,7 +24,7 @@ internal abstract class HRCounter
     private readonly IInGameHRProvider? _hrProvider = null;
 
     [InjectOptional]
-    private readonly CoreGameHUDController.InitData? _hudInitData;
+    private readonly CoreGameHUDController.InitData? _hudInitData = null;
 
     private TMP_Text _counterText = null!;
 

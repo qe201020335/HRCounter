@@ -15,7 +15,12 @@ internal sealed class GenericSourceDescriptor<T>(string key, Func<CancellationTo
         set { }
     }
 
-    public event Action? StatusChanged;
+    // unused
+    public event Action? StatusChanged
+    {
+        add { }
+        remove { }
+    }
 
     public async Task<string> GetStatusText(CancellationToken cancellationToken) => await getStatusText(cancellationToken);
 
