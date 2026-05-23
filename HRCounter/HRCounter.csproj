@@ -3,11 +3,9 @@
     <Import Project="HRCounter.csproj.user" Condition="Exists('HRCounter.csproj.user')"/>
     <PropertyGroup>
         <TargetFramework>net472</TargetFramework>
-        <OutputType>Library</OutputType>
         <RootNamespace>HRCounter</RootNamespace>
         <AssemblyName>HRCounter</AssemblyName>
         <DebugType>portable</DebugType>
-        <WarningLevel>4</WarningLevel>
         <LangVersion>14</LangVersion>
         <Nullable>enable</Nullable>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -19,127 +17,104 @@
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="0Harmony">
-            <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
             <Private>False</Private>
+            <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
         </Reference>
         <Reference Include="BeatLeader">
-            <HintPath>$(BeatSaberDir)\Plugins\BeatLeader.dll</HintPath>
             <Private>false</Private>
+            <HintPath>$(BeatSaberDir)\Plugins\BeatLeader.dll</HintPath>
         </Reference>
         <Reference Include="BeatSaber.ViewSystem">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="BGLib.AppFlow">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.AppFlow.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="BSML">
-            <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
             <Private>False</Private>
+            <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
         </Reference>
         <Reference Include="Counters+">
-            <HintPath>$(BeatSaberDir)\Plugins\Counters+.dll</HintPath>
             <Private>False</Private>
+            <HintPath>$(BeatSaberDir)\Plugins\Counters+.dll</HintPath>
         </Reference>
         <Reference Include="DataModels">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\DataModels.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="Hive.Versioning">
-            <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
             <Private>False</Private>
+            <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
         </Reference>
         <Reference Include="HMLib">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="HMUI">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="IPA.Loader">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="Main">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="netstandard">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\netstandard.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="Newtonsoft.Json">
-            <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
             <Private>False</Private>
+            <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
         </Reference>
         <Reference Include="PlatformUserModel">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\PlatformUserModel.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="SiraUtil">
-            <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
             <Private>False</Private>
+            <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
         </Reference>
-        <Reference Include="System"/>
-        <Reference Include="System.Core"/>
-        <Reference Include="System.Data"/>
-        <Reference Include="System.Data.DataSetExtensions"/>
-        <Reference Include="System.Drawing"/>
-        <Reference Include="System.Net.Http"/>
-        <Reference Include="System.Xml"/>
-        <Reference Include="System.Xml.Linq"/>
+        <Reference Include="System.Data.DataSetExtensions">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="System.Net.Http">
+            <Private>false</Private>
+        </Reference>
         <Reference Include="Unity.TextMeshPro">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="UnityEngine">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="UnityEngine.AssetBundleModule">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="UnityEngine.CoreModule">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="UnityEngine.ImageConversionModule">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="UnityEngine.UI">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="UnityEngine.UIElementsModule">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="UnityEngine.UIModule">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIModule.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="UnityEngine.UnityWebRequestModule">
             <Private>False</Private>
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.VRModule">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="YUR.Fit.Unity">
-            <HintPath>U:\SteamLibrary\steamapps\common\Beat Saber\Libs\YUR.Fit.Unity.dll</HintPath>
             <Private>False</Private>
+            <HintPath>$(BeatSaberDir)\Libs\YUR.Fit.Unity.dll</HintPath>
         </Reference>
         <Reference Include="Zenject">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="Zenject-usage">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll</HintPath>
             <Private>False</Private>
         </Reference>
     </ItemGroup>
@@ -151,12 +126,8 @@
 
     <ItemGroup>
         <EmbeddedResource Include="manifest.json"/>
-        <EmbeddedResource Include="Resources\hrcounter"/>
-        <EmbeddedResource Include="Resources\hrcounter.png"/>
-        <EmbeddedResource Include="UI\BSML\configMenu.bsml"/>
-        <EmbeddedResource Include="UI\BSML\serviceStatus.bsml"/>
-        <EmbeddedResource Include="UI\CountersPlus\config.bsml"/>
-        <EmbeddedResource Include="UI\BSML\dataSource.bsml"/>
+        <EmbeddedResource Include="Resources\**\*"/>
+        <EmbeddedResource Include="**\*.bsml"/>
     </ItemGroup>
     <ItemGroup>
         <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')"/>
