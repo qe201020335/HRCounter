@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 namespace HRCounter.Data;
 
 /// <summary>
-///     Don't implement this directly. Implement <see cref="IDataSourceDescriptor{T}" /> instead.
+///     Don't implement this directly. Implement <see cref="IDataSourceDescriptor{T}" /> or <see cref="IDisposableSourceDescriptor{T}"/> instead.
 /// </summary>
-public interface IDataSourceDescriptor : IDisposable
+public interface IDataSourceDescriptor
 {
     string Key { get; }
 
@@ -29,6 +29,12 @@ public interface IDataSourceDescriptor : IDisposable
     bool PreconditionMet();
 }
 
+/// <summary>
+///     A data source descriptor interface.
+///     An implementation will be instantiated by Zenject so dependencies can be injected.
+///     If it needs disposing resources, implement <see cref="IDisposableSourceDescriptor{T}" /> instead.
+/// </summary>
+/// <typeparam name="T">Type of the HR data source</typeparam>
 public interface IDataSourceDescriptor<T> : IDataSourceDescriptor where T : class, IHRDataSource
 {
     /// <summary>
@@ -38,3 +44,10 @@ public interface IDataSourceDescriptor<T> : IDataSourceDescriptor where T : clas
     /// </summary>
     Type IDataSourceDescriptor.DataSourceType => typeof(T);
 }
+
+/// <summary>
+///     A disposable data source descriptor.
+///     The same as <see cref="IDataSourceDescriptor{T}" /> but also implements <see cref="IDisposable" />.
+/// </summary>
+/// <typeparam name="T">Type of the HR data source</typeparam>
+public interface IDisposableSourceDescriptor<T> : IDataSourceDescriptor<T>, IDisposable where T : class, IHRDataSource;

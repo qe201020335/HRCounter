@@ -7,7 +7,7 @@ using HRCounter.Utils;
 
 namespace HRCounter.Data.SourceDescriptors;
 
-internal class SimpleSourceDescriptor<T> : IDataSourceDescriptor<T> where T : class, IHRDataSource
+internal class SimpleSourceDescriptor<T> : IDisposableSourceDescriptor<T> where T : class, IHRDataSource
 {
     private readonly PluginConfig _config;
 

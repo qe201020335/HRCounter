@@ -12,7 +12,7 @@ using Zenject;
 
 namespace HRCounter.Data.SourceDescriptors;
 
-internal class PulsoidDescriptor : IDataSourceDescriptor<Pulsoid2>
+internal class PulsoidDescriptor : IDisposableSourceDescriptor<Pulsoid2>
 {
     internal const string KEY = "Pulsoid";
 

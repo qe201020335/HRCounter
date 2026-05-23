@@ -9,7 +9,7 @@ using Zenject;
 
 namespace HRCounter.Data.SourceDescriptors;
 
-internal class OscDescriptor(PluginConfig config, SimpleOscServer oscServer) : IDataSourceDescriptor<OscHR>
+internal class OscDescriptor(PluginConfig config, SimpleOscServer oscServer) : IDisposableSourceDescriptor<OscHR>
 {
     private const string KEY = "OSC Protocol";
 

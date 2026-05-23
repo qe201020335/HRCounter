@@ -46,7 +46,7 @@ public class FrameRateDescriptor : MonoBehaviour, IDataSourceDescriptor<FrameRat
         }
     }
 
-    public void Dispose()
+    private void OnDestroy()
     {
         _config.PropertyChanged -= OnConfigChanged;
     }

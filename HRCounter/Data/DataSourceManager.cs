@@ -12,7 +12,6 @@ using JetBrains.Annotations;
 using Zenject;
 using Component = UnityEngine.Component;
 using IPALogger = IPA.Logging.Logger;
-using Object = UnityEngine.Object;
 #if DEBUG
 using HRCounter.Data.DataSources.DebugSource;
 using HRCounter.Data.SourceDescriptors.DebugDescriptor;
@@ -56,12 +55,12 @@ public sealed class DataSourceManager : IDisposable
         _config.PropertyChanged -= OnConfigChanged;
         foreach (var pair in _sources)
         {
+            // Component based descriptor will have the GameObject destroyed by Zenject
             try
             {
-                pair.Value.Dispose();
-                if (pair.Value is Component component)
+                if (pair.Value is IDisposable disposable)
                 {
-                    Object.Destroy(component.gameObject);
+                    disposable.Dispose();
                 }
             }
             catch (Exception e)
