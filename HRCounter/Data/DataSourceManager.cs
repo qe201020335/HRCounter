@@ -179,8 +179,12 @@ public sealed class DataSourceManager : IDisposable
             () => _config.PulsoidWidgetID, _config, nameof(_config.PulsoidWidgetID)));
 
 #if DEBUG
-        RegisterDataSource<RandomHR>(DEBUG_RANDOM_KEY, () => LOREM_IPSUM, () => true);
-        RegisterDataSource<SweepHR>(DEBUG_SWEEP_KEY, () => LOREM_IPSUM, () => true);
+        RegisterDataSource<RandomHR>(DEBUG_RANDOM_KEY, () => throw new Exception("Test Exception"), () => true);
+        RegisterDataSource<SweepHR>(DEBUG_SWEEP_KEY, async cToken =>
+        {
+            await Task.Delay(1000, cToken);
+            return LOREM_IPSUM;
+        }, () => true);
         RegisterDataSource<FrameRateDescriptor, FrameRateHR>();
 #endif
     }
