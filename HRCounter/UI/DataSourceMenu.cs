@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Parser;
+using BGLib.Polyglot;
 using HRCounter.Data;
 using HRCounter.Integrations.Pulsoid;
 using HRCounter.Integrations.Pulsoid.Results;
@@ -146,7 +147,7 @@ internal class DataSourceMenu : BaseConfigViewController
         var source = _sourceDescriptor;
         if (source is null)
         {
-            DataSourceInfoText = $"<color=yellow>Unknown Data Source</color>: {Config.DataSource}\nPlease select one above";
+            DataSourceInfoText = Localization.Instance.GetFormatOrKey("HRCOUNTER_DATA_SOURCE_MENU_SOURCE_INFO_UNKNOWN_SOURCE", Config.DataSource);
             return;
         }
 
@@ -165,7 +166,7 @@ internal class DataSourceMenu : BaseConfigViewController
                 if (await Task.WhenAny(task, Task.Delay(50, ct)).ConfigureAwait(true) != task)
                 {
                     // it is taking some time to get the text
-                    DataSourceInfoText = "Loading Data Source Info...";
+                    DataSourceInfoText = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_SOURCE_INFO_LOADING");
                 }
 
                 DataSourceInfoText = await task.ConfigureAwait(true);
@@ -174,13 +175,16 @@ internal class DataSourceMenu : BaseConfigViewController
             catch (OperationCanceledException)
             {
                 _logger.Trace("Data source info update cancelled");
-                DataSourceInfoText = "Data source info update cancelled";
+                DataSourceInfoText = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_SOURCE_INFO_CANCELLED");
             }
             catch (Exception e)
             {
                 _logger.Error("Failed to update data source info text");
                 _logger.Error(e);
-                DataSourceInfoText = $"<color=#FF0000>Failed to load info: {e.Message}\nCheck logs for details.</color>";
+                var text = Localization.Instance.GetFormatOrKey("HRCOUNTER_DATA_SOURCE_MENU_SOURCE_INFO_ERROR", e.Message);
+                text += '\n';
+                text += Localization.Get("HRCOUNTER_COMMON_CHECK_LOGS");
+                DataSourceInfoText = text;
             }
             finally
             {
@@ -306,7 +310,7 @@ internal class DataSourceMenu : BaseConfigViewController
         var token = Config.PulsoidToken;
         if (string.IsNullOrWhiteSpace(token))
         {
-            PulsoidTokenStatusText = "No Pulsoid token.\nClick <i><b><smallcaps>Authorize Pulsoid</smallcaps></b></i> to get one.";
+            PulsoidTokenStatusText = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_STATUS_NO_TOKEN");
             PulsoidTokenValid = false;
             return;
         }
@@ -316,23 +320,29 @@ internal class DataSourceMenu : BaseConfigViewController
         var result = await _pulsoidAuthenticator.ValidateTokenAsync(token, _pulsoidTokenCts.Token).ConfigureAwait(true);
         if (result.Result == TokenValidationResult.ResultType.Cancelled) return;
         PulsoidTokenValid = result.Result == TokenValidationResult.ResultType.Valid;
+        string text;
         switch (result.Result)
         {
             case TokenValidationResult.ResultType.Valid:
-                PulsoidTokenStatusText =
-                    $"<color=green>Token valid</color>\nExpires in {TimeSpan.FromSeconds(result.ExpiresIn).ToReadableString()}";
+                text = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_STATUS_TOKEN_VALID");
+                text += '\n';
+                text += Localization.Instance.GetFormatOrKey("HRCOUNTER_COMMON_EXPIRES_IN",
+                    TimeSpan.FromSeconds(result.ExpiresIn).ToReadableString());
+                PulsoidTokenStatusText = text;
                 break;
             case TokenValidationResult.ResultType.NotFound:
-                PulsoidTokenStatusText = "<color=yellow>Token not found</color>";
+                PulsoidTokenStatusText = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_STATUS_TOKEN_NOT_FOUND");
                 break;
             case TokenValidationResult.ResultType.Expired:
-                PulsoidTokenStatusText = "<color=yellow>Token expired</color>";
+                PulsoidTokenStatusText = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_STATUS_TOKEN_EXPIRED");
                 break;
             case TokenValidationResult.ResultType.Failure:
-                var text = $"<color=red>Token validation failed</color>\n{result.Error}";
+                text = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_STATUS_TOKEN_VALIDATION_FAILED");
+                text += '\n';
+                text += result.Error;
                 if (result.Exception != null)
                 {
-                    text += $"\n{result.Exception.Message}\nCheck logs for details.";
+                    text += $"\n{result.Exception.Message}\n{Localization.Get("HRCOUNTER_COMMON_CHECK_LOGS")}";
                 }
 
                 PulsoidTokenStatusText = text;
@@ -359,9 +369,9 @@ internal class DataSourceMenu : BaseConfigViewController
     {
         CancelAuthorization();
         AuthModalText = PulsoidTokenValid
-            ? "Existing token is valid.\nAuthorize again will replace the current one.\nClick Authorize button to re-authorize with Pulsoid."
-            : "Click Authorize button to begin authorizing with Pulsoid.";
-        AuthModalCloseBtnText = "Cancel";
+            ? Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_AUTHORIZE_MODAL_BODY_EXISTING_VALID")
+            : Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_AUTHORIZE_MODAL_BODY_AUTHORIZE_NEW");
+        AuthModalCloseBtnText = Localization.Get("HRCOUNTER_COMMON_CANCEL");
         AuthModalAuthBtnInteractable = true;
         _parserParams.EmitEvent("show-pulsoid-authorize-modal");
     }
@@ -390,7 +400,7 @@ internal class DataSourceMenu : BaseConfigViewController
                 Process.Start(new ProcessStartInfo { FileName = url, Verb = "open" });
                 UnityMainThreadTaskScheduler.Factory.StartNew(() =>
                 {
-                    AuthModalText = "Browser has been opened for authorization.\n\nWaiting for authorization...";
+                    AuthModalText = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_AUTHORIZE_MODAL_BODY_BROWSER_OPENED");
                 });
             }, _pulsoidAuthCts.Token)).ConfigureAwait(true);
 
@@ -407,18 +417,21 @@ internal class DataSourceMenu : BaseConfigViewController
                 _logger.Notice($"Pulsoid token: {authResult.AccessToken.Redact()}");
                 CancelTokenValidation();
                 Config.PulsoidToken = authResult.AccessToken!;
-                text = "<color=green>Pulsoid authorization successful</color>";
+                text = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_AUTHORIZE_MODAL_BODY_SUCCESS");
                 if (authResult.ExpiresIn > 0)
                 {
-                    var timeSpan = TimeSpan.FromSeconds(authResult.ExpiresIn);
-                    text += $"\nToken expires in {timeSpan.ToReadableString()}";
+                    text += '\n';
+                    text += Localization.Instance.GetFormatOrKey("HRCOUNTER_COMMON_EXPIRES_IN",
+                        TimeSpan.FromSeconds(authResult.ExpiresIn).ToReadableString());
                 }
             }
             else
             {
                 _logger.Warn(
                     $"Pulsoid authorization failed: {authResult.Result} {(string.IsNullOrWhiteSpace(authResult.Error) ? "" : $"({authResult.Error})")}");
-                text = $"<color=yellow>Pulsoid authorization failed</color>\n{authResult.Error}";
+                text = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_AUTHORIZE_MODAL_BODY_FAILED");
+                text += '\n';
+                text += authResult.Error;
                 if (authResult.Exception != null)
                 {
                     text += $"\n{authResult.Exception.Message}";
@@ -426,7 +439,8 @@ internal class DataSourceMenu : BaseConfigViewController
 
                 if (authResult.Result != AuthResult.ResultType.Denied)
                 {
-                    text += "\nCheck logs for details.";
+                    text += '\n';
+                    text += Localization.Get("HRCOUNTER_COMMON_CHECK_LOGS");
                 }
             }
 
@@ -436,12 +450,13 @@ internal class DataSourceMenu : BaseConfigViewController
         {
             _logger.Error("Failed to authorize Pulsoid");
             _logger.Error(e);
-            var text = $"<color=red>Unexpected error during Pulsoid authorization</color>\n{e.Message}\nCheck logs for details.";
+            var text = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_AUTHORIZE_MODAL_BODY_FAILED_UNEXPECTED");
+            text += $"\n{e.Message}\n{Localization.Get("HRCOUNTER_COMMON_CHECK_LOGS")}";
             AuthModalText = text;
         }
         finally
         {
-            AuthModalCloseBtnText = "Close";
+            AuthModalCloseBtnText = Localization.Get("HRCOUNTER_COMMON_CLOSE");
         }
     }
 

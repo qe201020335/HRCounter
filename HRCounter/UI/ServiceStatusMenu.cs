@@ -1,4 +1,5 @@
 using BeatSaberMarkupLanguage.Attributes;
+using BGLib.Polyglot;
 using HRCounter.Web.HTTP;
 using HRCounter.Web.OSC;
 using JetBrains.Annotations;
@@ -130,30 +131,31 @@ internal class ServiceStatusMenu : BaseConfigViewController
 
     private string GetHttpStatusText()
     {
-        if (!Config.EnableHttpServer) return "HTTP server is disabled.";
+        if (!Config.EnableHttpServer) return Localization.Get("HRCOUNTER_SERVICE_STATUS_MENU_HTTP_STATUS_DISABLED");
         if (_httpServer.IsListening)
         {
             if (_httpServer.IsLocalOnly)
             {
-                return $"HTTP server is <color=green>listening</color> on localhost:{_httpServer.Port}\n" +
-                       $"Requests must be sent to http://localhost:{_httpServer.Port}";
+                return Localization.Instance.GetFormatOrKey("HRCOUNTER_SERVICE_STATUS_MENU_HTTP_STATUS_LOCALHOST", _httpServer.Port);
             }
 
-            return $"HTTP Server is <color=green>listening</color> on all interfaces\n" +
-                   $"Requests must be sent to http://<ip>:{_httpServer.Port}";
+            return Localization.Instance.GetFormatOrKey("HRCOUNTER_SERVICE_STATUS_MENU_HTTP_STATUS_ALL_INTERFACES", _httpServer.Port);
         }
 
-        return $"HTTP server is enabled but <color=red>NOT listening</color>. Check logs for details.\n\n{_httpServer.ErrorMessage}";
+        return $"{Localization.Get("HRCOUNTER_SERVICE_STATUS_MENU_HTTP_STATUS_ERROR")}\n" +
+               $"{Localization.Get("HRCOUNTER_COMMON_CHECK_LOGS")}\n\n{_httpServer.ErrorMessage}";
     }
 
     private string GetOscStatusText()
     {
-        if (!Config.EnableOscServer) return "OSC server is disabled.";
+        if (!Config.EnableOscServer) return Localization.Get("HRCOUNTER_SERVICE_STATUS_MENU_OSC_STATUS_DISABLED");
         if (_oscServer.IsListening)
         {
-            return $"OSC server is <color=green>listening</color> on {_oscServer.EndPoint}";
+            return Localization.Instance.GetFormatOrKey("HRCOUNTER_SERVICE_STATUS_MENU_OSC_STATUS_LISTENING",
+                _oscServer.EndPoint?.ToString() ?? "null");
         }
 
-        return $"OSC server is enabled but <color=red>NOT listening</color>. Check logs for details.\n\n{_oscServer.ErrorMessage}";
+        return $"{Localization.Get("HRCOUNTER_SERVICE_STATUS_MENU_OSC_STATUS_ERROR")}\n" +
+               $"{Localization.Get("HRCOUNTER_COMMON_CHECK_LOGS")}\n\n{_oscServer.ErrorMessage}";
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using BeatSaberMarkupLanguage.Attributes;
+using BGLib.Polyglot;
 using HRCounter.Configuration;
 using HRCounter.Data;
 using JetBrains.Annotations;
@@ -64,8 +65,10 @@ internal class SettingController : MonoBehaviour
     {
         if (!_parsed) return;
         _logger.Debug("Updating text");
-        _dataSourceText.text = _dataSourceManager.GetFromKey(_config.DataSource) is null
-            ? $"Current DataSource: <color=yellow>Unknown</color> ({_config.DataSource})"
-            : $"Current DataSource: <color=lightblue>{_config.DataSource}</color>";
+        _dataSourceText.text = Localization.Instance.GetFormatOrKey(
+            _dataSourceManager.GetFromKey(_config.DataSource) is null
+                ? "HRCOUNTER_COUNTERS_PLUS_MENU_CURRENT_DATA_SOURCE_UNKNOWN"
+                : "HRCOUNTER_COUNTERS_PLUS_MENU_CURRENT_DATA_SOURCE",
+            _config.DataSource);
     }
 }
