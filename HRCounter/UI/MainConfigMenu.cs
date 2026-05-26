@@ -252,28 +252,6 @@ internal class MainConfigMenu : BaseConfigViewController
         }
     }
 
-    [UIValue(nameof(ColorInfoText))]
-    public string ColorInfoText
-    {
-        get;
-        private set
-        {
-            field = value;
-            NotifyPropertyChanged();
-        }
-    } = "";
-
-    [UIValue(nameof(VisualizeColorsBtnText))]
-    public string VisualizeColorsBtnText
-    {
-        get;
-        private set
-        {
-            field = value;
-            NotifyPropertyChanged();
-        }
-    } = "Visualize";
-
     [UIValue(nameof(PreviewCounter))]
     public Transform PreviewCounter { get; private set; } = null!;
 
