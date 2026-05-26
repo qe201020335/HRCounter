@@ -199,7 +199,7 @@ internal class DataSourceMenu : BaseConfigViewController
     private void UpdateDataSourceDescriptor()
     {
         var descriptor = _dataSourceManager.GetFromKey(Config.DataSource);
-        if (descriptor == _sourceDescriptor)
+        if (descriptor == _sourceDescriptor && descriptor != null)
         {
             return;
         }
