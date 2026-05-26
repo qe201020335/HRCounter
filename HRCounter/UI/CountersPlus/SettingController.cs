@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using BeatSaberMarkupLanguage.Attributes;
 using HRCounter.Configuration;
+using HRCounter.Data;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
@@ -20,22 +21,20 @@ internal class SettingController : MonoBehaviour
     [Inject]
     private readonly IPALogger _logger = null!;
 
+    [Inject]
+    private readonly DataSourceManager _dataSourceManager = null!;
+
     [UIComponent("data-source-text")]
     [UsedImplicitly(ImplicitUseKindFlags.Assign)]
     private TMP_Text _dataSourceText = null!;
 
     private bool _parsed;
 
-    private string _previousDataSource = "";
-
     private void OnEnable()
     {
         _config.PropertyChanged += SettingsChangedHandler;
         _logger.Trace("SettingController OnEnable");
-        if (_parsed)
-        {
-            UpdateText();
-        }
+        UpdateText();
     }
 
     private void OnDisable()
@@ -55,7 +54,7 @@ internal class SettingController : MonoBehaviour
 
     private void SettingsChangedHandler(object? sender, PropertyChangedEventArgs args)
     {
-        if (_parsed && _previousDataSource != _config.DataSource)
+        if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName == nameof(_config.DataSource))
         {
             UpdateText();
         }
@@ -63,8 +62,10 @@ internal class SettingController : MonoBehaviour
 
     private void UpdateText()
     {
+        if (!_parsed) return;
         _logger.Debug("Updating text");
-        _previousDataSource = _config.DataSource;
-        _dataSourceText.text = $"Current DataSource: {_config.DataSource}";
+        _dataSourceText.text = _dataSourceManager.GetFromKey(_config.DataSource) is null
+            ? $"Current DataSource: <color=yellow>Unknown</color> ({_config.DataSource})"
+            : $"Current DataSource: <color=lightblue>{_config.DataSource}</color>";
     }
 }

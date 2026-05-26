@@ -146,7 +146,7 @@ internal class DataSourceMenu : BaseConfigViewController
         var source = _sourceDescriptor;
         if (source is null)
         {
-            DataSourceInfoText = "Unknown Data Source";
+            DataSourceInfoText = $"<color=yellow>Unknown Data Source</color>: {Config.DataSource}\nPlease select one above";
             return;
         }
 
