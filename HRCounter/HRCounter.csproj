@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="HRCounter.csproj.user" Condition="Exists('HRCounter.csproj.user')"/>
+    <Import Project="$(MsBuildProjectFullPath).user" Condition="Exists('$(MsBuildProjectFullPath).user')"/>
     <PropertyGroup>
         <TargetFramework>net472</TargetFramework>
         <RootNamespace>HRCounter</RootNamespace>
@@ -131,7 +131,7 @@
     </ItemGroup>
     <ItemGroup>
         <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')"/>
-        <None Include="HRCounter.csproj.user" Condition="Exists('HRCounter.csproj.user')"/>
+        <None Include="$(MsBuildProjectFullPath).user" Condition="Exists('$(MsBuildProjectFullPath).user')"/>
         <None Include="$(BeatSaberDir)\Logs\_latest.log" Condition="Exists('$(BeatSaberDir)\Logs\_latest.log')"/>
     </ItemGroup>
     <ItemGroup>
