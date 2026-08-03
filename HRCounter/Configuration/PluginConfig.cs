@@ -54,7 +54,7 @@ internal class PluginConfig : INotifyPropertyChanged
 
     private bool _modEnable = true;
     private string _dataSource = PulsoidDescriptor.KEY;
-    private bool _streamerMode = true;
+    private bool _streamerMode = false;
     private string _pulsoidToken = "";
     private string _hypeRateSessionID = "";
     private string _pulsoidWidgetID = "";
