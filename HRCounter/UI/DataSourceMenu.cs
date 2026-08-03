@@ -331,7 +331,7 @@ internal class DataSourceMenu : BaseConfigViewController
                 PulsoidTokenStatusText = text;
                 break;
             case TokenValidationResult.ResultType.NotFound:
-                PulsoidTokenStatusText = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_STATUS_TOKEN_NOT_FOUND");
+                PulsoidTokenStatusText = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_STATUS_TOKEN_NOT_VALID");
                 break;
             case TokenValidationResult.ResultType.Expired:
                 PulsoidTokenStatusText = Localization.Get("HRCOUNTER_DATA_SOURCE_MENU_PULSOID_STATUS_TOKEN_EXPIRED");
