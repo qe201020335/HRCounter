@@ -13,7 +13,7 @@
             <bool-setting text-key="HRCOUNTER_DATA_SOURCE_MENU_STREAMER_MODE_LABEL" value="StreamerMode"
                           hover-hint-key="HRCOUNTER_DATA_SOURCE_MENU_STREAMER_MODE_HINT" apply-on-change="true" bind-value="true"/>
             <dropdown-list-setting text-key="HRCOUNTER_DATA_SOURCE_MENU_SOURCE_DROPDOWN_LABEL" value="DataSource" choices="DataSourceOptions"
-                                   apply-on-change="true" bind-value="true"/>
+                                   formatter="GetDataSourceDisplayName" apply-on-change="true" bind-value="true"/>
             <horizontal child-control-width='false' child-align="MiddleCenter">
                 <horizontal horizontal-fit='PreferredSize' ignore-layout='false' child-align="MiddleLeft" pref-width="40">
                     <text text-key="HRCOUNTER_DATA_SOURCE_MENU_SOURCE_INFO_HEADER" align="Center" italics="true"/>

@@ -140,6 +140,14 @@ internal class DataSourceMenu : BaseConfigViewController
         }
     } = "";
 
+    [UIAction(nameof(GetDataSourceDisplayName))]
+    [UsedImplicitly]
+    private string GetDataSourceDisplayName(string key)
+    {
+        var descriptor = _dataSourceManager.GetFromKey(key);
+        return descriptor?.GetDisplayName() ?? key;
+    }
+
     [UIAction(nameof(UpdateDataSourceInfoText))]
     private void UpdateDataSourceInfoText()
     {

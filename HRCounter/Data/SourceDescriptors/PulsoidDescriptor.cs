@@ -25,6 +25,10 @@ internal class PulsoidDescriptor : IDisposableSourceDescriptor<Pulsoid2>
 
     public string Key => KEY;
 
+    public string? Name => null;
+
+    public string? NameKey => null;
+
     public bool StreamerMode
     {
         // do nothing

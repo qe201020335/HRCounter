@@ -21,6 +21,10 @@ internal class OscDescriptor(PluginConfig config, SimpleOscServer oscServer) : I
 
     public string Key => KEY;
 
+    public string? Name => null;
+
+    public string? NameKey => "HRCOUNTER_OSC_SOURCE_DESCRIPTOR_NAME";
+
     public bool StreamerMode
     {
         set { }

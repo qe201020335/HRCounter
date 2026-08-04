@@ -15,6 +15,10 @@ internal class HttpServerDescriptor(SimpleHttpServer httpServer) : IDisposableSo
 
     public string Key => KEY;
 
+    public string? Name => null;
+
+    public string? NameKey => "HRCOUNTER_HTTP_SOURCE_DESCRIPTOR_NAME";
+
     public bool StreamerMode
     {
         set { }

@@ -20,6 +20,10 @@ internal class SimpleSourceDescriptor<T> : IDisposableSourceDescriptor<T> where 
 
     public string Key { get; }
 
+    public string? Name { get; }
+
+    public string? NameKey { get; }
+
     public bool StreamerMode
     {
         private get;
@@ -37,13 +41,16 @@ internal class SimpleSourceDescriptor<T> : IDisposableSourceDescriptor<T> where 
 
     public event Action? StatusChanged;
 
-    public SimpleSourceDescriptor(string key, string labelKey, Func<string?> getConfigValue, PluginConfig config, string configPropertyName)
+    public SimpleSourceDescriptor(string key, string labelKey, Func<string?> getConfigValue, PluginConfig config, string configPropertyName,
+        string? name = null, string? nameKey = null)
     {
         _config = config;
         _labelKey = labelKey;
         _configPropertyName = configPropertyName;
         _getConfigValue = getConfigValue;
         Key = key;
+        Name = name;
+        NameKey = nameKey;
         _config.PropertyChanged += OnConfigChanged;
     }
 

@@ -18,6 +18,10 @@ public class FrameRateDescriptor : MonoBehaviour, IDataSourceDescriptor<FrameRat
 
     public string Key => KEY;
 
+    public string? Name => null;
+
+    public string? NameKey => null;
+
     public bool StreamerMode
     {
         set { }

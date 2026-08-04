@@ -126,13 +126,16 @@ Expires in {0}",,,,,,,,,,,,,,,,,"<color=green>Token 有效</color>
 "HRCOUNTER_PULSOID_SOURCE_DESCRIPTOR_VALIDATION_CANCELLED",,"Token validation cancelled",,,,,,,,,,,,,,,,,"Token 验证已取消",,,,,,,,,,
 "HRCOUNTER_PULSOID_SOURCE_DESCRIPTOR_VALIDATION_FAILED",,"<color=red>Token validation failed</color>",,,,,,,,,,,,,,,,,"<color=red>Token 验证失败</color>",,,,,,,,,,
 "HRCOUNTER_PULSOID_SOURCE_DESCRIPTOR_UNKNOWN",,"<color=yellow>Unknown token validation result</color>",,,,,,,,,,,,,,,,,"<color=yellow>未知的 Token 验证结果</color>",,,,,,,,,,
+"HRCOUNTER_HTTP_SOURCE_DESCRIPTOR_NAME",,"HTTP Server",,,,,,,,,,,,,,,,,"HTTP 服务器",,,,,,,,,,
 "HRCOUNTER_HTTP_SOURCE_DESCRIPTOR_LISTENING",,"POST to the <color=#00FF00>/hr</color> endpoint",,,,,,,,,,,,,,,,,"向 <color=#00FF00>/hr</color> 端点发送 POST 请求",,,,,,,,,,
 "HRCOUNTER_HTTP_SOURCE_DESCRIPTOR_NOT_LISTENING",,"<color=#FF0000>HTTP Server is NOT listening!</color>",,,,,,,,,,,,,,,,,"<color=#FF0000>HTTP 服务器未在监听！</color>",,,,,,,,,,
+"HRCOUNTER_OSC_SOURCE_DESCRIPTOR_NAME",,"OSC Protocol",,,,,,,,,,,,,,,,,"OSC 协议",,,,,,,,,,
 "HRCOUNTER_OSC_SOURCE_DESCRIPTOR_ADDRESSES",,"Use addresses below (one Int32 value only)",,,,,,,,,,,,,,,,,"请使用下方地址（仅一个 Int32 值）",,,,,,,,,,
 "HRCOUNTER_OSC_SOURCE_DESCRIPTOR_NOT_LISTENING",,"<color=#FF0000>OSC Server is NOT listening!</color>",,,,,,,,,,,,,,,,,"<color=#FF0000>OSC 服务器未在监听！</color>",,,,,,,,,,
 "HRCOUNTER_YUR_APP_SOURCE_DESCRIPTOR_RUNNING",,"YUR App seems to be running.",,,,,,,,,,,,,,,,,"YUR App 似乎正在运行。",,,,,,,,,,
 "HRCOUNTER_YUR_APP_SOURCE_DESCRIPTOR_NOT_RUNNING",,"<color=#FFFF00>YUR App does not seem to be running.</color>",,,,,,,,,,,,,,,,,"<color=#FFFF00>YUR App 似乎未在运行。</color>",,,,,,,,,,
 "HRCOUNTER_YUR_MOD_SOURCE_DESCRIPTOR_NOT_INSTALLED",,"<color=#FF0000>YUR MOD IS NOT INSTALLED OR ENABLED!</color>",,,,,,,,,,,,,,,,,"<color=#FF0000>YUR MOD 未安装或未启用！</color>",,,,,,,,,,
 "HRCOUNTER_YUR_MOD_SOURCE_DESCRIPTOR_DETECTED",,"YUR MOD Detected!",,,,,,,,,,,,,,,,,"检测到 YUR MOD！",,,,,,,,,,
+"HRCOUNTER_WEBREQUEST_SOURCE_DESCRIPTOR_NAME",,"Web Request",,,,,,,,,,,,,,,,,"Web 请求",,,,,,,,,,
 
 
