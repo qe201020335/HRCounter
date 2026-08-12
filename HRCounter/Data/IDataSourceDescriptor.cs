@@ -11,6 +11,18 @@ public interface IDataSourceDescriptor
 {
     string Key { get; }
 
+    /// <summary>
+    ///     The Display name of the data source, will use <see cref="Key" /> if null or empty string
+    /// </summary>
+    string? Name { get; }
+
+    /// <summary>
+    ///     Polyglot key for the display name of the data source.
+    ///     When provided, <see cref="Name" /> will be ignored.
+    ///     Return null or empty string if localization is not available
+    /// </summary>
+    string? NameKey { get; }
+
     // mark internal so external data source descriptors cannot implement this interface directly
     internal Type DataSourceType { get; }
 

@@ -1,5 +1,5 @@
 ﻿<vertical spacing="1.5" pad-top="2" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-          xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-    <text text="HRCounter configurations have been moved to the main menu mods panel!" overflow-mode="Page"/>
+          xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
+    <text text-key="HRCOUNTER_COUNTERS_PLUS_MENU_NOTICE" overflow-mode="Page"/>
     <text id="data-source-text" italics="true" align="Center"/>
 </vertical>

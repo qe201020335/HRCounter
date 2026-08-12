@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using BGLib.Polyglot;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources;
 using HRCounter.Integrations.Pulsoid;
@@ -23,6 +24,10 @@ internal class PulsoidDescriptor : IDisposableSourceDescriptor<Pulsoid2>
     private readonly PulsoidAuthenticator _authenticator = null!;
 
     public string Key => KEY;
+
+    public string? Name => null;
+
+    public string? NameKey => null;
 
     public bool StreamerMode
     {
@@ -59,31 +64,33 @@ internal class PulsoidDescriptor : IDisposableSourceDescriptor<Pulsoid2>
     {
         if (!PreconditionMet())
         {
-            return "Token Not Set";
+            return Localization.Get("HRCOUNTER_PULSOID_SOURCE_DESCRIPTOR_TOKEN_NOT_SET");
         }
 
         var result = await _authenticator.ValidateTokenAsync(_config.PulsoidToken, cancellationToken).ConfigureAwait(true);
         switch (result.Result)
         {
             case TokenValidationResult.ResultType.Valid:
-                return
-                    $"<color=green>Token valid</color>\nExpires in {TimeSpan.FromSeconds(result.ExpiresIn).ToReadableString()}";
+                return Localization.Instance.GetFormatOrKey("HRCOUNTER_PULSOID_SOURCE_DESCRIPTOR_TOKEN_VALID",
+                    TimeSpan.FromSeconds(result.ExpiresIn).ToReadableString());
             case TokenValidationResult.ResultType.NotFound:
-                return "<color=yellow>Token not found</color>";
+                return Localization.Get("HRCOUNTER_PULSOID_SOURCE_DESCRIPTOR_TOKEN_NOT_VALID");
             case TokenValidationResult.ResultType.Expired:
-                return "<color=yellow>Token expired</color>";
+                return Localization.Get("HRCOUNTER_PULSOID_SOURCE_DESCRIPTOR_TOKEN_EXPIRED");
             case TokenValidationResult.ResultType.Cancelled:
-                return "Token validation cancelled";
+                return Localization.Get("HRCOUNTER_PULSOID_SOURCE_DESCRIPTOR_VALIDATION_CANCELLED");
             case TokenValidationResult.ResultType.Failure:
-                var text = $"<color=red>Token validation failed</color>\n{result.Error}";
+                var text = Localization.Get("HRCOUNTER_PULSOID_SOURCE_DESCRIPTOR_VALIDATION_FAILED");
+                text += '\n';
+                text += result.Error;
                 if (result.Exception != null)
                 {
-                    text += $"\n{result.Exception.Message}\nCheck logs for details.";
+                    text += $"\n{result.Exception.Message}\n{Localization.Get("HRCOUNTER_COMMON_CHECK_LOGS")}";
                 }
 
                 return text;
             default:
-                return "<color=yellow>Unknown token validation result</color>";
+                return Localization.Get("HRCOUNTER_PULSOID_SOURCE_DESCRIPTOR_UNKNOWN");
         }
     }
 

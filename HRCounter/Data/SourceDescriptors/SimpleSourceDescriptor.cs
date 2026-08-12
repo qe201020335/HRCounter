@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using BGLib.Polyglot;
 using HRCounter.Configuration;
 using HRCounter.Utils;
 
@@ -13,11 +14,15 @@ internal class SimpleSourceDescriptor<T> : IDisposableSourceDescriptor<T> where 
 
     private readonly string _configPropertyName;
 
-    private readonly string _label;
+    private readonly string _labelKey;
 
     private readonly Func<string?> _getConfigValue;
 
     public string Key { get; }
+
+    public string? Name { get; }
+
+    public string? NameKey { get; }
 
     public bool StreamerMode
     {
@@ -36,13 +41,16 @@ internal class SimpleSourceDescriptor<T> : IDisposableSourceDescriptor<T> where 
 
     public event Action? StatusChanged;
 
-    public SimpleSourceDescriptor(string key, string label, Func<string?> getConfigValue, PluginConfig config, string configPropertyName)
+    public SimpleSourceDescriptor(string key, string labelKey, Func<string?> getConfigValue, PluginConfig config, string configPropertyName,
+        string? name = null, string? nameKey = null)
     {
         _config = config;
-        _label = label;
+        _labelKey = labelKey;
         _configPropertyName = configPropertyName;
         _getConfigValue = getConfigValue;
         Key = key;
+        Name = name;
+        NameKey = nameKey;
         _config.PropertyChanged += OnConfigChanged;
     }
 
@@ -64,8 +72,10 @@ internal class SimpleSourceDescriptor<T> : IDisposableSourceDescriptor<T> where 
     public Task<string> GetStatusText(CancellationToken cancellationToken)
     {
         var value = _getConfigValue();
-        var result =
-            $"{_label}: {(PreconditionMet(value) ? StreamerMode ? value?.Redact() : value : "Not Set")}";
+        var displayValue = PreconditionMet(value)
+            ? StreamerMode ? value?.Redact() : value
+            : Localization.Get("HRCOUNTER_SIMPLE_SOURCE_DESCRIPTOR_VALUE_NOT_SET");
+        var result = $"{Localization.Get(_labelKey)}: {displayValue}";
         return Task.FromResult(result);
     }
 

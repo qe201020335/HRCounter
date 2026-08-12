@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BGLib.Polyglot;
 using HRCounter.Data.DataSources;
 using HRCounter.Web.HTTP;
 using JetBrains.Annotations;
@@ -13,6 +14,10 @@ internal class HttpServerDescriptor(SimpleHttpServer httpServer) : IDisposableSo
     private const string KEY = "HttpServer";
 
     public string Key => KEY;
+
+    public string? Name => null;
+
+    public string? NameKey => "HRCOUNTER_HTTP_SOURCE_DESCRIPTOR_NAME";
 
     public bool StreamerMode
     {
@@ -40,8 +45,8 @@ internal class HttpServerDescriptor(SimpleHttpServer httpServer) : IDisposableSo
 
     public Task<string> GetStatusText(CancellationToken cancellationToken) =>
         Task.FromResult(httpServer.IsListening
-            ? "POST to the <color=#00FF00>/hr</color> endpoint"
-            : "<color=#FF0000>HTTP Server is NOT listening!</color>");
+            ? Localization.Get("HRCOUNTER_HTTP_SOURCE_DESCRIPTOR_LISTENING")
+            : Localization.Get("HRCOUNTER_HTTP_SOURCE_DESCRIPTOR_NOT_LISTENING"));
 
     public bool PreconditionMet() => true;
 }

@@ -3,82 +3,81 @@
     <macro.define id="tab-width" value="90"/>
     <macro.define id="vertical-spacing" value="1.5"/>
     <tab-selector tab-tag='tabs'/>
-    <tab tab-name="General" tags="tabs">
+    <tab tab-name-key="HRCOUNTER_CONFIG_MENU_TAB_GENERAL" tags="tabs">
         <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
-            <bool-setting text="Mod Enable" value="ModEnable" apply-on-change="true" bind-value="true"/>
-            <bool-setting text="Counter No Bloom" value="NoBloom" hover-hint="Do you want no bloom on the text?" apply-on-change="true"
-                          bind-value="true"/>
-            <bool-setting text="Always Show Standalone Counter" value="IgnoreCountersPlus" apply-on-change="true" bind-value="true"
-                          hover-hint="Always show the standalone counter regardless whether Counters+ is installed, enable to allow 2 hr counters to present at the same time"/>
-            <bool-setting text="Ignore Zero Values" value="IgnoreZeroValues" apply-on-change="true" bind-value="true"
-                          hover-hint="Ignore zero heart rate values as if the data did not exist"/>
+            <bool-setting text-key="HRCOUNTER_CONFIG_MENU_MOD_ENABLE_LABEL" value="ModEnable" apply-on-change="true" bind-value="true"/>
+            <bool-setting text-key="HRCOUNTER_CONFIG_MENU_NO_BLOOM_LABEL" value="NoBloom" hover-hint-key="HRCOUNTER_CONFIG_MENU_NO_BLOOM_HINT"
+                          apply-on-change="true" bind-value="true"/>
+            <bool-setting text-key="HRCOUNTER_CONFIG_MENU_ALWAYS_STANDALONE_LABEL" value="IgnoreCountersPlus" apply-on-change="true" bind-value="true"
+                          hover-hint-key="HRCOUNTER_CONFIG_MENU_ALWAYS_STANDALONE_HINT"/>
+            <bool-setting text-key="HRCOUNTER_CONFIG_MENU_IGNORE_ZERO_LABEL" value="IgnoreZeroValues" apply-on-change="true" bind-value="true"
+                          hover-hint-key="HRCOUNTER_CONFIG_MENU_IGNORE_ZERO_HINT"/>
         </vertical>
     </tab>
-    <tab tab-name="Icon" tags="tabs">
+    <tab tab-name-key="HRCOUNTER_CONFIG_MENU_TAB_ICON" tags="tabs">
         <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
             <horizontal>
                 <vertical background="round-rect-panel" pad="1">
                     <list id='icon-list' select-cell='OnIconListCellSelect' show-scrollbar="false"/>
                 </vertical>
                 <vertical child-control-height="false" pad-left="0" preferred-width="10" horizontal-fit="PreferredSize">
-                    <button text="Refresh" on-click="RefreshIconOptions" interactable="~IsIconListLoaded" pad-top="4"/>
+                    <button text-key="HRCOUNTER_COMMON_REFRESH" on-click="RefreshIconOptions" interactable="~IsIconListLoaded" pad-top="4"/>
                     <page-button event-click='icon-list#PageUp' direction='Up' size-delta-y="10" size-delta-x="10"/>
                     <page-button event-click='icon-list#PageDown' direction='Down' size-delta-y="10" size-delta-x="10"/>
                 </vertical>
             </horizontal>
             <horizontal horizontal-fit="PreferredSize" pref-width="100">
-                <text text="Put your icons in UserData/HRCounter/Icons/" align="Center" italics="false"/>
-                <button text="Show in Explorer" on-click="OpenIconsFolder" pad-left="8"/>
+                <text text-key="HRCOUNTER_CONFIG_MENU_ICON_FOLDER_LOCATION_HINT" align="Center" italics="false"/>
+                <button text-key="HRCOUNTER_CONFIG_MENU_ICON_OPEN_EXPLORER_BUTTON" on-click="OpenIconsFolder" pad-left="8"/>
             </horizontal>
         </vertical>
     </tab>
-    <tab tab-name="Colorize" tags="tabs">
+    <tab tab-name-key="HRCOUNTER_CONFIG_MENU_TAB_COLORIZE" tags="tabs">
         <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
-            <bool-setting text="Colorize HR Text" value="Colorize" hover-hint="Colorize the heart rate number." apply-on-change="true"
-                          bind-value="true"/>
-            <slider-setting text="HR Lower Bound" show-buttons="true" value="HRLow" integer-only="true" min="50" max="150" increment="5"
-                            apply-on-change="true" bind-value="true"/>
-            <slider-setting text="HR Upper Bound" show-buttons="true" value="HRHigh" integer-only="true" min="90" max="220" increment="5"
-                            apply-on-change="true" bind-value="true"/>
+            <bool-setting text-key="HRCOUNTER_CONFIG_MENU_COLORIZE_LABEL" value="Colorize" hover-hint-key="HRCOUNTER_CONFIG_MENU_COLORIZE_HINT"
+                          apply-on-change="true" bind-value="true"/>
+            <slider-setting text-key="HRCOUNTER_CONFIG_MENU_HR_LOW_LABEL" show-buttons="true" value="HRLow" integer-only="true" min="50" max="150"
+                            increment="5" apply-on-change="true" bind-value="true"/>
+            <slider-setting text-key="HRCOUNTER_CONFIG_MENU_HR_HIGH_LABEL" show-buttons="true" value="HRHigh" integer-only="true" min="90" max="220"
+                            increment="5" apply-on-change="true" bind-value="true"/>
             <horizontal>
-                <color-setting text="Low Color" value="LowColor" apply-on-change="true" bind-value="true"/>
-                <button text="Reset" on-click="ResetLowColor" pad-left="2"/>
+                <color-setting text-key="HRCOUNTER_CONFIG_MENU_LOW_COLOR_LABEL" value="LowColor" apply-on-change="true" bind-value="true"/>
+                <button text-key="HRCOUNTER_COMMON_RESET" on-click="ResetLowColor" pad-left="2"/>
             </horizontal>
             <horizontal>
-                <color-setting text="Middle Color" value="MidColor" apply-on-change="true" bind-value="true"/>
-                <button text="Reset" on-click="ResetMidColor" pad-left="2"/>
+                <color-setting text-key="HRCOUNTER_CONFIG_MENU_MID_COLOR_LABEL" value="MidColor" apply-on-change="true" bind-value="true"/>
+                <button text-key="HRCOUNTER_COMMON_RESET" on-click="ResetMidColor" pad-left="2"/>
             </horizontal>
             <horizontal>
-                <color-setting text="High Color" value="HighColor" apply-on-change="true" bind-value="true"/>
-                <button text="Reset" on-click="ResetHighColor" pad-left="2"/>
+                <color-setting text-key="HRCOUNTER_CONFIG_MENU_HIGH_COLOR_LABEL" value="HighColor" apply-on-change="true" bind-value="true"/>
+                <button text-key="HRCOUNTER_COMMON_RESET" on-click="ResetHighColor" pad-left="2"/>
             </horizontal>
             <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-height="5" child-align="MiddleCenter">
                 <macro.reparent transform="PreviewCounter"/>
             </horizontal>
         </vertical>
     </tab>
-    <tab tab-name="Safety" tags="tabs">
+    <tab tab-name-key="HRCOUNTER_CONFIG_MENU_TAB_SAFETY" tags="tabs">
         <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
-            <bool-setting text="Auto Pause" value="AutoPause"
-                          hover-hint="Automatically pause the game if your heart rate is too high, set threshold below" apply-on-change="true"
-                          bind-value="true"/>
-            <slider-setting text="Pause Heart Rate" show-buttons="true" value="PauseHR" integer-only="true" min="90" max="230" increment="5"
-                            apply-on-change="true" bind-value="true"/>
+            <bool-setting text-key="HRCOUNTER_CONFIG_MENU_AUTO_PAUSE_LABEL" value="AutoPause" hover-hint-key="HRCOUNTER_CONFIG_MENU_AUTO_PAUSE_HINT"
+                          apply-on-change="true" bind-value="true"/>
+            <slider-setting text-key="HRCOUNTER_CONFIG_MENU_PAUSE_HR_LABEL" show-buttons="true" value="PauseHR" integer-only="true" min="90" max="230"
+                            increment="5" apply-on-change="true" bind-value="true"/>
         </vertical>
     </tab>
-    <tab tab-name="Replay" tags="tabs">
+    <tab tab-name-key="HRCOUNTER_CONFIG_MENU_TAB_REPLAY" tags="tabs">
         <vertical child-control-height='false' spacing="~vertical-spacing" horizontal-fit="PreferredSize" pref-width="~tab-width">
-            <bool-setting text="Record Heart Rate" value="ReplayRecordHr" apply-on-change="true" bind-value="true"
-                          hover-hint="Record heart rate into BeatLeader replays"/>
+            <bool-setting text-key="HRCOUNTER_CONFIG_MENU_REPLAY_RECORD_LABEL" value="ReplayRecordHr" apply-on-change="true" bind-value="true"
+                          hover-hint-key="HRCOUNTER_CONFIG_MENU_REPLAY_RECORD_HINT"/>
             <horizontal pad-top="2">
-                <text text="Replay Playback" italics="true" font-size="6" color="lightblue"/>
+                <text text-key="HRCOUNTER_CONFIG_MENU_REPLAY_PLAYBACK_HEADER" italics="true" font-size="6" color="lightblue"/>
             </horizontal>
-            <bool-setting text="Show Your Recorded HR" value="ReplayPlaybackSelfHr" apply-on-change="true" bind-value="true"
-                          hover-hint="Allow heart rate recorded in your own replays to be shown"/>
-            <bool-setting text="Show Others' Recorded HR" value="ReplayPlaybackOthersHr" apply-on-change="true" bind-value="true"
-                          hover-hint="Allow heart rate recorded in other players' replays to be shown"/>
-            <bool-setting text="Fallback to Live Heart Rate" value="ReplayFallbackLiveHr" apply-on-change="true" bind-value="true"
-                          hover-hint="Show your live heart rate when recorded data is not available or not used"/>
+            <bool-setting text-key="HRCOUNTER_CONFIG_MENU_REPLAY_SELF_HR_LABEL" value="ReplayPlaybackSelfHr" apply-on-change="true" bind-value="true"
+                          hover-hint-key="HRCOUNTER_CONFIG_MENU_REPLAY_SELF_HR_HINT"/>
+            <bool-setting text-key="HRCOUNTER_CONFIG_MENU_REPLAY_OTHERS_HR_LABEL" value="ReplayPlaybackOthersHr" apply-on-change="true"
+                          bind-value="true" hover-hint-key="HRCOUNTER_CONFIG_MENU_REPLAY_OTHERS_HR_HINT"/>
+            <bool-setting text-key="HRCOUNTER_CONFIG_MENU_REPLAY_FALLBACK_LIVE_LABEL" value="ReplayFallbackLiveHr" apply-on-change="true"
+                          bind-value="true" hover-hint-key="HRCOUNTER_CONFIG_MENU_REPLAY_FALLBACK_LIVE_HINT"/>
         </vertical>
     </tab>
 </vertical>

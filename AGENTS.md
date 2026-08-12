@@ -14,6 +14,7 @@ The mod ingests heart rate from many possible sources, broadcasts the value thro
 - **Plugin framework**: BSIPA + SiraUtil. Versions pinned in `HRCounter/manifest.json` (`dependsOn`).
 - **DI**: Zenject (Beat Saber bundles it), wired via SiraUtil installers.
 - **UI**: BeatSaberMarkupLanguage (BSML).
+- **Localization**: BGLib.Polyglot — Beat Saber's bundled, modified fork of the [Polyglot](https://github.com/agens-no/PolyglotUnity) Unity localization library (CSV-driven, same `Localization.Get` API). Strings live in `HRCounter/Resources/Localization.csv`, injected into the game's Polyglot at load via `Patches/LocalizationPatch.cs`. See the Localization section below.
 - **Optional integrations**: Counters+, BeatLeader, ScoreSaber, YUR.
 - **JSON**: Newtonsoft.Json. Custom converters live in `HRCounter/Utils/Converters/`.
 - **Asset bundle**: counter prefab is built in the separate `HRCounterBundle/` Unity project and shipped as `HRCounter/Resources/hrcounter`.
@@ -114,20 +115,22 @@ BeatLeader replay custom data ("HeartBeatQuest")
 
 ## Key directories
 
-| Path | Purpose |
-|---|---|
-| `HRCounter/Plugin.cs` | BSIPA entry point. Detects optional deps, installs Zenject installers at App/Menu/Player scopes. |
-| `HRCounter/Configuration/PluginConfig.cs` | BSIPA config object (`INotifyPropertyChanged`). Hot-reloads. |
+| Path | Purpose                                                                                                                                                                                                                                                                                                         |
+|---|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `HRCounter/Plugin.cs` | BSIPA entry point. Detects optional deps, installs Zenject installers at App/Menu/Player scopes.                                                                                                                                                                                                                |
+| `HRCounter/Configuration/PluginConfig.cs` | BSIPA config object (`INotifyPropertyChanged`). Hot-reloads.                                                                                                                                                                                                                                                    |
 | `HRCounter/Installers/` | Zenject installers per scope: `AppInstaller` (singletons + servers + Pulsoid auth), `MenuInstaller` (BSML view controllers + flow coordinator), `GameplayHeartRateInstaller` (data source + `HRDataManager`), `GameInstaller` (HR provider + standalone counter), `GamePauseInstaller`, `ReplayRecorderInstaller`. |
-| `HRCounter/Data/` | `HRDataManager`, `BPM`, `IHRDataSource`, `IInGameHRProvider`, `IDataSourceDescriptor`, `DataSourceManager`, replay subsystem. |
-| `HRCounter/Data/DataSources/` | All HR source implementations. `Base/DataSource.cs` and `Base/WebSocketSource.cs` are the abstract bases. |
-| `HRCounter/Data/SourceDescriptors/` | Per-source `IDataSourceDescriptor<T>` implementations registered with `DataSourceManager`. `SimpleSourceDescriptor<T>` covers the "label + config field" sources; the rest are bespoke (Pulsoid token validation, HTTP/OSC server status, FPS debug). |
-| `HRCounter/Integrations/Pulsoid/` | OAuth2 device flow + API + domain logic for Pulsoid. |
-| `HRCounter/Web/` | `SimpleHttpServer`, `SimpleOscServer`, `SimpleWebSocketClient` — local servers for the HTTP/OSC data sources. |
-| `HRCounter/UI/` | BSML view controllers and config menu. `BSML/*.bsml` for layouts. |
-| `HRCounter/Utils/` | `Extensions`, `RenderUtils`, `UserInfoHelper`, `DataSourceUtils`, generic `Utils`, and JSON converters under `Converters/`. |
-| `HRCounter/Resources/hrcounter` | Compiled asset bundle (binary). |
-| `HRCounterBundle/` | Standalone Unity project that builds the asset bundle. |
+| `HRCounter/Data/` | `HRDataManager`, `BPM`, `IHRDataSource`, `IInGameHRProvider`, `IDataSourceDescriptor`, `DataSourceManager`, replay subsystem.                                                                                                                                                                                   |
+| `HRCounter/Data/DataSources/` | All HR source implementations. `Base/DataSource.cs` and `Base/WebSocketSource.cs` are the abstract bases.                                                                                                                                                                                                       |
+| `HRCounter/Data/SourceDescriptors/` | Per-source `IDataSourceDescriptor<T>` implementations registered with `DataSourceManager`. `SimpleSourceDescriptor<T>` covers the "label + config field" sources; the rest are bespoke (Pulsoid token validation, HTTP/OSC server status, FPS debug).                                                           |
+| `HRCounter/Integrations/Pulsoid/` | OAuth2 device flow + API + domain logic for Pulsoid.                                                                                                                                                                                                                                                            |
+| `HRCounter/Web/` | `SimpleHttpServer`, `SimpleOscServer`, `SimpleWebSocketClient` — local servers for the HTTP/OSC data sources.                                                                                                                                                                                                   |
+| `HRCounter/UI/` | BSML view controllers and config menu. `BSML/*.bsml` for layouts.                                                                                                                                                                                                                                               |
+| `HRCounter/Utils/` | `Extensions`, `RenderUtils`, `UserInfoHelper`, `DataSourceUtils`, generic `Utils`, and JSON converters under `Converters/`.                                                                                                                                       |
+| `HRCounter/Patches/` | Harmony patches. `LocalizationPatch.cs` injects the localization CSV into the game's Polyglot.                                                                                                                                                                                                                  |
+| `HRCounter/Resources/Localization.csv` | Polyglot localization strings.                                                                                                                                                                                                                                                                                  |
+| `HRCounter/Resources/hrcounter` | Compiled asset bundle (binary).                                                                                                                                                                                                                                                                                 |
+| `HRCounterBundle/` | Standalone Unity project that builds the asset bundle.                                                                                                                                                                                                                                                          |
 
 Loose files in the project root (`HRCounter/`): `Plugin.cs`, `HRCounter.cs` (abstract base), `HRCounterStandalone.cs`, `HRCounterCountersPlus.cs`, `AssetBundleManager.cs`, `IconManager.cs`, `GamePauseController.cs`.
 
@@ -159,17 +162,18 @@ Loose files in the project root (`HRCounter/`): `Plugin.cs`, `HRCounter.cs` (abs
 
 1. Write the source: subclass `DataSource` (HTTP polling) or `WebSocketSource` (websocket), implement `Start`/`Stop`, parse incoming HR, call `OnHeartRateDataReceived(hr)`.
 2. Pick a registration form (in increasing order of effort — only reach for a custom descriptor when the simpler options don't fit):
-   - **Callback overload** — `RegisterDataSource<TSource>(key, getStatusText, precondition)`. `getStatusText` is either `Func<string>` or `Func<CancellationToken, Task<string>>`. Wrapped internally in a `GenericSourceDescriptor<T>`. Use when the status text is essentially static and there's no need to push updates to the UI — no `StatusChanged` is ever raised.
-   - **`SimpleSourceDescriptor<TSource>`** — `RegisterDataSource(new SimpleSourceDescriptor<TSource>(key, label, () => config.Field, config, nameof(config.Field)))`. The descriptor subscribes to `PluginConfig.PropertyChanged` for the named field and to streamer-mode changes, redacts the value when streamer mode is on, and raises `StatusChanged`. Use for "label + single config string" sources.
+   - **Callback overload** — `RegisterDataSource<TSource>(key, getStatusText, precondition, name?, nameKey?)`. `getStatusText` is either `Func<string>` or `Func<CancellationToken, Task<string>>`. Wrapped internally in a `GenericSourceDescriptor<T>`. Use when the status text is essentially static and there's no need to push updates to the UI — no `StatusChanged` is ever raised. `name`/`nameKey` are optional display-name inputs (see Localization).
+   - **`SimpleSourceDescriptor<TSource>`** — `RegisterDataSource(new SimpleSourceDescriptor<TSource>(key, labelKey, () => config.Field, config, nameof(config.Field), name?, nameKey?))`. `labelKey` is a **Polyglot key** (resolved at status-fetch time, not construction). The descriptor subscribes to `PluginConfig.PropertyChanged` for the named field and to streamer-mode changes, redacts the value when streamer mode is on, and raises `StatusChanged`. Use for "label + single config string" sources.
    - **Custom `IDataSourceDescriptor<TSource>`** — write your own when you need to react to non-config events (server status, network validation result, FPS counter, etc.), pull in DI dependencies, or run as a `MonoBehaviour`. Register with `RegisterDataSource<TDesc, TSource>()` (Zenject instantiates the descriptor — and creates a GameObject if `TDesc` is a `MonoBehaviour`) or `RegisterDataSource(instance)` if you constructed it yourself. Implement `IDataSourceDescriptor<T>`, not the non-generic base — `DataSourceType` comes from the generic default impl and is intentionally `internal`. If the descriptor owns resources or event subscriptions that need cleanup, implement `IDisposableSourceDescriptor<T>` instead (same interface, plus `IDisposable`) — `DataSourceManager` will call `Dispose` on teardown. For `MonoBehaviour` descriptors, do the cleanup in `OnDestroy`, not `Dispose`: Zenject destroys the host GameObject during ProjectContext teardown before `DataSourceManager.Dispose` runs, so `Dispose` would fire after the MB is already dead. Members:
      - `Key` — stable identifier stored in `PluginConfig.DataSource`.
+     - `Name` / `NameKey` — display name inputs (see Localization). Return null on both to fall back to `Key`. `DataSourceUtils.GetDisplayName` resolves them (`NameKey` localized → `Name` → `Key`).
      - `StreamerMode { set; }` — main-thread setter; redact secrets in your status text when true. No-op if the source has nothing to redact.
      - `event StatusChanged` — raise when the status text changes (don't spam: not real-time). The menu and the in-game info panel re-fetch `GetStatusText` off this.
-     - `GetStatusText(CancellationToken)` — what shows in the info panel. Honour the token for any I/O.
+     - `GetStatusText(CancellationToken)` — what shows in the info panel. Honour the token for any I/O. Resolve any Polyglot strings here (or lazily), **not** in the ctor/field-init — localization isn't loaded when descriptors are constructed (see Localization).
      - `PreconditionMet()` — gates `GameplayHeartRateInstaller` from binding the source (token set, dependency installed, etc.).
      - `Dispose()` (only when implementing `IDisposableSourceDescriptor<T>`) — unsubscribe from any events you wired up. Not for `MonoBehaviour` descriptors; use `OnDestroy` there.
 3. Add a config field in `PluginConfig` if needed.
-4. Add a UI block to `UI/BSML/dataSource.bsml` and wire any custom controls in `DataSourceMenu.cs`. The data-source dropdown and info panel pick up new registrations automatically — no menu changes needed for the dropdown entry or status display.
+4. Add a UI block to `UI/BSML/dataSource.bsml` and wire any custom controls in `DataSourceMenu.cs`. Use `text-key`/`~`-bound Polyglot keys and add the rows to `Localization.csv` (see Localization). The data-source dropdown and info panel pick up new registrations automatically — no menu changes needed for the dropdown entry or status display.
 
 ## Async / cancellation patterns
 
@@ -215,6 +219,22 @@ For UI state that isn't config-backed (button enabled state, status text, modal 
 
 `[UIAction]` follows the same rule: use `nameof(MethodName)` when the BSML id matches the C# method name. Existing kebab-case BSML ids that don't match the method name (e.g. `"reset-low-color"`) are left as string literals.
 
+## Localization
+
+Strings live in `HRCounter/Resources/Localization.csv` (embedded resource) and are injected into the game's BGLib.Polyglot at load by `Patches/LocalizationPatch.cs` (Harmony prefix on `LocalizationAsyncInstaller.LoadResourcesBeforeInstall`). BGLib.Polyglot is Beat Saber's own modified fork of the Polyglot library, so its CSV schema and runtime API match upstream Polyglot.
+
+**CSV format** (Polyglot's fixed 30-column schema — **keep the comma count identical to existing rows**):
+- Field 1 = key, field 3 = English, field 20 = Simplified Chinese; all other fields empty. That's 29 commas per logical row.
+- Multi-line values: put a real newline inside the quotes (see the multi-line rows already in the file). Embedded newlines don't add commas.
+- Untranslatable values (brand names, IDs): leave the Chinese field **empty** — don't duplicate the English.
+- Keys are `SCREAMING_SNAKE_CASE`, prefixed `HRCOUNTER_`. Menu strings use `HRCOUNTER_<MENU>_...`; per-source descriptor strings use `HRCOUNTER_<SOURCE>_SOURCE_DESCRIPTOR_...`. Descriptor keys are intentionally **separate** from menu keys even when the text is identical.
+
+**Resolving in C#**: `Localization.Get("KEY")` (Polyglot returns the key itself if missing) or `Localization.Instance.GetFormatOrKey("KEY", arg0, ...)` for `{0}`-formatted strings. Prefer a single formatted entry over concatenating a label key with a separate value key.
+
+**In BSML**: `text-key="KEY"` for static text, `~KEY` for bound values. Match a `[UIValue]` BSML key to the config property name per the UI convention above.
+
+**Load timing (important)**: descriptors are constructed during game **app init**, *before* the localization tables are fully populated. Calling `Localization.Get` that early does **not** throw or return the raw key — SiraLocalizer (which loads other CSVs and registers the extra supported languages) makes it fall back to the **English** text regardless of the player's selected language. So an eagerly-resolved string gets frozen in English even for a Chinese user. Resolve lazily instead so the current language is used: in `GetStatusText`, or via a `Lazy<string>` field (see `OscDescriptor._text`). Passing Polyglot **keys** as strings (labelKey, `NameKey`) is fine — the consumer resolves them later.
+
 ## Memory file
 
 A user-level memory note exists: **GameObjects don't need explicit `Object.Destroy` in `Dispose`** for in-game scene objects — Unity scene unload cleans up. Only flag missing destroys for objects that outlive the scene (DontDestroyOnLoad, app-scope singletons).
@@ -227,6 +247,7 @@ A user-level memory note exists: **GameObjects don't need explicit `Object.Destr
 - **`field` keyword** is used in BSML view controllers for auto-property setters that need to call `NotifyPropertyChanged()`. Requires the `LangVersion` set in `HRCounter.csproj`; don't downgrade it.
 - **`ReadAsStringAsync`** does **not** accept a `CancellationToken` on .NET Framework 4.7.2. Don't try to pass one.
 - **`init` accessors** are unavailable on net472. Use `set` with `private`/internal access if you want immutability.
+- **`string.IsNullOrEmpty` / `IsNullOrWhiteSpace` don't null-narrow** — the game's Mono reference assemblies lack the `[NotNullWhen(false)]` annotation, so the compiler still warns "possible null" after the check (and `TreatWarningsAsErrors` is on). Force it with the null-forgiving operator: `if (!string.IsNullOrEmpty(s)) return f(s!);` (see `DataSourceUtils.GetDisplayName`).
 - **`Object.Destroy(prefabInstance)`** must be called by whoever creates a transient prefab when the operation fails (e.g. `HRCounter.Setup()` destroys the canvas if `SetupCounter` returns false).
 
 ## Don't

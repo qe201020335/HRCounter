@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using BGLib.Polyglot;
 using HRCounter.Configuration;
 using HRCounter.Data.DataSources;
 using HRCounter.Data.SourceDescriptors;
@@ -101,21 +102,22 @@ public sealed class DataSourceManager : IDisposable
     internal IDataSourceDescriptor? GetFromKey(string str) => _sources.GetValueOrDefault(str);
 
     public void RegisterDataSource<T>(string key, Func<CancellationToken, Task<string>> getStatusText,
-        Func<bool> precondition) where T : class, IHRDataSource
+        Func<bool> precondition, string? name = null, string? nameKey = null) where T : class, IHRDataSource
     {
-        var descriptor = new GenericSourceDescriptor<T>(key, getStatusText, precondition);
+        var descriptor = new GenericSourceDescriptor<T>(key, getStatusText, precondition, name, nameKey);
         RegisterDataSource(descriptor);
     }
 
-    public void RegisterDataSource<T>(string key, Func<string> getStatusText, Func<bool> precondition)
-        where T : class, IHRDataSource
+    public void RegisterDataSource<T>(string key, Func<string> getStatusText, Func<bool> precondition,
+        string? name = null, string? nameKey = null) where T : class, IHRDataSource
     {
-        RegisterDataSource<T>(key, _ => Task.FromResult(getStatusText()), precondition);
+        RegisterDataSource<T>(key, _ => Task.FromResult(getStatusText()), precondition, name, nameKey);
     }
 
     public void RegisterDataSource<T>(IDataSourceDescriptor<T> descriptor) where T : class, IHRDataSource
     {
         var key = descriptor.Key;
+        if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key cannot be null or whitespace!", nameof(key));
         if (_sources.ContainsKey(key)) throw new ArgumentException($"Key {key} already exists!", nameof(key));
         _logger.Debug("Registering data source: " + key);
         _sources.Add(descriptor.Key, descriptor);
@@ -148,34 +150,36 @@ public sealed class DataSourceManager : IDisposable
         _logger.Debug("Registering internal data sources");
         RegisterDataSource<PulsoidDescriptor, Pulsoid2>();
 
-        RegisterDataSource(new SimpleSourceDescriptor<HypeRate2>(HYPERATE_KEY, "HypeRate ID",
+        RegisterDataSource(new SimpleSourceDescriptor<HypeRate2>(HYPERATE_KEY, "HRCOUNTER_HYPERATE_SOURCE_DESCRIPTOR_LABEL",
             () => _config.HypeRateSessionID, _config, nameof(_config.HypeRateSessionID)));
 
         RegisterDataSource<OscDescriptor, OscHR>();
 
         RegisterDataSource<HttpServerDescriptor, HttpServerDataSource>();
 
-        RegisterDataSource(new SimpleSourceDescriptor<WebRequest>(WEBREQUEST_KEY, "Request URL",
-            () => _config.FeedLink, _config, nameof(_config.FeedLink)));
+        RegisterDataSource(new SimpleSourceDescriptor<WebRequest>(WEBREQUEST_KEY, "HRCOUNTER_WEBREQUEST_SOURCE_DESCRIPTOR_LABEL",
+            () => _config.FeedLink, _config, nameof(_config.FeedLink), nameKey: "HRCOUNTER_WEBREQUEST_SOURCE_DESCRIPTOR_NAME"));
 
-        RegisterDataSource(new SimpleSourceDescriptor<HRProxyCustomReader>(HRPROXY_KEY, "HRProxy ID",
+        RegisterDataSource(new SimpleSourceDescriptor<HRProxyCustomReader>(HRPROXY_KEY, "HRCOUNTER_HRPROXY_SOURCE_DESCRIPTOR_LABEL",
             () => _config.HRProxyID, _config, nameof(_config.HRProxyID)));
 
         RegisterDataSource<YURApp>(YUR_APP_KEY,
             () => DataSourceUtils.CheckYURProcess()
-                ? "YUR App seems to be running."
-                : "<color=#FFFF00>YUR App does not seem to be running.</color>",
-            () => true
+                ? Localization.Get("HRCOUNTER_YUR_APP_SOURCE_DESCRIPTOR_RUNNING")
+                : Localization.Get("HRCOUNTER_YUR_APP_SOURCE_DESCRIPTOR_NOT_RUNNING"),
+            () => true,
+            "YUR App"
         );
 
         RegisterDataSource<YURMod>(YUR_MOD_KEY,
             () => PluginManager.GetPluginFromId(DataSourceUtils.YUR_MOD_ID) == null
-                ? "<color=#FF0000>YUR MOD IS NOT INSTALLED OR ENABLED!</color>"
-                : "YUR MOD Detected!",
-            () => PluginManager.GetPluginFromId(DataSourceUtils.YUR_MOD_ID) != null
+                ? Localization.Get("HRCOUNTER_YUR_MOD_SOURCE_DESCRIPTOR_NOT_INSTALLED")
+                : Localization.Get("HRCOUNTER_YUR_MOD_SOURCE_DESCRIPTOR_DETECTED"),
+            () => PluginManager.GetPluginFromId(DataSourceUtils.YUR_MOD_ID) != null,
+            "YUR Mod"
         );
 
-        RegisterDataSource(new SimpleSourceDescriptor<PulsoidWidget>(PULSOID_WIDEGT_KEY, "<color=#FF5630>EXPERIMENTAL</color>\nWidget ID",
+        RegisterDataSource(new SimpleSourceDescriptor<PulsoidWidget>(PULSOID_WIDEGT_KEY, "HRCOUNTER_PULSOID_WIDGET_SOURCE_DESCRIPTOR_LABEL",
             () => _config.PulsoidWidgetID, _config, nameof(_config.PulsoidWidgetID)));
 
 #if DEBUG

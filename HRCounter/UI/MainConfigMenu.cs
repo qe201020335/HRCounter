@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
+using BGLib.Polyglot;
 using HMUI;
 using HRCounter.Configuration;
 using JetBrains.Annotations;
@@ -123,7 +124,7 @@ internal class MainConfigMenu : BaseConfigViewController
         var icons = await _iconManager.GetIconsWithSpriteAsync(refresh);
         var data = new List<CustomListTableData.CustomCellInfo>(icons.Count + 1)
         {
-            new("Default", null, _iconManager.DefaultIcon)
+            new(Localization.Get("HRCOUNTER_CONFIG_MENU_ICON_DEFAULT"), null, _iconManager.DefaultIcon)
         };
         _iconNames.Add("");
         foreach (var (filename, sprite) in icons)
@@ -283,7 +284,8 @@ internal class MainConfigMenu : BaseConfigViewController
         if (!counter.HasValue)
         {
             _logger.Warn("Failed to setup preview counter");
-            var text = BeatSaberUI.CreateText(transform as RectTransform, "Failed to load preview counter", new Vector2(0.5f, 0.5f));
+            var text = BeatSaberUI.CreateText(transform as RectTransform, Localization.Get("HRCOUNTER_CONFIG_MENU_PREVIEW_LOAD_FAILED"),
+                new Vector2(0.5f, 0.5f));
             text.color = Color.red;
             PreviewCounter = text.transform;
             return;
