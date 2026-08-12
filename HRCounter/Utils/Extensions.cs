@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using BGLib.Polyglot;
 using IPA.Logging;
 
 namespace HRCounter.Utils;
@@ -26,16 +27,14 @@ public static class Extensions
 
     internal static string ToReadableString(this TimeSpan timeSpan)
     {
-        if (timeSpan.TotalDays < 1) return "1 day";
-
         var totalDays = (int)timeSpan.TotalDays;
         var years = totalDays / 365;
         var days = totalDays % 365;
         var hours = timeSpan.Hours;
 
-        var yearsStr = years > 0 ? $"{years} years " : "";
-        var daysStr = days > 0 ? $"{days} days " : "";
-        var hoursStr = days > 0 ? $"{hours} hours" : "";
+        var yearsStr = years > 0 ? Localization.Instance.GetFormatOrKey("HRCOUNTER_COMMON_DURATION_YEARS", years) : "";
+        var daysStr = days > 0 ? Localization.Instance.GetFormatOrKey("HRCOUNTER_COMMON_DURATION_DAYS", days) : "";
+        var hoursStr = hours > 0 ? Localization.Instance.GetFormatOrKey("HRCOUNTER_COMMON_DURATION_HOURS", hours) : "";
 
         return $"{yearsStr}{daysStr}{hoursStr}".TrimEnd();
     }
