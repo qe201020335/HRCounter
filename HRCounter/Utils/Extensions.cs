@@ -27,6 +27,8 @@ public static class Extensions
 
     internal static string ToReadableString(this TimeSpan timeSpan)
     {
+        if (timeSpan.TotalHours < 1) return Localization.Get("HRCOUNTER_COMMON_DURATION_WITHIN_HOUR");
+
         var totalDays = (int)timeSpan.TotalDays;
         var years = totalDays / 365;
         var days = totalDays % 365;
