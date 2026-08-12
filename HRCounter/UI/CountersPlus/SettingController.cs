@@ -3,6 +3,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using BGLib.Polyglot;
 using HRCounter.Configuration;
 using HRCounter.Data;
+using HRCounter.Utils;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
@@ -65,10 +66,10 @@ internal class SettingController : MonoBehaviour
     {
         if (!_parsed) return;
         _logger.Debug("Updating text");
+        var descriptor = _dataSourceManager.GetFromKey(_config.DataSource);
+        var source = descriptor?.GetDisplayName() ?? _config.DataSource;
         _dataSourceText.text = Localization.Instance.GetFormatOrKey(
-            _dataSourceManager.GetFromKey(_config.DataSource) is null
-                ? "HRCOUNTER_COUNTERS_PLUS_MENU_CURRENT_DATA_SOURCE_UNKNOWN"
-                : "HRCOUNTER_COUNTERS_PLUS_MENU_CURRENT_DATA_SOURCE",
-            _config.DataSource);
+            descriptor is null ? "HRCOUNTER_COUNTERS_PLUS_MENU_CURRENT_DATA_SOURCE_UNKNOWN" : "HRCOUNTER_COUNTERS_PLUS_MENU_CURRENT_DATA_SOURCE",
+            source);
     }
 }
