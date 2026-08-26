@@ -28,6 +28,12 @@ internal class HttpConfigHandler : IHttpRouteHandler
     {
         var request = context.Request;
 
+        if (!_config.HttpAllowConfig)
+        {
+            context.Forbidden();
+            return;
+        }
+
         if (request.HttpMethod == HttpMethod.Get.Method)
         {
             var responseString = JObject.FromObject(_config.GetColdCopy()).ToString();
@@ -63,7 +69,7 @@ internal class HttpConfigHandler : IHttpRouteHandler
         }
         else
         {
-            context.BadMethod();
+            context.MethodNotAllowed();
         }
     }
 }

@@ -229,8 +229,8 @@ internal class SimpleHttpServer : IInitializable, IDisposable
                 }
                 else
                 {
-                    _logger.Warn($"BadMethod: {method} @ {path}");
-                    context.BadMethod();
+                    _logger.Warn($"MethodNotAllowed: {method} @ {path}");
+                    context.MethodNotAllowed();
                 }
             }
             else

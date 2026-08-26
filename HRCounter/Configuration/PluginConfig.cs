@@ -82,6 +82,7 @@ internal class PluginConfig : INotifyPropertyChanged
 
     private bool _httpLocalOnly = true;
     private int _httpPort = 65302;
+    private bool _httpAllowConfig = false;
 
     private string _customIcon = "";
 
@@ -274,6 +275,12 @@ internal class PluginConfig : INotifyPropertyChanged
         set => _httpPort = value;
     }
 
+    public virtual bool HttpAllowConfig
+    {
+        get => _httpAllowConfig;
+        set => _httpAllowConfig = value;
+    }
+
     public virtual string CustomIcon
     {
         get => _customIcon;
@@ -388,6 +395,7 @@ internal class PluginConfig : INotifyPropertyChanged
         _oscAddress = other._oscAddress;
         _httpLocalOnly = other._httpLocalOnly;
         _httpPort = other._httpPort;
+        _httpAllowConfig = other._httpAllowConfig;
         _customIcon = other._customIcon;
         _replayRecordHr = other._replayRecordHr;
         _replayPlaybackSelfHr = other._replayPlaybackSelfHr;

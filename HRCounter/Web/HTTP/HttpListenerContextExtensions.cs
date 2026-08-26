@@ -18,7 +18,7 @@ public static class HttpListenerContextExtensions
         response.Close();
     }
 
-    public static void BadMethod(this HttpListenerContext context)
+    public static void MethodNotAllowed(this HttpListenerContext context)
     {
         context.SimpleStatusCodeResponse(HttpStatusCode.MethodNotAllowed);
     }
@@ -31,6 +31,11 @@ public static class HttpListenerContextExtensions
     public static void NotFound(this HttpListenerContext context)
     {
         context.SimpleStatusCodeResponse(HttpStatusCode.NotFound);
+    }
+
+    public static void Forbidden(this HttpListenerContext context)
+    {
+        context.SimpleStatusCodeResponse(HttpStatusCode.Forbidden);
     }
 
     public static void InternalServerError(this HttpListenerContext context, object? body = null)

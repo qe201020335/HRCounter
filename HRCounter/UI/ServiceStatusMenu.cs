@@ -1,4 +1,5 @@
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Parser;
 using BGLib.Polyglot;
 using HRCounter.Web.HTTP;
 using HRCounter.Web.OSC;
@@ -22,47 +23,8 @@ internal class ServiceStatusMenu : BaseConfigViewController
     [Inject]
     private readonly SimpleHttpServer _httpServer = null!;
 
-    [UIValue(nameof(Config.EnableHttpServer))]
-    public bool EnableHttpServer
-    {
-        get => Config.EnableHttpServer;
-        set
-        {
-            if (Config.EnableHttpServer != value) Config.EnableHttpServer = value;
-        }
-    }
-
-    [UIValue(nameof(HttpStatusText))]
-    public string HttpStatusText
-    {
-        get;
-        private set
-        {
-            field = value;
-            NotifyPropertyChanged();
-        }
-    } = "";
-
-    [UIValue(nameof(Config.EnableOscServer))]
-    public bool EnableOscServer
-    {
-        get => Config.EnableOscServer;
-        set
-        {
-            if (Config.EnableOscServer != value) Config.EnableOscServer = value;
-        }
-    }
-
-    [UIValue(nameof(OscStatusText))]
-    public string OscStatusText
-    {
-        get;
-        private set
-        {
-            field = value;
-            NotifyPropertyChanged();
-        }
-    } = "";
+    [UIParams]
+    private BSMLParserParams _parserParams = null!;
 
     protected override void OnParsed()
     {
@@ -86,6 +48,8 @@ internal class ServiceStatusMenu : BaseConfigViewController
     protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
         _logger.Trace("ServiceStatusMenu DidDeactivate");
+
+        CancelAllowHttpConfigAccess();
 
         _httpServer.StatusChanged -= RefreshHttpStatus;
         _oscServer.StatusChanged -= RefreshOscStatus;
@@ -119,14 +83,52 @@ internal class ServiceStatusMenu : BaseConfigViewController
         RefreshOscStatus();
     }
 
+    #region HTTP
+
+    [UIValue(nameof(Config.EnableHttpServer))]
+    public bool EnableHttpServer
+    {
+        get => Config.EnableHttpServer;
+        set
+        {
+            if (Config.EnableHttpServer != value) Config.EnableHttpServer = value;
+        }
+    }
+
+    [UIValue(nameof(HttpStatusText))]
+    public string HttpStatusText
+    {
+        get;
+        private set
+        {
+            field = value;
+            NotifyPropertyChanged();
+        }
+    } = "";
+
+    private bool _httpConfigModalPending = false;
+
+    [UIValue(nameof(Config.HttpAllowConfig))]
+    public bool HttpAllowConfig
+    {
+        [UsedImplicitly] get => Config.HttpAllowConfig;
+        set
+        {
+            if (Config.HttpAllowConfig == value) return;
+            if (value)
+            {
+                _httpConfigModalPending = true;
+                _parserParams.EmitEvent("show-http-config-warning-modal");
+                return;
+            }
+
+            Config.HttpAllowConfig = value;
+        }
+    }
+
     private void RefreshHttpStatus()
     {
         HttpStatusText = GetHttpStatusText();
-    }
-
-    private void RefreshOscStatus()
-    {
-        OscStatusText = GetOscStatusText();
     }
 
     private string GetHttpStatusText()
@@ -146,6 +148,55 @@ internal class ServiceStatusMenu : BaseConfigViewController
                $"{Localization.Get("HRCOUNTER_COMMON_CHECK_LOGS")}\n\n{_httpServer.ErrorMessage}";
     }
 
+    [UIAction(nameof(EnableHttpConfigAccess))]
+    [UsedImplicitly]
+    private void EnableHttpConfigAccess()
+    {
+        _httpConfigModalPending = false;
+        Config.HttpAllowConfig = true;
+        _parserParams.EmitEvent("close-modal");
+    }
+
+    [UIAction(nameof(CancelAllowHttpConfigAccess))]
+    [UsedImplicitly]
+    private void CancelAllowHttpConfigAccess()
+    {
+        if (!_httpConfigModalPending) return;
+        _httpConfigModalPending = false;
+        Config.HttpAllowConfig = false;
+        _parserParams.EmitEvent("close-modal");
+    }
+
+    #endregion
+
+    #region OSC
+
+    [UIValue(nameof(Config.EnableOscServer))]
+    public bool EnableOscServer
+    {
+        get => Config.EnableOscServer;
+        set
+        {
+            if (Config.EnableOscServer != value) Config.EnableOscServer = value;
+        }
+    }
+
+    [UIValue(nameof(OscStatusText))]
+    public string OscStatusText
+    {
+        get;
+        private set
+        {
+            field = value;
+            NotifyPropertyChanged();
+        }
+    } = "";
+
+    private void RefreshOscStatus()
+    {
+        OscStatusText = GetOscStatusText();
+    }
+
     private string GetOscStatusText()
     {
         if (!Config.EnableOscServer) return Localization.Get("HRCOUNTER_SERVICE_STATUS_MENU_OSC_STATUS_DISABLED");
@@ -158,4 +209,6 @@ internal class ServiceStatusMenu : BaseConfigViewController
         return $"{Localization.Get("HRCOUNTER_SERVICE_STATUS_MENU_OSC_STATUS_ERROR")}\n" +
                $"{Localization.Get("HRCOUNTER_COMMON_CHECK_LOGS")}\n\n{_oscServer.ErrorMessage}";
     }
+
+    #endregion
 }
