@@ -15,14 +15,14 @@ public class OscHRHandler : IOSCMessageHandler
 
     internal event EventHandler<int>? HeartRatePosted;
 
-    public void HandleMessage(char[] arguments, byte[] data, int offset)
+    public void HandleMessage(ReadOnlySpan<byte> arguments, ReadOnlySpan<byte> data)
     {
         if (arguments.Length != 1 || arguments[0] != 'i')
         {
             return;
         }
 
-        if (OSCHelper.TryReadInt32(data, ref offset, out var number))
+        if (OSCHelper.TryReadInt32(ref data, out var number))
         {
             _ = Task.Run(() =>
             {

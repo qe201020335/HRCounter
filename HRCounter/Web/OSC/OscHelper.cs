@@ -1,44 +1,36 @@
-﻿using System.Text;
+﻿using System;
+using System.Buffers.Binary;
 
 namespace HRCounter.Web.OSC;
 
-public class OSCHelper
+internal static class OSCHelper
 {
-    public static string? ReadString(byte[] data, ref int offset)
+    public static bool TryReadString(ref ReadOnlySpan<byte> data, out ReadOnlySpan<byte> value)
     {
-        if (offset >= data.Length)
+        // null-terminated string
+        var end = data.IndexOf((byte)0);
+        if (end < 0)
         {
-            return null;
+            value = default;
+            return false;
         }
 
-        if (offset == data.Length - 1)
-        {
-            offset++;
-            return string.Empty;
-        }
-
-        var end = offset;
-        // I want to use strncpy so bad :(
-        for (; end < data.Length && data[end] != '\0'; end++)
-        {
-        }
-
-        var count = end - offset;
-        var s = Encoding.ASCII.GetString(data, offset, count);
-        offset = (end / 4 + 1) * 4; // align to the start of next 4 bytes
-        return s;
+        value = data[..end];
+        // pad to 4 bytes
+        data = data[((end & ~3) + 4)..];
+        return true;
     }
 
-    public static bool TryReadInt32(byte[] data, ref int offset, out int result)
+    public static bool TryReadInt32(ref ReadOnlySpan<byte> data, out int result)
     {
-        if (offset + 4 > data.Length)
+        if (data.Length < 4)
         {
             result = 0;
             return false;
         }
 
-        result = (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3];
-        offset += 4;
+        result = BinaryPrimitives.ReadInt32BigEndian(data);
+        data = data[4..];
         return true;
     }
 }
