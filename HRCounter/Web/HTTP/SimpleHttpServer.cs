@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,59 +8,33 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
-using HRCounter.Web.HTTP.Handlers;
 using IPA.Logging;
 using IPA.Utilities.Async;
 using Zenject;
 
 namespace HRCounter.Web.HTTP;
 
-internal class SimpleHttpServer : IInitializable, IDisposable
+internal class SimpleHttpServer : IInitializable, IDisposable, IHttpServer
 {
-    private readonly PluginConfig _config;
-    private readonly Logger _logger;
-    private readonly HttpListener _listener = new();
+    [Inject]
+    private readonly PluginConfig _config = null!;
+
+    [Inject]
+    private readonly Logger _logger = null!;
 
     /**
      * Path -> Method -> Handler
      */
-    private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<HttpMethod, IHttpRouteHandler>> _handlers;
+    private readonly ConcurrentDictionary<string, ConcurrentDictionary<HttpMethod, IHttpRouteHandler>> _handlers = [];
+
+    private HttpListener? _listener;
 
     public event Action? StatusChanged;
 
-    public bool IsLocalOnly { get; }
-    public int Port { get; }
-    public bool IsListening { get; private set; } = false;
+    public bool IsLocalOnly { get; private set; }
+    public int Port { get; private set; }
+    public bool IsListening => _listener != null;
     public string? ErrorMessage { get; private set; }
-
-    internal SimpleHttpServer(PluginConfig config, Logger logger, IHttpRouteHandler[] handlers)
-    {
-        _config = config;
-        _logger = logger;
-        IsLocalOnly = config.HttpLocalOnly;
-        Port = config.HttpPort;
-
-        var domain = IsLocalOnly ? "localhost" : "+";
-        var url = $"http://{domain}:{Port}/";
-        _listener.Prefixes.Add(url);
-
-        var handlersDict = new Dictionary<string, Dictionary<HttpMethod, IHttpRouteHandler>>();
-        foreach (var handler in handlers)
-        foreach (var (path, method) in handler.Routes)
-        {
-            if (!handlersDict.TryGetValue(NormalizedPath(path), out var methods))
-            {
-                methods = new Dictionary<HttpMethod, IHttpRouteHandler>();
-                handlersDict[path] = methods;
-            }
-
-            methods.Add(method, handler); // Will throw if duplicate routes with the same method
-        }
-
-        _handlers = handlersDict
-            .Select(pair => new KeyValuePair<string, IReadOnlyDictionary<HttpMethod, IHttpRouteHandler>>(pair.Key, pair.Value))
-            .ToDictionary(pair => pair.Key, pair => pair.Value); // make it read-only
-    }
 
     public void Initialize()
     {
@@ -71,12 +46,12 @@ internal class SimpleHttpServer : IInitializable, IDisposable
     {
         _config.PropertyChanged -= OnConfigChanged;
         StopListener();
-        _listener.Close();
     }
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(PluginConfig.EnableHttpServer))
+        if (string.IsNullOrEmpty(e.PropertyName) ||
+            e.PropertyName is nameof(PluginConfig.EnableHttpServer) or nameof(PluginConfig.HttpLocalOnly) or nameof(PluginConfig.HttpPort))
         {
             UpdateListener();
         }
@@ -84,61 +59,55 @@ internal class SimpleHttpServer : IInitializable, IDisposable
 
     private void UpdateListener()
     {
+        if (IsListening && (!_config.EnableHttpServer || IsLocalOnly != _config.HttpLocalOnly || Port != _config.HttpPort))
+        {
+            StopListener();
+        }
+
         if (_config.EnableHttpServer && !IsListening)
         {
             StartListener();
-        }
-        else if (!_config.EnableHttpServer && IsListening)
-        {
-            StopListener();
         }
     }
 
     private void StartListener()
     {
-        _logger.Debug("Starting listener");
-        if (IsListening)
-        {
-            _logger.Warn("Listener already started");
-            return;
-        }
-
+        IsLocalOnly = _config.HttpLocalOnly;
+        Port = _config.HttpPort;
+        _logger.Info($"Starting HTTP listener on port {Port}, local only: {IsLocalOnly}");
         try
         {
-            _listener.Start();
-            IsListening = true;
-            Task.Run(GetAndProcessRequests);
+            var listener = new HttpListener();
+            _listener = listener;
+            listener.Prefixes.Add($"http://{(IsLocalOnly ? "localhost" : "+")}:{Port}/");
+            listener.Start();
+            ErrorMessage = null;
+
+            Task.Run(() => GetAndProcessRequests(listener));
             InvokeStatusChanged();
-        }
-        catch (SocketException e)
-        {
-            if (e.SocketErrorCode == SocketError.AddressAlreadyInUse)
-            {
-                _logger.Error("The HTTP port is already in use.");
-                _logger.Debug(e);
-                StopListener("The HTTP port is already in use.");
-            }
-            else
-            {
-                _logger.Critical($"SocketException while trying to start HTTP listener:  ({e.SocketErrorCode})");
-                _logger.Critical(e);
-                StopListener(e.SocketErrorCode + "\n" + e.Message);
-            }
         }
         catch (Exception e)
         {
-            _logger.Error("Failed to start HTTP listener: " + e.Message);
+            var reason = e is SocketException { SocketErrorCode: SocketError.AddressAlreadyInUse }
+                ? "The HTTP port is already in use."
+                : e.Message;
+            _logger.Error($"Failed to start HTTP listener: {reason}");
             _logger.Error(e);
-            StopListener(e.Message);
+            StopListener(reason);
         }
     }
 
     private void StopListener(string? reason = null)
     {
-        _logger.Debug("Stopping listener");
-        IsListening = false;
-        if (_listener.IsListening) _listener.Stop();
+        _logger.Info("Stopping HTTP listener.");
         ErrorMessage = reason;
+        if (_listener != null)
+        {
+            if (_listener.IsListening) _listener.Stop();
+            _listener.Close();
+            _listener = null;
+        }
+
         InvokeStatusChanged();
     }
 
@@ -159,93 +128,67 @@ internal class SimpleHttpServer : IInitializable, IDisposable
         });
     }
 
-    private void GetAndProcessRequests()
+    private async Task GetAndProcessRequests(HttpListener listener)
     {
-        while (_listener.IsListening)
+        try
         {
-            try
+            while (true)
             {
-                var context = _listener.GetContext();
+                var context = await listener.GetContextAsync();
                 _ = Task.Run(() => ProcessRequestAsync(context));
             }
-            catch (ObjectDisposedException)
+        }
+        catch (Exception e)
+        {
+            _ = UnityMainThreadTaskScheduler.Factory.StartNew(() =>
             {
-                _logger.Trace("HTTP Listener was disposed.");
-                return;
-            }
-            catch (HttpListenerException e) when (e.ErrorCode == 500)
-            {
-                // Mono's HttpListener created this exception,
-                // the error code IS NOT a Win32 error code.
-                _logger.Trace("HTTP Listener was stopped.");
-                return;
-            }
-            catch (HttpListenerException e)
-            {
-                _logger.Error("HttpListenerException while trying to get context: " + e.Message);
+                if (_listener != listener) return; // we stopped it
+
+                _logger.Error("HTTP listener stopped unexpectedly.");
                 _logger.Error(e);
                 StopListener(e.Message);
-                return;
-            }
-            catch (Exception e)
-            {
-                _logger.Critical("Failed to receive and process a request. Stopping the http listener.");
-                _logger.Critical(e);
-                StopListener(e.Message);
-                return;
-            }
+            });
         }
     }
 
     private async Task ProcessRequestAsync(HttpListenerContext context)
     {
-        var path = context.Request.Url.AbsolutePath;
-        var method = context.Request.HttpMethod;
-
-        if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(method))
-        {
-            _logger.Warn("Empty path or method");
-            context.BadRequest();
-            return;
-        }
-
-        _logger.Trace($"{method}: {path}");
-
-        path = NormalizedPath(path);
-
         try
         {
-            if (_handlers.TryGetValue(path, out var methods))
-            {
-                if (methods.TryGetValue(new HttpMethod(method), out var handler))
-                {
-                    await handler.HandleRequestAsync(context);
-                }
-                else if (method == HttpMethod.Options.Method)
-                {
-                    // allows custom handlers to handle OPTIONS requests
-                    // if they don't, we'll just use the default implementation
-                    await HandleOptionsAsync(context, methods.Keys);
-                }
-                else
-                {
-                    _logger.Warn($"MethodNotAllowed: {method} @ {path}");
-                    context.MethodNotAllowed();
-                }
-            }
-            else
+            var path = NormalizedPath(context.Request.Url.AbsolutePath);
+            var method = context.Request.HttpMethod;
+            _logger.Trace($"{method}: {path}");
+
+            if (!_handlers.TryGetValue(path, out var methods) || methods.IsEmpty)
             {
                 _logger.Warn($"NotFound: {method} @ {path}");
                 context.NotFound();
+                return;
+            }
+
+            if (methods.TryGetValue(new HttpMethod(method), out var handler))
+            {
+                await handler.HandleRequestAsync(context);
+            }
+            else if (method == HttpMethod.Options.Method)
+            {
+                // allows custom handlers to handle OPTIONS requests
+                // if they don't, we'll just use the default implementation
+                HandleOptions(context, methods.Keys);
+            }
+            else
+            {
+                _logger.Warn($"MethodNotAllowed: {method} @ {path}");
+                context.MethodNotAllowed();
             }
         }
         catch (Exception e)
         {
-            _logger.Critical("Exception while handling request");
-            _logger.Critical(e);
+            _logger.Error("Exception while handling request");
+            _logger.Error(e);
             try
             {
-                await context.InternalServerErrorAsync(e);
+                await context.InternalServerErrorAsync(e.Message);
             }
             catch (Exception)
             {
@@ -255,7 +198,7 @@ internal class SimpleHttpServer : IInitializable, IDisposable
         }
     }
 
-    private Task HandleOptionsAsync(HttpListenerContext context, IEnumerable<HttpMethod> methods)
+    private void HandleOptions(HttpListenerContext context, IEnumerable<HttpMethod> methods)
     {
         var response = context.Response;
         var methodsStr = string.Join(", ", methods.Append(HttpMethod.Options).Select(m => m.Method).Distinct());
@@ -267,11 +210,36 @@ internal class SimpleHttpServer : IInitializable, IDisposable
         response.Headers.Add("Access-Control-Max-Age", "7200");
         response.StatusCode = (int)HttpStatusCode.NoContent;
         response.Close();
-        return Task.CompletedTask;
     }
 
-    private string NormalizedPath(string path)
+    private static string NormalizedPath(string path)
     {
         return path.Length > 1 ? path.TrimEnd('/') : path;
+    }
+
+    public void RegisterHandler(IHttpRouteHandler handler)
+    {
+        foreach (var (path, method) in handler.Routes)
+        {
+            var methods = _handlers.GetOrAdd(NormalizedPath(path), _ => new ConcurrentDictionary<HttpMethod, IHttpRouteHandler>());
+            if (!methods.TryAdd(method, handler))
+            {
+                _logger.Warn($"{method} @ {path} has already been registered");
+            }
+        }
+    }
+
+    public void UnregisterHandler(IHttpRouteHandler handler)
+    {
+        foreach (var methods in _handlers.Values)
+        {
+            foreach (var route in methods)
+            {
+                if (route.Value == handler)
+                {
+                    ((ICollection<KeyValuePair<HttpMethod, IHttpRouteHandler>>)methods).Remove(route);
+                }
+            }
+        }
     }
 }

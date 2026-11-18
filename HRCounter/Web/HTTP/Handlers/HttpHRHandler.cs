@@ -4,15 +4,28 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HRCounter.Data;
+using Zenject;
 
 namespace HRCounter.Web.HTTP.Handlers;
 
-internal class HttpHRHandler : IHttpRouteHandler
+internal class HttpHRHandler : IHttpRouteHandler, IInitializable, IDisposable
 {
-    public Tuple<string, HttpMethod>[] Routes { get; } =
-        [new("/hr", HttpMethod.Get), new("/hr", HttpMethod.Post)];
+    [Inject]
+    private readonly IHttpServer _server = null!;
 
-    internal event EventHandler<int>? HeartRatePosted;
+    public Tuple<string, HttpMethod>[] Routes { get; } = [new("/hr", HttpMethod.Get), new("/hr", HttpMethod.Post)];
+
+    internal event Action<int>? HeartRatePosted;
+
+    void IInitializable.Initialize()
+    {
+        _server.RegisterHandler(this);
+    }
+
+    void IDisposable.Dispose()
+    {
+        _server.UnregisterHandler(this);
+    }
 
     public async Task HandleRequestAsync(HttpListenerContext context)
     {
@@ -30,11 +43,8 @@ internal class HttpHRHandler : IHttpRouteHandler
             var truncated = new string(buffer, 0, numChars);
             if (int.TryParse(truncated, out var number))
             {
-                _ = Task.Run(() =>
-                {
-                    var e = HeartRatePosted;
-                    e?.Invoke(this, number);
-                });
+                var e = HeartRatePosted;
+                e?.Invoke(number);
 
                 await context.SendResponseAsync("OK");
             }

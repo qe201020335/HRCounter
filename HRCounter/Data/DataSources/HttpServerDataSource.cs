@@ -9,7 +9,7 @@ internal class HttpServerDataSource : DataSource
     [Inject]
     private readonly HttpHRHandler _httpHRHandler = null!;
 
-    private void HRDataPostedHandler(object sender, int num)
+    private void HRDataPostedHandler(int num)
     {
         OnHeartRateDataReceived(num);
     }

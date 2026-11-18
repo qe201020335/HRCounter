@@ -9,7 +9,7 @@ using Zenject;
 
 namespace HRCounter.Data.SourceDescriptors;
 
-internal class HttpServerDescriptor(SimpleHttpServer httpServer) : IDisposableSourceDescriptor<HttpServerDataSource>
+internal class HttpServerDescriptor(IHttpServer httpServer) : IDisposableSourceDescriptor<HttpServerDataSource>
 {
     private const string KEY = "HttpServer";
 

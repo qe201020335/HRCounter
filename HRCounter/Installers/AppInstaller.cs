@@ -48,7 +48,7 @@ public class AppInstaller : Installer<AppInstaller>
         Container.BindInterfacesAndSelfTo<PulsoidAuthenticator>().AsSingle();
 
         // Web stuff
-        Container.BindInterfacesAndSelfTo<SimpleHttpServer>().AsSingle();
+        Container.BindInterfacesTo<SimpleHttpServer>().AsSingle();
         Container.BindInterfacesTo<HttpConfigHandler>().AsSingle();
         Container.BindInterfacesAndSelfTo<HttpHRHandler>().AsSingle();
 

@@ -21,7 +21,7 @@ internal class ServiceStatusMenu : BaseConfigViewController
     private readonly IOscServer _oscServer = null!;
 
     [Inject]
-    private readonly SimpleHttpServer _httpServer = null!;
+    private readonly IHttpServer _httpServer = null!;
 
     [UIParams]
     private BSMLParserParams _parserParams = null!;
