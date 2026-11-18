@@ -33,6 +33,7 @@ internal class SimpleOscServer : IInitializable, IDisposable, IOscServer
     private volatile HandlerEntry[] _handlers = [];
 
     private Socket? _socket;
+    private IPEndPoint? _bindEndPoint;
 
     public event Action? StatusChanged;
 
@@ -60,7 +61,8 @@ internal class SimpleOscServer : IInitializable, IDisposable, IOscServer
 
     private void OnConfigChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(PluginConfig.EnableOscServer))
+        if (string.IsNullOrEmpty(e.PropertyName) ||
+            e.PropertyName is nameof(PluginConfig.EnableOscServer) or nameof(PluginConfig.OscBindIP) or nameof(PluginConfig.OscPort))
         {
             UpdateListener();
         }
@@ -68,24 +70,26 @@ internal class SimpleOscServer : IInitializable, IDisposable, IOscServer
 
     private void UpdateListener()
     {
+        if (IsListening && (!_config.EnableOscServer || !Equals(_bindEndPoint?.Address, _config.OscBindIP) || _bindEndPoint?.Port != _config.OscPort))
+        {
+            StopAndDisposeListener();
+        }
+
         if (_config.EnableOscServer && !IsListening)
         {
             StartListener();
-        }
-        else if (!_config.EnableOscServer && IsListening)
-        {
-            StopAndDisposeListener();
         }
     }
 
     private void StartListener()
     {
-        _logger.Info("Starting OSC Server.");
+        _logger.Info($"Starting OSC Server on {_config.OscBindIP}:{_config.OscPort}.");
         try
         {
             var endPoint = new IPEndPoint(_config.OscBindIP, _config.OscPort);
             var socket = new Socket(endPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
             _socket = socket;
+            _bindEndPoint = endPoint;
             socket.Bind(endPoint);
             ErrorMessage = null;
 
@@ -110,6 +114,7 @@ internal class SimpleOscServer : IInitializable, IDisposable, IOscServer
         ErrorMessage = reason;
         _socket?.Close(); // makes the blocking Receive throw
         _socket = null;
+        _bindEndPoint = null;
         InvokeStatusChanged();
     }
 
