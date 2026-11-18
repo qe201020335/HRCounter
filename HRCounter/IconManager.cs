@@ -89,10 +89,7 @@ internal class IconManager : IInitializable, IDisposable
 
     internal async Task<IList<Tuple<string, Sprite>>> GetIconsWithSpriteAsync(bool refresh)
     {
-        if (!UnityGame.OnMainThread)
-        {
-            throw new InvalidOperationException("This method can only be called from the main thread.");
-        }
+        ThreadGuard.EnsureOnMainThread();
 
         if (refresh)
         {

@@ -10,7 +10,6 @@ using HRCounter.Utils;
 using HRCounter.Web.HTTP;
 using HRCounter.Web.HTTP.Handlers;
 using HRCounter.Web.OSC;
-using HRCounter.Web.OSC.Handlers;
 using IPA.Loader;
 using IPA.Logging;
 using Zenject;
@@ -53,8 +52,7 @@ public class AppInstaller : Installer<AppInstaller>
         Container.BindInterfacesTo<HttpConfigHandler>().AsSingle();
         Container.BindInterfacesAndSelfTo<HttpHRHandler>().AsSingle();
 
-        Container.BindInterfacesAndSelfTo<SimpleOscServer>().AsSingle();
-        Container.BindInterfacesAndSelfTo<OscHRHandler>().AsSingle();
+        Container.BindInterfacesTo<SimpleOscServer>().AsSingle();
     }
 
     private Logger CreateChildLogger(InjectContext context)

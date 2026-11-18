@@ -18,7 +18,7 @@ internal class ServiceStatusMenu : BaseConfigViewController
     private readonly Logger _logger = null!;
 
     [Inject]
-    private readonly SimpleOscServer _oscServer = null!;
+    private readonly IOscServer _oscServer = null!;
 
     [Inject]
     private readonly SimpleHttpServer _httpServer = null!;

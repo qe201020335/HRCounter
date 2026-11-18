@@ -1,10 +1,18 @@
 ﻿using System;
 using System.Buffers.Binary;
+using JetBrains.Annotations;
 
 namespace HRCounter.Web.OSC;
 
-internal static class OSCHelper
+/// <summary>
+///     Helpers for reading OSC data. Each one advances <c>data</c> past the value it reads.
+/// </summary>
+public static class OscHelper
 {
+    /// <summary>
+    ///     Reads a null-terminated, 4-byte padded OSC string.
+    ///     The length of <c>data</c> must be a multiple of 4, or the padding skip can go out of range.
+    /// </summary>
     public static bool TryReadString(ref ReadOnlySpan<byte> data, out ReadOnlySpan<byte> value)
     {
         // null-terminated string
@@ -21,6 +29,9 @@ internal static class OSCHelper
         return true;
     }
 
+    /// <summary>
+    ///     Reads a big-endian OSC int32.
+    /// </summary>
     public static bool TryReadInt32(ref ReadOnlySpan<byte> data, out int result)
     {
         if (data.Length < 4)

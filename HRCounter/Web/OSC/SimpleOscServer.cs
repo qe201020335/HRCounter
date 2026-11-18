@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -8,49 +8,42 @@ using System.Threading;
 using System.Threading.Tasks;
 using HRCounter.Configuration;
 using HRCounter.Utils;
-using HRCounter.Web.OSC.Handlers;
 using IPA.Logging;
 using IPA.Utilities.Async;
 using Zenject;
 
 namespace HRCounter.Web.OSC;
 
-internal class SimpleOscServer : IInitializable, IDisposable
+internal class SimpleOscServer : IInitializable, IDisposable, IOscServer
 {
     private const int RECEIVE_BUFFER_SIZE = 65535; // 64KB is larger than UDP datagram's maximum size
 
     private readonly PluginConfig _config;
     private readonly Logger _logger;
-    private readonly IReadOnlyDictionary<string, IOSCMessageHandler> _handlers;
+
+    /// <summary>
+    ///     A set of registered handlers. This must only be touched on the main thread.
+    /// </summary>
+    private readonly System.Collections.Generic.HashSet<IOscMessageHandler> _registeredHandlers = [];
+
+    /// <summary>
+    ///     The current address mappings for the registered handlers.
+    ///     This array instance will be replaced on change, and can be read from any thread.
+    /// </summary>
+    private volatile HandlerEntry[] _handlers = [];
 
     private Socket? _socket;
 
     public event Action? StatusChanged;
 
     public bool IsListening => _socket != null;
-    internal IPEndPoint? EndPoint => (IPEndPoint?)_socket?.LocalEndPoint;
+    public IPEndPoint? EndPoint => (IPEndPoint?)_socket?.LocalEndPoint;
     public string? ErrorMessage { get; private set; }
 
-    public SimpleOscServer(PluginConfig config, Logger logger, IOSCMessageHandler[] handlers)
+    internal SimpleOscServer(PluginConfig config, Logger logger)
     {
         _config = config;
         _logger = logger;
-
-        var handlersDict = new Dictionary<string, IOSCMessageHandler>();
-        foreach (var handler in handlers)
-        {
-            foreach (var address in handler.Address)
-            {
-                if (!handlersDict.TryAdd(address, handler))
-                {
-                    _logger.Error($"Duplicate OSC handler for address '{address}'");
-                    throw new InvalidOperationException($"Duplicate OSC handler for address '{address}'");
-                }
-            }
-        }
-
-
-        _handlers = handlersDict;
     }
 
     public void Initialize()
@@ -176,33 +169,120 @@ internal class SimpleOscServer : IInitializable, IDisposable
             if (data[0] != '/') return; // We don't support bundles (#) in this simple osc server
 
             //b'address_,i__nnnn'
-            if (!OSCHelper.TryReadString(ref data, out var addressBytes))
+            if (!OscHelper.TryReadString(ref data, out var address))
             {
                 _logger.Warn("Failed to read OSC method address from message.");
                 return;
             }
 
-            if (data.IsEmpty || data[0] != ',' || !OSCHelper.TryReadString(ref data, out var arguments))
+            if (data.IsEmpty || data[0] != ',' || !OscHelper.TryReadString(ref data, out var arguments))
             {
                 _logger.Warn("Failed to read OSC arguments from message.");
                 return;
             }
 
             arguments = arguments[1..]; // skip the leading comma
-            var address = Encoding.ASCII.GetString(addressBytes); // TODO compare address by bytes instead of creating a string
-            _logger.Spam($"Received OSC message at '{address}' with arguments '{Encoding.ASCII.GetString(arguments)}'");
+            _logger.Spam($"Received OSC message at '{Encoding.ASCII.GetString(address)}' with arguments '{Encoding.ASCII.GetString(arguments)}'");
 
-            if (!_handlers.TryGetValue(address, out var handler))
+            if (FindHandler(address) is { } handler)
             {
-                return;
+                handler.HandleMessage(arguments, data);
             }
-
-            handler.HandleMessage(arguments, data);
         }
         catch (Exception e)
         {
             _logger.Error("Failed to handle OSC message.");
             _logger.Error(e);
         }
+    }
+
+    private IOscMessageHandler? FindHandler(ReadOnlySpan<byte> address)
+    {
+        var handlers = _handlers;
+        foreach (var entry in handlers)
+        {
+            if (address.SequenceEqual(entry.Address))
+            {
+                return entry.Handler;
+            }
+        }
+
+        return null;
+    }
+
+    public void RegisterHandler(IOscMessageHandler handler)
+    {
+        ThreadGuard.EnsureOnMainThread();
+
+        _logger.Debug($"Registering handler {handler}");
+        if (!_registeredHandlers.Add(handler))
+        {
+            _logger.Warn($"Handler {handler} is already registered.");
+            return;
+        }
+
+        UpdateHandlerEntries(handler, true);
+    }
+
+    public void UnregisterHandler(IOscMessageHandler handler)
+    {
+        ThreadGuard.EnsureOnMainThread();
+
+        _logger.Debug($"Unregistering handler {handler}");
+        if (!_registeredHandlers.Remove(handler))
+        {
+            _logger.Warn($"Handler {handler} is not registered.");
+            return;
+        }
+
+        UpdateHandlerEntries(handler, false);
+    }
+
+    public void UpdateHandler(IOscMessageHandler handler)
+    {
+        ThreadGuard.EnsureOnMainThread();
+
+        _logger.Debug($"Updating addresses for handler {handler}");
+        if (!_registeredHandlers.Contains(handler))
+        {
+            _logger.Warn($"Handler {handler} is not registered.");
+            return;
+        }
+
+        UpdateHandlerEntries(handler, true);
+    }
+
+    private void UpdateHandlerEntries(IOscMessageHandler handler, bool include)
+    {
+        var entries = _handlers.Where(entry => entry.Handler != handler).ToList();
+        if (include)
+        {
+            foreach (var address in handler.Addresses)
+            {
+                if (string.IsNullOrEmpty(address) || address[0] != '/')
+                {
+                    _logger.Warn($"Ignoring invalid OSC address '{address}' for handler {handler}.");
+                    continue;
+                }
+
+                var bytes = Encoding.ASCII.GetBytes(address);
+                if (entries.Any(entry => entry.Address.AsSpan().SequenceEqual(bytes)))
+                {
+                    _logger.Warn($"OSC address '{address}' has already been registered, ignoring duplicated address for handler {handler}.");
+                }
+                else
+                {
+                    entries.Add(new HandlerEntry(bytes, handler));
+                }
+            }
+        }
+
+        _handlers = [.. entries];
+    }
+
+    private readonly struct HandlerEntry(byte[] address, IOscMessageHandler handler)
+    {
+        public readonly byte[] Address = address;
+        public readonly IOscMessageHandler Handler = handler;
     }
 }

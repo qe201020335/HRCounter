@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using BGLib.Polyglot;
@@ -10,14 +11,9 @@ using Zenject;
 
 namespace HRCounter.Data.SourceDescriptors;
 
-internal class OscDescriptor(PluginConfig config, SimpleOscServer oscServer) : IDisposableSourceDescriptor<OscHR>
+internal class OscDescriptor(PluginConfig config, IOscServer oscServer) : IDisposableSourceDescriptor<OscHR>
 {
     private const string KEY = "OSC Protocol";
-
-    // changing addresses require soft restart to be in-effect, soft restart will also recreate the data source manager which will recreate this
-    // can't be created during ctor or Zenject [Inject], this object is created during game app init, localization resources have not been loaded yet
-    private readonly Lazy<string> _text = new(() =>
-        Localization.Get("HRCOUNTER_OSC_SOURCE_DESCRIPTOR_ADDRESSES") + "\n  " + string.Join("\n  ", config.OscAddress));
 
     public string Key => KEY;
 
@@ -37,11 +33,21 @@ internal class OscDescriptor(PluginConfig config, SimpleOscServer oscServer) : I
     private void Init()
     {
         oscServer.StatusChanged += OnServerStatusChanged;
+        config.PropertyChanged += OnConfigChanged;
     }
 
     public void Dispose()
     {
         oscServer.StatusChanged -= OnServerStatusChanged;
+        config.PropertyChanged -= OnConfigChanged;
+    }
+
+    private void OnConfigChanged(object? _, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(PluginConfig.OscAddress))
+        {
+            StatusChanged?.Invoke();
+        }
     }
 
     private void OnServerStatusChanged()
@@ -50,7 +56,9 @@ internal class OscDescriptor(PluginConfig config, SimpleOscServer oscServer) : I
     }
 
     public Task<string> GetStatusText(CancellationToken cancellationToken) =>
-        Task.FromResult(oscServer.IsListening ? _text.Value : Localization.Get("HRCOUNTER_OSC_SOURCE_DESCRIPTOR_NOT_LISTENING"));
+        Task.FromResult(oscServer.IsListening
+            ? Localization.Get("HRCOUNTER_OSC_SOURCE_DESCRIPTOR_ADDRESSES") + "\n  " + string.Join("\n  ", config.OscAddress)
+            : Localization.Get("HRCOUNTER_OSC_SOURCE_DESCRIPTOR_NOT_LISTENING"));
 
     public bool PreconditionMet() => true;
 }
