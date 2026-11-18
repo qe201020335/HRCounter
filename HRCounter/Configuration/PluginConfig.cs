@@ -392,7 +392,7 @@ internal class PluginConfig : INotifyPropertyChanged
         _enableOscServer = other._enableOscServer;
         _oscBindIp = other._oscBindIp;
         _oscPort = other._oscPort;
-        _oscAddress = other._oscAddress;
+        _oscAddress = [.. other._oscAddress];
         _httpLocalOnly = other._httpLocalOnly;
         _httpPort = other._httpPort;
         _httpAllowConfig = other._httpAllowConfig;

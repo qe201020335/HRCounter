@@ -19,7 +19,7 @@ internal class HttpConfigHandler : IHttpRouteHandler
     [Inject]
     private readonly Logger _logger = null!;
 
-    private readonly JsonSerializer _serializer = new();
+    private readonly JsonSerializer _serializer = new() { ObjectCreationHandling = ObjectCreationHandling.Replace };
 
     public Tuple<string, HttpMethod>[] Routes { get; } =
         [new("/config", HttpMethod.Get), new("/config", HttpMethod.Post)];
