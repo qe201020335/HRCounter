@@ -59,19 +59,14 @@ internal class Pulsoid : DataSource
     private void HandleSuccess(JObject json)
     {
         var hr = json["data"]?["heart_rate"]?.ToObject<int>();
-        var measuredAt = json["measured_at"]?.ToObject<string>();
 
         if (hr == null)
         {
             _logger.Warn("No hr data");
         }
-        else if (measuredAt == null)
-        {
-            OnHeartRateDataReceived(hr.Value);
-        }
         else
         {
-            OnHeartRateDataReceived(hr.Value, measuredAt);
+            OnHeartRateDataReceived(hr.Value);
         }
     }
 

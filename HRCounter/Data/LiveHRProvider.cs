@@ -22,14 +22,14 @@ internal class LiveHRProvider : IInGameHRProvider, IDisposable
     private void Init()
     {
         if (_hrDataManager == null) return;
-        _hrDataManager.OnHRUpdate += OnHRUpdated;
-        _currentHR = _hrDataManager.CurrentBpm;
+        _hrDataManager.HRUpdated += OnHRUpdated;
+        _currentHR = HRDataManager.CurrentBpm;
     }
 
     void IDisposable.Dispose()
     {
         if (_hrDataManager == null) return;
-        _hrDataManager.OnHRUpdate -= OnHRUpdated;
+        _hrDataManager.HRUpdated -= OnHRUpdated;
     }
 
     private void OnHRUpdated(int hr)

@@ -25,7 +25,7 @@ internal class GamePauseController : IInitializable, IDisposable
     {
         if (_hrDataManager != null && _songControl != null)
         {
-            _hrDataManager.OnHRUpdate += OnHRUpdate;
+            _hrDataManager.HRUpdated += OnHRUpdate;
         }
     }
 
@@ -33,7 +33,7 @@ internal class GamePauseController : IInitializable, IDisposable
     {
         if (_hrDataManager != null)
         {
-            _hrDataManager.OnHRUpdate -= OnHRUpdate;
+            _hrDataManager.HRUpdated -= OnHRUpdate;
         }
 
         _logger.Debug("GamePauseController got yeeted.");

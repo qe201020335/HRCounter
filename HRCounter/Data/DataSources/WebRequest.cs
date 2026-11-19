@@ -75,17 +75,9 @@ internal sealed class WebRequest : DataSource
                     else
                     {
                         var hr = bpmToken.ToObject<int>();
-                        var timestamp = json["measured_at"]?.ToObject<string>();
                         if (_updating)
                         {
-                            if (timestamp == null)
-                            {
-                                OnHeartRateDataReceived(hr);
-                            }
-                            else
-                            {
-                                OnHeartRateDataReceived(hr, timestamp);
-                            }
+                            OnHeartRateDataReceived(hr);
                         }
                     }
                 }

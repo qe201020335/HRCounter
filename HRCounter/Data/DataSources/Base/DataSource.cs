@@ -11,20 +11,12 @@ public abstract class DataSource : IHRDataSource, IInitializable, IDisposable
 
     public virtual bool AllowReplayRecording => true;
 
-    public event EventHandler<HRDataReceivedEventArgs>? OnHRDataReceived;
+    public event EventHandler<int>? HRDataReceived;
 
-    protected void OnHeartRateDataReceived(int hr, string? receivedAt = null)
+    protected void OnHeartRateDataReceived(int hr)
     {
-        try
-        {
-            var handler = OnHRDataReceived;
-            handler?.Invoke(this, new HRDataReceivedEventArgs(hr, receivedAt));
-        }
-        catch (Exception e)
-        {
-            Plugin.Logger.Critical($"Exception Caught while broadcasting hr update event: {e.Message}");
-            Plugin.Logger.Critical(e);
-        }
+        var handler = HRDataReceived;
+        handler?.Invoke(this, hr);
     }
 
     public virtual void Initialize()

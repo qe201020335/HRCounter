@@ -32,7 +32,7 @@ internal class HttpHRHandler : IHttpRouteHandler, IInitializable, IDisposable
         var request = context.Request;
         if (request.HttpMethod == HttpMethod.Get.Method)
         {
-            var s = BPM.Bpm.ToString();
+            var s = HRDataManager.CurrentBpm.ToString();
             await context.SendResponseAsync(s);
         }
         else if (request.HttpMethod == HttpMethod.Post.Method)

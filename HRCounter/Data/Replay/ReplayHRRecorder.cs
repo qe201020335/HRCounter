@@ -51,7 +51,7 @@ public class ReplayHRRecorder : IInitializable, IDisposable
         var songLength = _audioTimeSyncController.songLength;
         // preallocate size for 2 hr updates per second
         _data.Capacity = (int)songLength * 2;
-        _hrDataManager.OnHRUpdate += OnHRUpdated;
+        _hrDataManager.HRUpdated += OnHRUpdated;
         _replayRecorder.OnFinalizeReplay += OnFinalizeReplay;
         _logger.Info("Start recording heart rate for replay");
     }
@@ -65,7 +65,7 @@ public class ReplayHRRecorder : IInitializable, IDisposable
         }
         if (_hrDataManager != null)
         {
-            _hrDataManager.OnHRUpdate -= OnHRUpdated;
+            _hrDataManager.HRUpdated -= OnHRUpdated;
         }
     }
 

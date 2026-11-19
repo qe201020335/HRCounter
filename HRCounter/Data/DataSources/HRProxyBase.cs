@@ -73,9 +73,7 @@ internal abstract class HRProxyBase : WebSocketSource
             }
             else if ((hr = json["hr"]?.ToObject<int?>()) != null)
             {
-                // {"reader": "","identifier": "","hr": "0","timestamp": "0"}
-                var timestamp = json["timestamp"]?.ToObject<string>();
-                OnHeartRateDataReceived(hr.Value, timestamp);
+                OnHeartRateDataReceived(hr.Value);
             }
             else
             {

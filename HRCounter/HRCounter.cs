@@ -76,7 +76,7 @@ internal abstract class HRCounter
     private void OnHRUpdate(int bpm)
     {
         _counterText.color = Config.Colorize ? RenderUtils.DetermineColor(bpm) : Color.white;
-        _counterText.text = bpm.ToString();
+        _counterText.SetText("{0}", bpm); // use the template to avoid heap alloc for a string
     }
 
     private void OnSettingChange(object? sender, PropertyChangedEventArgs args)
